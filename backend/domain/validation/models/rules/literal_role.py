@@ -3,7 +3,7 @@ class LiteralRole:
         self.value = value
 
     def execute(self):
-        if self.value not in ['owner', 'clue']:
-            raise ValueError('値は「owner」または「clue」でなければなりません。')
+        if self.value not in ['owner', 'crew']:
+            raise ValueError('値は「owner」または「crew」でなければなりません。')
         
         return self.value
