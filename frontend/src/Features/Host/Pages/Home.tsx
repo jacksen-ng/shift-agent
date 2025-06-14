@@ -36,13 +36,13 @@ const Home: React.FC = () => {
             店舗情報
           </button>
           <button
-            onClick={() => handleNavigate('/host/employee')}
+            onClick={() => handleNavigate('/host/crew-info')}
             className="py-6 px-4 text-lg font-semibold text-black bg-white border border-gray-300 rounded-xl shadow-md hover:bg-gray-100 transition duration-200"
           >
             従業員情報
           </button>
           <button
-            onClick={() => handleNavigate('/host/shift')}
+            onClick={() => handleNavigate('/host/shit')}
             className="py-6 px-4 text-lg font-semibold text-black bg-white border border-gray-300 rounded-xl shadow-md hover:bg-gray-100 transition duration-200"
           >
             シフト

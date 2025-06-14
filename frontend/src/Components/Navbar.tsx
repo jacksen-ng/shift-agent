@@ -14,7 +14,7 @@ const Navbar = () => {
         <button className="text-gray-700 hover:text-mint" onClick={() => navigate('/host/store-info')}>
           店舗情報
         </button>
-        <button className="text-gray-700 hover:text-mint" onClick={() => navigate('/host/employee-list')}>
+        <button className="text-gray-700 hover:text-mint" onClick={() => navigate('/host/crew-info')}>
           従業員情報
         </button>
         <button className="text-gray-700 hover:text-mint" onClick={() => navigate('/host/shift-submit')}>
