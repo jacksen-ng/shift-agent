@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { fetchCrewInfo } from '../../../Services/CrewService';
+import { useNavigate } from 'react-router-dom';
+
 
 interface CrewProfile {
   name: string;
@@ -14,6 +16,7 @@ interface CrewProfile {
 }
 
 const CrewInfo = () => {
+  const navigate = useNavigate();
   const [crewList, setCrewList] = useState<CrewProfile[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -51,6 +54,12 @@ const CrewInfo = () => {
             <p><strong>入社日:</strong> {crew.join_company_day}</p>
             <p><strong>時給:</strong> ¥{crew.hour_pay}</p>
             <p><strong>雇用形態:</strong> {crew.post}</p>
+            <button
+            onClick={() => navigate(`/host/crew-edit/${crew.name}`)}
+            className="mt-2 text-blue-400 underline hover:text-blue-200"
+    >
+      編集
+    </button>
           </div>
         ))}
       </div>
