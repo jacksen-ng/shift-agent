@@ -1,19 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 
 const StoreInfo = () => {
-  const location = useLocation();
   const [storeData, setStoreData] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<any>({});
 
+  // ✅ 店舗情報を取得
   useEffect(() => {
-    if (location.state?.storeData) {
-      setStoreData(location.state.storeData);
-      setFormData(location.state.storeData);
-    }
-  }, [location.state]);
+    const fetchStoreData = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/company-info', {
+          params: { company_id: 'dummy_company' },
+          headers: {
+            Authorization: 'Bearer dummy_token',
+          },
+        });
+        setStoreData(response.data);
+        setFormData(response.data);
+      } catch (error) {
+        console.error('店舗情報の取得に失敗しました', error);
+      }
+    };
+
+    fetchStoreData();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
