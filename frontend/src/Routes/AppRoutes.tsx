@@ -1,4 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
+import Login from '../Features/Auth/Login';
+import HostRegister from '../Features/Auth/HostRegister';
 import HostHome from '../Features/Host/Pages/Home';
 import StoreInfo from '../Features/Host/Pages/StoreInfo';
 import CrewInfo from '../Features/Host/Pages/CrewInfo';
@@ -8,6 +10,21 @@ import ShiftSubmit from '../Features/Crew/Pages/ShiftSubmit';
 const AppRoutes = () => {
   return (
     <Routes>
+      {/* 共通認証系 */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register/host" element={<HostRegister />} />
+   
+
+
+
+     
+
+      {/* ホスト画面 */}
+      <Route path="/host/home" element={<HostHome />} />
+      {/* 他のホストルートもここに記載 */}
+
+      {/* クルー画面 */}
+      <Route path="/crew/home" element={<CrewHome />} />
       {/* ホスト用 */}
       <Route path="/host/home" element={<HostHome />} />
       <Route path="/host/store-info" element={<StoreInfo />} />
