@@ -3,7 +3,6 @@ import axios from 'axios';
 import { fetchCrewInfo } from '../../../Services/CrewService';
 import { useNavigate } from 'react-router-dom';
 
-
 interface CrewProfile {
   name: string;
   age: number;
@@ -42,7 +41,15 @@ const CrewInfo = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">従業員一覧</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">従業員一覧</h1>
+        <button
+          onClick={() => navigate('/host/crew/add')}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          ＋追加
+        </button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {crewList.map((crew, index) => (
           <div key={index} className="border p-4 rounded shadow bg-white text-black">
@@ -55,11 +62,11 @@ const CrewInfo = () => {
             <p><strong>時給:</strong> ¥{crew.hour_pay}</p>
             <p><strong>雇用形態:</strong> {crew.post}</p>
             <button
-            onClick={() => navigate(`/host/crew-edit/${crew.name}`)}
-            className="mt-2 text-blue-400 underline hover:text-blue-200"
-    >
-      編集
-    </button>
+              onClick={() => navigate(`/host/crew-edit/${crew.name}`)}
+              className="mt-2 text-blue-400 underline hover:text-blue-200"
+            >
+              編集
+            </button>
           </div>
         ))}
       </div>
