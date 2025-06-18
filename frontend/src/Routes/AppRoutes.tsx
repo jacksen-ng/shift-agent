@@ -6,6 +6,8 @@ import StoreInfo from '../Features/Host/Pages/StoreInfo';
 import CrewInfo from '../Features/Host/Pages/CrewInfo';
 import CrewHome from '../Features/Crew/Pages/CrewHome';
 import ShiftSubmit from '../Features/Crew/Pages/ShiftSubmit';
+import CrewAdd from '../Features/Host/Pages/CrewCreate';
+
 
 const AppRoutes = () => {
   return (
@@ -29,6 +31,7 @@ const AppRoutes = () => {
       <Route path="/host/home" element={<HostHome />} />
       <Route path="/host/store-info" element={<StoreInfo />} />
       <Route path="/host/crew-info" element={<CrewInfo />} />
+      <Route path="/host/crew/add" element={<CrewAdd />} /> 
 
       {/* クルー用 */}
       <Route path="/crew/home" element={<CrewHome />} /> 
