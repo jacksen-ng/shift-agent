@@ -1,0 +1,12 @@
+specVersion: "v1"
+serviceId: "jacksen-server-b595c-service"
+location: "asia-northeast1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "jacksen-server-b595c-database"
+      cloudSql:
+        instanceId: "jacksen-server-b595c-instance"
+      # schemaValidation: "COMPATIBLE"
+connectorDirs: ["./connector"]

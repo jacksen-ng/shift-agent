@@ -1,1 +1,6 @@
 typing_extensions
+firebase-admin
+google-cloud-firestore
+python-dotenv
+PyYAML
+requests
