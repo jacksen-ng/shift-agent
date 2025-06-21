@@ -1,0 +1,21 @@
+specVersion: "v1"
+serviceId: "jacksen-server-service"
+location: "asia-northeast1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "jacksen-server-database"
+      cloudSql:
+        instanceId: "jacksen-server"
+      # schemaValidation: "COMPATIBLE"
+connectorDirs:
+  - "./connectors/company"
+  - "./connectors/company_position"
+  - "./connectors/company_rest_day"
+  - "./connectors/decision_shift"
+  - "./connectors/edit_shift"
+  - "./connectors/evaluate_decision_shift"
+  - "./connectors/submitted_shift"
+  - "./connectors/user"
+  - "./connectors/user_profile"

@@ -1,0 +1,6 @@
+query listAllCompanies @auth(level: PUBLIC) {
+  companies {
+    companyId
+    companyName
+  }
+}

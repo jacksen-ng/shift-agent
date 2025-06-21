@@ -4,3 +4,7 @@ google-cloud-firestore
 python-dotenv
 PyYAML
 requests
+google-cloud-secret-manager
+psycopg2-binary
+sqlalchemy
+python-dotenv

@@ -1,0 +1,126 @@
+# 会社情報
+type Company @table(name: "companies", key: "companyId") {
+    companyId: UUID!
+    companyName: String!
+    storeLocate: String!
+    openTime: String!
+    closeTime: String!
+    targetSales: Int!
+    laborCost: Int!
+}
+
+# 会社の役職
+type CompanyPosition @table(name: "company_positions", key: "companyPositionId") {
+    companyPositionId: UUID!
+    companyId: UUID!
+    positionName: String!
+    company: Company
+}
+
+# 会社の休日
+type CompanyRestDay @table(name: "company_rest_days", key: "companyRestDayId") {
+    companyRestDayId: UUID!
+    companyId: UUID!
+    restDay: String!
+    company: Company
+}
+
+# 確定シフト
+type DecisionShift @table(name: "decision_shifts", key: "decisionShiftId") {
+    decisionShiftId: UUID!
+    userId: UUID!
+    companyId: UUID!
+    day: Date!
+    startTime: String!
+    finishTime: String!
+    user: User
+    company: Company
+}
+
+# 編集中のシフト
+type EditShift @table(name: "edit_shifts", key: "editShiftId") {
+    editShiftId: UUID!
+    userId: UUID!
+    companyId: UUID!
+    day: Date!
+    startTime: String!
+    finishTime: String!
+    user: User
+    company: Company
+}
+
+# 確定シフトの評価
+type EvaluateDecisionShift @table(name: "evaluate_decision_shifts", key: "evaluateDecisionShiftId") {
+    evaluateDecisionShiftId: UUID!
+    startDay: Date!
+    finishDay: Date!
+    evaluate: EvaluateRating!
+}
+
+# 提出済みシフト
+type SubmittedShift @table(name: "submitted_shifts", key: "submittedShiftId") {
+    submittedShiftId: UUID!
+    userId: UUID!
+    companyId: UUID!
+    day: Date!
+    startTime: String!
+    finishTime: String!
+    user: User
+    company: Company
+}
+
+# ユーザー
+type User @table(name: "users", key: "userId") {
+    userId: UUID!
+    companyId: UUID!
+    email: String!
+    firebaseUid: String!
+    role: UserRole!
+    company: Company
+}
+
+# ユーザープロフィール
+type UserProfile @table(name: "user_profiles", key: "userProfileId") {
+    userProfileId: UUID!
+    userId: UUID!
+    companyId: UUID!
+    name: String!
+    age: Int!
+    phone: String!
+    position: String!
+    evaluate: EvaluateRating!
+    experience: Experience!
+    hourPay: Int!
+    post: PostRole!
+    user: User
+    company: Company
+}
+
+# --- Enums ---
+
+# 評価
+enum EvaluateRating {
+    ONE
+    TWO
+    THREE
+    FOUR
+    FIVE
+}
+
+# 経験
+enum Experience {
+    BEGINNER
+    VETERAN
+}
+
+# 役職
+enum PostRole {
+    PART_TIMER
+    EMPLOYEE
+}
+
+# ユーザーロール
+enum UserRole {
+    OWNER
+    CREW
+} 
