@@ -9,4 +9,4 @@ class Company(Base):
     open_time = Column(Time)
     close_time = Column(Time)
     target_sales = Column(Integer)
-    laber_cost = Column(Integer)
+    labor_cost = Column(Integer)
