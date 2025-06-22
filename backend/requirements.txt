@@ -1,10 +1,9 @@
-typing_extensions
+sqlalchemy
+google-cloud-secret-manager
+google-cloud-sql-connector[pg8000]
 firebase-admin
 google-cloud-firestore
 python-dotenv
 PyYAML
 requests
-google-cloud-secret-manager
-psycopg2-binary
-sqlalchemy
-python-dotenv
+typing_extensions
