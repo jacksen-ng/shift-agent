@@ -1,1 +1,9 @@
+sqlalchemy
+google-cloud-secret-manager
+google-cloud-sql-connector[pg8000]
+firebase-admin
+google-cloud-firestore
+python-dotenv
+PyYAML
+requests
 typing_extensions
