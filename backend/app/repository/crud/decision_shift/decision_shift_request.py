@@ -28,9 +28,9 @@ def decision_shift_request(company_id:int):
                 "name": r.name,
                 "position": r.position,
                 "post": r.post,
-                "day": r.day,
-                "start_time": r.start_time,
-                "finish_time": r.finish_time
+                "day": r.day.isoformat() if r.day else None,
+                "start_time": r.start_time.strftime("%H:%M") if r.start_time else None,
+                "finish_time": r.finish_time.strftime("%H:%M") if r.finish_time else None
             }
             for r in shift_results
         ]
