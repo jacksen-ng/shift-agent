@@ -1,0 +1,350 @@
+{
+    "company": {
+        "company_id": 1,
+        "open_time": "09:00",
+        "close_time": "23:00",
+        "rest_day": {
+            "rest_day_1": "2025-07-01",
+            "rest_day_2": "2025-07-08",
+            "rest_day_3": "2025-07-15"
+        },
+        "labor_cost": 670000,
+        "comment": "佐藤さんと鈴木さんはできるだけ同じシフトに入れないでください。新人の田中さんは、必ずベテランの誰かと組ませてください。"
+    },
+    "worker": {
+        "worker_1": {
+            "user_id": 101,
+            "name": "高橋 康成",
+            "evaluate": 5,
+            "position": "キッチン, ホール, レジ",
+            "experient": "ベテラン",
+            "post": "正社員",
+            "hour_pay": 1500,
+            "shift": {
+                "shift_1": {
+                    "shift_id": 1001,
+                    "day": "2025-07-02",
+                    "start": "11:00",
+                    "finish": "20:00"
+                },
+                "shift_2": {
+                    "shift_id": 1002,
+                    "day": "2025-07-03",
+                    "start": "11:00",
+                    "finish": "20:00"
+                },
+                "shift_3": {
+                    "shift_id": 1003,
+                    "day": "2025-07-04",
+                    "start": "14:00",
+                    "finish": "23:00"
+                },
+                "shift_4": {
+                    "shift_id": 1004,
+                    "day": "2025-07-07",
+                    "start": "09:00",
+                    "finish": "18:00"
+                },
+                "shift_5": {
+                    "shift_id": 1005,
+                    "day": "2025-07-10",
+                    "start": "11:00",
+                    "finish": "20:00"
+                },
+                "shift_6": {
+                    "shift_id": 1006,
+                    "day": "2025-07-13",
+                    "start": "14:00",
+                    "finish": "23:00"
+                }
+            }
+        },
+        "worker_2": {
+            "user_id": 102,
+            "name": "佐藤 照明",
+            "evaluate": 4,
+            "position": "キッチン, ホール, レジ",
+            "experient": "ベテラン",
+            "post": "アルバイト",
+            "hour_pay": 1250,
+            "shift": {
+                "shift_1": {
+                    "shift_id": 2001,
+                    "day": "2025-07-02",
+                    "start": "17:00",
+                    "finish": "23:00"
+                },
+                "shift_2": {
+                    "shift_id": 2002,
+                    "day": "2025-07-03",
+                    "start": "11:00",
+                    "finish": "18:00"
+                },
+                "shift_3": {
+                    "shift_id": 2003,
+                    "day": "2025-07-05",
+                    "start": "12:00",
+                    "finish": "21:00"
+                },
+                "shift_4": {
+                    "shift_id": 2004,
+                    "day": "2025-07-09",
+                    "start": "17:00",
+                    "finish": "23:00"
+                },
+                "shift_5": {
+                    "shift_id": 2005,
+                    "day": "2025-07-12",
+                    "start": "09:00",
+                    "finish": "18:00"
+                }
+            }
+        },
+        "worker_3": {
+            "user_id": 103,
+            "name": "鈴木 一浪",
+            "evaluate": 4,
+            "position": "キッチン, ホール",
+            "experient": "中堅",
+            "post": "アルバイト",
+            "hour_pay": 1200,
+            "shift": {
+                "shift_1": {
+                    "shift_id": 3001,
+                    "day": "2025-07-03",
+                    "start": "17:00",
+                    "finish": "23:00"
+                },
+                "shift_2": {
+                    "shift_id": 3002,
+                    "day": "2025-07-06",
+                    "start": "11:00",
+                    "finish": "23:00"
+                },
+                "shift_3": {
+                    "shift_id": 3003,
+                    "day": "2025-07-09",
+                    "start": "11:00",
+                    "finish": "20:00"
+                },
+                "shift_4": {
+                    "shift_id": 3004,
+                    "day": "2025-07-11",
+                    "start": "17:00",
+                    "finish": "23:00"
+                },
+                "shift_5": {
+                    "shift_id": 3005,
+                    "day": "2025-07-14",
+                    "start": "09:00",
+                    "finish": "18:00"
+                }
+            }
+        },
+        "worker_4": {
+            "user_id": 104,
+            "name": "田中 昌弘",
+            "evaluate": 3,
+            "position": "ホール",
+            "experient": "新人",
+            "post": "アルバイト",
+            "hour_pay": 1150,
+            "shift": {
+                "shift_1": {
+                    "shift_id": 4001,
+                    "day": "2025-07-02",
+                    "start": "18:00",
+                    "finish": "22:00"
+                },
+                "shift_2": {
+                    "shift_id": 4002,
+                    "day": "2025-07-04",
+                    "start": "18:00",
+                    "finish": "22:00"
+                },
+                "shift_3": {
+                    "shift_id": 4003,
+                    "day": "2025-07-05",
+                    "start": "18:00",
+                    "finish": "23:00"
+                },
+                "shift_4": {
+                    "shift_id": 4004,
+                    "day": "2025-07-07",
+                    "start": "17:00",
+                    "finish": "22:00"
+                },
+                "shift_5": {
+                    "shift_id": 4005,
+                    "day": "2025-07-10",
+                    "start": "18:00",
+                    "finish": "23:00"
+                },
+                "shift_6": {
+                    "shift_id": 4006,
+                    "day": "2025-07-12",
+                    "start": "17:00",
+                    "finish": "22:00"
+                }
+            }
+        },
+        "worker_5": {
+            "user_id": 105,
+            "name": "吉田 正孝",
+            "evaluate": 5,
+            "position": "キッチン",
+            "experient": "中堅",
+            "post": "アルバイト",
+            "hour_pay": 1200,
+            "shift": {
+                "shift_1": {
+                    "shift_id": 5001,
+                    "day": "2025-07-02",
+                    "start": "11:00",
+                    "finish": "19:00"
+                },
+                "shift_2": {
+                    "shift_id": 5002,
+                    "day": "2025-07-05",
+                    "start": "09:00",
+                    "finish": "17:00"
+                },
+                "shift_3": {
+                    "shift_id": 5003,
+                    "day": "2025-07-07",
+                    "start": "10:00",
+                    "finish": "18:00"
+                },
+                "shift_4": {
+                    "shift_id": 5004,
+                    "day": "2025-07-09",
+                    "start": "11:00",
+                    "finish": "19:00"
+                },
+                "shift_5": {
+                    "shift_id": 5005,
+                    "day": "2025-07-12",
+                    "start": "09:00",
+                    "finish": "17:00"
+                },
+                "shift_6": {
+                    "shift_id": 5006,
+                    "day": "2025-07-14",
+                    "start": "10:00",
+                    "finish": "18:00"
+                }
+            }
+        },
+        "worker_6": {
+            "user_id": 106,
+            "name": "大谷 昌平",
+            "evaluate": 1,
+            "position": "ホール",
+            "experient": "新人",
+            "post": "アルバイト",
+            "hour_pay": 1150,
+            "shift": {
+                "shift_1": {
+                    "shift_id": 6001,
+                    "day": "2025-07-03",
+                    "start": "18:00",
+                    "finish": "22:00"
+                },
+                "shift_2": {
+                    "shift_id": 6002,
+                    "day": "2025-07-06",
+                    "start": "18:00",
+                    "finish": "22:00"
+                },
+                "shift_3": {
+                    "shift_id": 6003,
+                    "day": "2025-07-09",
+                    "start": "18:00",
+                    "finish": "23:00"
+                },
+                "shift_4": {
+                    "shift_id": 6004,
+                    "day": "2025-07-11",
+                    "start": "17:00",
+                    "finish": "22:00"
+                },
+                "shift_5": {
+                    "shift_id": 6005,
+                    "day": "2025-07-13",
+                    "start": "18:00",
+                    "finish": "23:00"
+                }
+            }
+        },
+        "worker_7": {
+            "user_id": 107,
+            "name": "山本 良伸",
+            "evaluate": 4,
+            "position": "ホール, レジ",
+            "experient": "中堅",
+            "post": "アルバイト",
+            "hour_pay": 1150,
+            "shift": {
+                "shift_1": {
+                    "shift_id": 7001,
+                    "day": "2025-07-03",
+                    "start": "11:00",
+                    "finish": "19:00"
+                },
+                "shift_2": {
+                    "shift_id": 7002,
+                    "day": "2025-07-06",
+                    "start": "09:00",
+                    "finish": "17:00"
+                },
+                "shift_3": {
+                    "shift_id": 7003,
+                    "day": "2025-07-10",
+                    "start": "10:00",
+                    "finish": "18:00"
+                },
+                "shift_4": {
+                    "shift_id": 7004,
+                    "day": "2025-07-13",
+                    "start": "11:00",
+                    "finish": "19:00"
+                }
+            }
+        },
+        "worker_8": {
+            "user_id": 108,
+            "name": "前田 賢太",
+            "evaluate": 5,
+            "position": "ホール",
+            "experient": "中堅",
+            "post": "アルバイト",
+            "hour_pay": 1150,
+            "shift": {
+                "shift_1": {
+                    "shift_id": 8001,
+                    "day": "2025-07-04",
+                    "start": "09:00",
+                    "finish": "17:00"
+                },
+                "shift_2": {
+                    "shift_id": 8002,
+                    "day": "2025-07-06",
+                    "start": "10:00",
+                    "finish": "18:00"
+                },
+                "shift_3": {
+                    "shift_id": 8003,
+                    "day": "2025-07-11",
+                    "start": "09:00",
+                    "finish": "17:00"
+                },
+                "shift_4": {
+                    "shift_id": 8004,
+                    "day": "2025-07-14",
+                    "start": "10:00",
+                    "finish": "18:00"
+                }
+            }
+        }
+    }
+}
