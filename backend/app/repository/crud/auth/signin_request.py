@@ -5,6 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
 
 from repository.db.db_init import get_session_scope
 from repository.db.models import Company, User, UserProfile
+from datetime import datetime
 
 def signin_request_owner(company_name: str, 
                         store_locate:str, 
@@ -12,14 +13,12 @@ def signin_request_owner(company_name: str,
                         close_time:str, 
                         target_sales:int, 
                         labor_cost:int,
-                        user_id:int,
-                        company_id:int,
                         name:str,
                         age:str,
                         phone:str,
-                        position_name:str,
+                        position:str,
                         evaluate:int,
-                        join_company_day:str,
+                        join_company_day:datetime,
                         hour_pay:int,
                         post:str,
                         firebase_uid:str,
@@ -53,7 +52,7 @@ def signin_request_owner(company_name: str,
             name=name or None,
             age=age or None,
             phone=phone or None,
-            position_name=position_name or None,
+            position=position or None,
             evaluate=evaluate or None,
             join_company_day=join_company_day,
             hour_pay=hour_pay or None,
