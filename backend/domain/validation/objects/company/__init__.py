@@ -8,7 +8,7 @@ from company.store_locate import StoreLocate
 from company.open_time import OpenTime
 from company.close_time import CloseTime
 from company.target_sales import TargetSales
-from company.laber_cost import LaberCost
+from company.labor_cost import LaborCost
 
 TypeModels = {
     'CompanyID': CompanyID,
@@ -17,5 +17,5 @@ TypeModels = {
     'OpenTime': OpenTime,
     'CloseTime': CloseTime,
     'TargetSales': TargetSales,
-    'LaberCost': LaberCost
+    'LaberCost': LaborCost
 }

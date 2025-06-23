@@ -2,8 +2,8 @@ class DecisionShiftEntity:
     def __init__(self, company_id):
         self.company_id = company_id
         
-    def toJson(self):
-        decision_shift_entity_toJson = {
+    def to_json(self):
+        decision_shift_entity_to_json = {
             "company_id": self.company_id
         }
-        return decision_shift_entity_toJson
+        return decision_shift_entity_to_json

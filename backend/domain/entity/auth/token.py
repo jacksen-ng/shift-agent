@@ -2,8 +2,8 @@ class TokenEntity:
     def __init__(self, access_token):
         self.access_token = access_token
         
-    def toJson(self):
-        token_entity_toJson = {
+    def to_json(self):
+        token_entity_to_json = {
             "access_token": self.access_token
         }
-        return token_entity_toJson
+        return token_entity_to_json

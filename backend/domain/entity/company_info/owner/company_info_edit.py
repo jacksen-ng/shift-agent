@@ -19,8 +19,8 @@ class CompanyInfoEditEntity:
         self.rest_day = rest_day
         self.position_name = position_name
 
-    def toJson(self):
-        company_info_edit_entity_toJson = [
+    def to_json(self):
+        company_info_edit_entity_to_json = [
             {
                 "company_id": self.company_id,
                 "company_name": self.company_name,
@@ -37,4 +37,4 @@ class CompanyInfoEditEntity:
                 "position_name": self.position_name
             }
         ]
-        return company_info_edit_entity_toJson
+        return company_info_edit_entity_to_json

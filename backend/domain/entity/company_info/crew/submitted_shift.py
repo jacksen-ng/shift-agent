@@ -6,8 +6,8 @@ class SubmittedShiftEntity:
         self.start_time = start_time
         self.finish_time = finish_time
         
-    def toJson(self):
-        submitted_shift_entity_toJson = [
+    def to_json(self):
+        submitted_shift_entity_to_json = [
             {
                 "user_id": self.user_id,
                 "company_id": self.company_id,
@@ -18,4 +18,4 @@ class SubmittedShiftEntity:
                 "finish_time": self.finish_time
             }
         ]
-        return submitted_shift_entity_toJson
+        return submitted_shift_entity_to_json

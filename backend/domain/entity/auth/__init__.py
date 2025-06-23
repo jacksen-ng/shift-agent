@@ -1,11 +1,10 @@
 import os
 import sys
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-from login_entity import LoginEntity
-from signin_entity import SigninEntity
-from token_entity import TokenEntity
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+from auth.login import LoginEntity
+from auth.signin import SigninEntity
+from auth.token import TokenEntity
 
 auth_entities = {
     "LoginEntity": LoginEntity,
