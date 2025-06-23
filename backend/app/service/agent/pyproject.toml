@@ -10,5 +10,6 @@ dependencies = [
     "langchain>=0.3.26",
     "langchain-google-genai>=2.1.5",
     "pandas>=2.3.0",
+    "pydantic>=2.11.5",
     "python-dotenv>=1.1.0",
 ]

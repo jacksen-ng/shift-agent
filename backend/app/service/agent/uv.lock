@@ -978,6 +978,7 @@ dependencies = [
     { name = "langchain" },
     { name = "langchain-google-genai" },
     { name = "pandas" },
+    { name = "pydantic" },
     { name = "python-dotenv" },
 ]
 
@@ -988,6 +989,7 @@ requires-dist = [
     { name = "langchain", specifier = ">=0.3.26" },
     { name = "langchain-google-genai", specifier = ">=2.1.5" },
     { name = "pandas", specifier = ">=2.3.0" },
+    { name = "pydantic", specifier = ">=2.11.5" },
     { name = "python-dotenv", specifier = ">=1.1.0" },
 ]
 
