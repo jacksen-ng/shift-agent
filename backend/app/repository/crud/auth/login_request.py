@@ -15,5 +15,5 @@ def login_request(firebase_uid: str):
                 "company_id": user.company_id,
             }
         else:
-            return None
+            return {"error": "User not found"}
         
