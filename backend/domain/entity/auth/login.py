@@ -3,9 +3,9 @@ class LoginEntity:
         self.email = email
         self.password = password
         
-    def toJson(self):
-        login_entity_toJson = {
+    def to_json(self):
+        login_entity_to_json = {
             "email": self.email,
             "password": self.password
         }
-        return login_entity_toJson
+        return login_entity_to_json

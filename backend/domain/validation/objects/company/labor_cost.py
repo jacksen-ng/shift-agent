@@ -5,7 +5,7 @@ import time
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../models"))
 import guard_types
 
-class LaberCost:
+class LaborCost:
     def __init__(self, value: int):
         self.value = guard_types.IntegerType(value).execute()
     

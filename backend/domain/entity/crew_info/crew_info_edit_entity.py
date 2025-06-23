@@ -19,8 +19,8 @@ class CrewInfoEditEntity:
         self.hour_pay = hour_pay
         self.post = post
         
-    def toJson(self):
-        crew_info_edit_entity_toJson = [
+    def to_json(self):
+        crew_info_edit_entity_to_json = [
             {
                 "user_id": self.user_id,
                 "name": self.name,
@@ -33,4 +33,4 @@ class CrewInfoEditEntity:
                 "post": self.post
             }
         ]
-        return crew_info_edit_entity_toJson
+        return crew_info_edit_entity_to_json
