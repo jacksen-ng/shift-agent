@@ -70,7 +70,7 @@ const CrewEdit = () => {
           params: { company_id: parseInt(companyId) },
         });
         
-        const crew = crewResponse.data.company_member.find((c) => c.user_id === parseInt(id!));
+        const crew = crewResponse.data.company_member.find((c: any) => c.user_id === parseInt(id!));
         if (crew) {
           setFormData(crew);
         }
