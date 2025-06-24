@@ -1,16 +1,23 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 
-export const fetchDecisionShift = async (company_id: string): Promise<{
-  shifts: any[];
+interface DecisionShiftItem {
+  name: string;
+  position: string;
+  post: string;
+  day: string;
+  start_time: string;
+  finish_time: string;
+}
+
+interface DecisionShiftResponse {
+  decision_shift: DecisionShiftItem[];
   rest_day: string[];
-}> => {
-  const response = await axios.get('http://localhost:8000/decision-shift', {
-    params: { company_id },
-    headers: { Authorization: 'Bearer dummy_token' },
+}
+
+export const fetchDecisionShift = async (company_id: string): Promise<DecisionShiftResponse> => {
+  const response = await apiClient.get<DecisionShiftResponse>('/decision-shift', {
+    params: { company_id: parseInt(company_id) },
   });
 
-  return response.data as {
-    shifts: any[];
-    rest_day: string[];
-  };
+  return response.data;
 };

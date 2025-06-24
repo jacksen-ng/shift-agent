@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../Services/apiClient';
 
 const HostRegister: React.FC = () => {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ const HostRegister: React.FC = () => {
   e.preventDefault();
   try {
     console.log("送信データ:", formData); // ★ここで確認！
-    const response = await axios.post("http://localhost:8000/host/register", formData);
+    const response = await apiClient.post("/host/register", formData);
     alert("登録が完了しました");
     navigate("/login");
   } catch (error) {

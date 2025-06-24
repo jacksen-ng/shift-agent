@@ -1,29 +1,25 @@
 // Services/CrewService.ts
-import axios from 'axios';
+import apiClient from './apiClient';
 
-export const fetchCrewInfo = async (company_id: string, token: string) => {
-  const response = await axios.get('http://localhost:8000/crew-info', {
-    params: { company_id },
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+interface CrewProfile {
+  user_id: number;
+  name: string;
+  age: number;
+  phone: string;
+  position: string;
+  evaluate: number;
+  join_company_day: string;
+  hour_pay: number;
+  post: string;
+}
+
+interface CrewInfoResponse {
+  company_member: CrewProfile[];
+}
+
+export const fetchCrewInfo = async (company_id: string): Promise<CrewInfoResponse> => {
+  const response = await apiClient.get<CrewInfoResponse>('/crew-info', {
+    params: { company_id: parseInt(company_id) },
   });
   return response.data;
-};
-
-
-export const registerCrew = async (email: string, password: string) => {
-  const res = await fetch('http://localhost:8000/crew/register', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email, password }),
-  });
-
-  if (!res.ok) {
-    throw new Error('クルー登録に失敗しました');
-  }
-
-  return res.json();
 };

@@ -1,0 +1,322 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import apiClient from '../../../Services/apiClient';
+import { logout } from '../../../Services/AuthService';
+
+interface GeneratedShift {
+  user_id: number;
+  company_id: number;
+  day: string;
+  start_time: string;
+  finish_time: string;
+}
+
+const GeminiShift = () => {
+  const navigate = useNavigate();
+  const [dateRange, setDateRange] = useState({
+    first_day: '',
+    last_day: ''
+  });
+  const [comment, setComment] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedShifts, setGeneratedShifts] = useState<GeneratedShift[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
+
+  // 今週の月曜日と日曜日を取得
+  const getThisWeekRange = () => {
+    const now = new Date();
+    const day = now.getDay();
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
+    
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    
+    return {
+      first_day: formatDate(monday),
+      last_day: formatDate(sunday)
+    };
+  };
+
+  // 来週の範囲を取得
+  const getNextWeekRange = () => {
+    const thisWeek = getThisWeekRange();
+    const monday = new Date(thisWeek.first_day);
+    monday.setDate(monday.getDate() + 7);
+    
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    
+    return {
+      first_day: formatDate(monday),
+      last_day: formatDate(sunday)
+    };
+  };
+
+  // 日付をフォーマット
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // プリセットを適用
+  const applyPreset = (preset: 'thisWeek' | 'nextWeek' | 'thisMonth') => {
+    if (preset === 'thisWeek') {
+      setDateRange(getThisWeekRange());
+    } else if (preset === 'nextWeek') {
+      setDateRange(getNextWeekRange());
+    } else if (preset === 'thisMonth') {
+      const now = new Date();
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      setDateRange({
+        first_day: formatDate(firstDay),
+        last_day: formatDate(lastDay)
+      });
+    }
+  };
+
+  // AI生成を実行
+  const handleGenerate = async () => {
+    if (!dateRange.first_day || !dateRange.last_day) {
+      alert('期間を選択してください');
+      return;
+    }
+
+    try {
+      setIsGenerating(true);
+      const companyId = localStorage.getItem('company_id') || '1';
+      
+      const response = await apiClient.post<{ edit_shift: GeneratedShift[] }>('/gemini-create-shift', {
+        company_id: parseInt(companyId),
+        first_day: dateRange.first_day,
+        last_day: dateRange.last_day,
+        comment: comment || undefined
+      });
+      
+      setGeneratedShifts(response.data.edit_shift || []);
+      setShowPreview(true);
+    } catch (error) {
+      console.error('AI生成エラー:', error);
+      alert('シフトの生成に失敗しました');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // 生成結果を適用して調整画面へ
+  const handleApplyAndEdit = () => {
+    // 実際のアプリケーションでは、生成されたシフトを調整画面に渡す処理が必要
+    navigate('/host/shift-adjustment');
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* ヘッダー */}
+      <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate('/host/shift-adjustment')}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <h1 className="text-2xl font-bold text-gray-900">AIシフト生成</h1>
+          </div>
+          <button
+            onClick={() => {
+              logout();
+              navigate('/login');
+            }}
+            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            ログアウト
+          </button>
+        </div>
+      </header>
+
+      <div className="max-w-4xl mx-auto p-6">
+        {!showPreview ? (
+          <div className="space-y-6">
+            {/* AI生成の説明 */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <div className="flex items-start gap-3">
+                <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <div>
+                  <h3 className="text-lg font-bold text-blue-900">Gemini AIによるシフト自動生成</h3>
+                  <p className="text-sm text-blue-700 mt-1">
+                    従業員の希望シフト、スキル、過去の実績を基に、最適なシフトを自動生成します。
+                    生成後は手動で調整することも可能です。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 期間選択 */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">生成期間の選択</h3>
+              
+              {/* プリセットボタン */}
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                <button
+                  onClick={() => applyPreset('thisWeek')}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium"
+                >
+                  今週
+                </button>
+                <button
+                  onClick={() => applyPreset('nextWeek')}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium"
+                >
+                  来週
+                </button>
+                <button
+                  onClick={() => applyPreset('thisMonth')}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium"
+                >
+                  今月
+                </button>
+              </div>
+
+              {/* 日付入力 */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">開始日</label>
+                  <input
+                    type="date"
+                    value={dateRange.first_day}
+                    onChange={(e) => setDateRange({ ...dateRange, first_day: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">終了日</label>
+                  <input
+                    type="date"
+                    value={dateRange.last_day}
+                    onChange={(e) => setDateRange({ ...dateRange, last_day: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* AIへの指示 */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">AIへの指示（オプション）</h3>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="例：土日は多めに人員を配置してください、新人は熟練者とペアで配置してください"
+                className="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                ※ 特別な要望がある場合は、ここに記入してください
+              </p>
+            </div>
+
+            {/* 生成ボタン */}
+            <div className="flex justify-end">
+              <button
+                onClick={handleGenerate}
+                disabled={isGenerating || !dateRange.first_day || !dateRange.last_day}
+                className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isGenerating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    生成中...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    シフトを生成
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* 生成結果のプレビュー */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">生成結果のプレビュー</h3>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                <p className="text-sm text-green-800">
+                  {generatedShifts.length}件のシフトが生成されました
+                </p>
+              </div>
+              
+              {/* シフト一覧（簡易表示） */}
+              <div className="max-h-96 overflow-y-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 sticky top-0">
+                    <tr>
+                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">日付</th>
+                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">時間</th>
+                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">人数</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {/* 日付ごとにグループ化して表示 */}
+                    {Object.entries(
+                      generatedShifts.reduce((acc, shift) => {
+                        if (!acc[shift.day]) acc[shift.day] = [];
+                        acc[shift.day].push(shift);
+                        return acc;
+                      }, {} as { [key: string]: GeneratedShift[] })
+                    ).map(([day, shifts]) => (
+                      <tr key={day}>
+                        <td className="px-4 py-2 text-sm">{day}</td>
+                        <td className="px-4 py-2 text-sm">
+                          {shifts[0].start_time} - {shifts[0].finish_time}
+                        </td>
+                        <td className="px-4 py-2 text-sm">{shifts.length}名</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* アクションボタン */}
+            <div className="flex justify-between">
+              <button
+                onClick={() => {
+                  setShowPreview(false);
+                  setGeneratedShifts([]);
+                }}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                やり直す
+              </button>
+              <button
+                onClick={handleApplyAndEdit}
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                この結果を調整画面で編集
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default GeminiShift;
