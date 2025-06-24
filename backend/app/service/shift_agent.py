@@ -1,12 +1,16 @@
-# shift_agent.py
-
+# %%
+import os
+import getpass
+from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI # Google Geminiを使用する場合
 from langchain.agents import AgentExecutor, create_react_agent
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import AIMessage, HumanMessage
 from typing import List, Dict, Any
-
 from tools import all_tools # 先ほど定義したツール群をインポート
+
+load_bool = load_dotenv()
+
 
 class ShiftSchedulingAgent:
     def __init__(self, llm_model_name: str = "gemini-2.0-flash", verbose: bool = True, min_score_threshold: int = 80):
@@ -16,6 +20,13 @@ class ShiftSchedulingAgent:
         :param verbose: デバッグ情報を出力するかどうか
         :param min_score_threshold: シフト評価の最低合格点
         """
+
+        # 環境変数が取得できた場合に通る．
+        if load_bool:
+            # ここが"GOOGLE_API_KEY"じゃないと動かない．
+            os.environ["GOOGLE_API_KEY"] = os.getenv('GEMINI_API')
+        else:
+            print("API_KEY error")
         if "gemini" in llm_model_name:
             self.llm = ChatGoogleGenerativeAI(model=llm_model_name, temperature=0, verbose=verbose)
         else:
@@ -51,8 +62,8 @@ class ShiftSchedulingAgent:
             ]
         )
 
-        # エージェントの作成 (OpenAI Functions/Tools Agentを使用する場合)
         # ReActエージェントを使用する場合は create_react_agent を使う
+        # TODO; toolを直す．実装する．
         self.agent = create_react_agent(self.llm, self.tools, self.prompt)
         self.agent_executor = AgentExecutor(
             agent=self.agent,
@@ -124,3 +135,5 @@ if __name__ == "__main__":
     final_shift = agent.run(user_prompt)
     print("\n--- Agent Finished ---")
     print(final_shift)
+
+# %%
