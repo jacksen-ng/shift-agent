@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../../../Services/apiClient';
+import apiClient from '../../Services/apiClient';
 
 const HostRegister: React.FC = () => {
   const navigate = useNavigate();
