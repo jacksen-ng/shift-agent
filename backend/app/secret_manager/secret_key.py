@@ -12,6 +12,9 @@ def initialize_firebase(project_id, secret_id, version_id="latest"):
     response = client.access_secret_version(name=name)
     firebase_credentials_json = json.loads(response.payload.data.decode("UTF-8"))
     cred = credentials.Certificate(firebase_credentials_json)
+
+    app = firebase_admin.initialize_app(cred)
+    return app
     
 def get_cloudsql_secret(project_id, secret_id, version_id="latest"):
     client = secretmanager.SecretManagerServiceClient()
