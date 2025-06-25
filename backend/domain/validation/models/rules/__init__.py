@@ -9,7 +9,7 @@ from rules.literal_role import LiteralRole
 from rules.not_hyphen import NotHyphen
 from rules.literal_experience import LiteralExperience
 
-RuleModels = {
+rule_models = {
     'InAtmarkRule': InAtmarkRule,
     'LiteralEvaluate': LiteralEvaluate,
     'LiteralPost': LiteralPost,
