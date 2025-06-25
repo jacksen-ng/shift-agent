@@ -1,13 +1,16 @@
 import os
 import sys
-from typing_extensions import Literal
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../../models"))
-import rules
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+from models.guard_types import type_models
+from models.rules import rule_models
 
-class Role:
-    def __init__(self, value: Literal['owner', 'crew']):
-        self.value = rules.LiteralRole(value).execute()
+class RoleValidation:
+    def __init__(self, value: str):
+        self.value = value
     
     def execute(self):
-        return self.value
+        type_validated_value = type_models['StringType'](self.value).execute()
+        validated_value = rule_models['LiteralRole'](type_validated_value).execute()
+        
+        return validated_value
