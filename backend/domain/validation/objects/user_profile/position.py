@@ -1,13 +1,14 @@
 import os
 import sys
-import time
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../../models"))
-import guard_types
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+from models.guard_types import type_models
 
-class Position:
-    def __init__(self, value: str):
-        self.value = guard_types.StringType(value).execute()
+class PositionValidation:
+    def __init__(self, value: int):
+        self.value = value
     
     def execute(self):
-        return self.value
+        validated_value = type_models['StringType'](self.value).execute()
+        
+        return validated_value
