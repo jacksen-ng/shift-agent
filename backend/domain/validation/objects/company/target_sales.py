@@ -1,13 +1,14 @@
 import os
 import sys
-import time
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../../models"))
-import guard_types
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+from models.guard_types import type_models
 
-class TargetSales:
+class TargetSalesValidation:
     def __init__(self, value: int):
-        self.value = guard_types.IntegerType(value).execute()
+        self.value = value
     
     def execute(self):
-        return self.value
+        validated_value = type_models['IntegerType'](self.value).execute()
+        
+        return validated_value
