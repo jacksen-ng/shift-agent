@@ -1,15 +1,16 @@
 import os
 import sys
-import time
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../../models"))
-import guard_types
-import rules
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+from models.guard_types import type_models
+from models.rules import rule_models
 
-class Phone:
-    def __init__(self, value: int):
-        self.value = guard_types.IntegerType(value).execute()
-        self.value = rules.NotHyphen(value).execute()
+class PhoneValidation:
+    def __init__(self, value: str):
+        self.value = value
     
     def execute(self):
-        return self.value
+        type_validated_value = type_models['StringType'](self.value).execute()
+        validated_value = rule_models['NotHyphen'](type_validated_value).execute()
+        
+        return validated_value

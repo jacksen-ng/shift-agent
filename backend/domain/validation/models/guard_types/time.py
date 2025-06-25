@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, time
 
 class TimeType:
     def __init__(self, value):
@@ -14,7 +14,7 @@ class TimeType:
         except ValueError:
             raise ValueError('時間の形式はHH:MM:SSでなければなりません。')
         
-        if not isinstance(change_time, datetime.time):
+        if not isinstance(change_time, time):
             raise TypeError('値は時間でなければなりません。')
 
         return self.value

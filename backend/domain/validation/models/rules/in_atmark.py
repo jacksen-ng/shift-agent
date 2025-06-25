@@ -2,7 +2,7 @@ class InAtmarkRule:
     def __init__(self, value):
         self.value = value
 
-    def excute(self):
+    def execute(self):
         if "@" not in self.value:
             raise ValueError('値は@を含む必要があります。')
         

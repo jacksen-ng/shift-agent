@@ -8,7 +8,7 @@ from guard_types.date import DateType
 from guard_types.time import TimeType
 from guard_types.boolean import BooleanType
 
-TypeModels = {
+type_models = {
     'IntegerType': IntegerType,
     'StringType': StringType,
     'DateType': DateType,

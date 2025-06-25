@@ -1,14 +1,16 @@
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../../models"))
-import guard_types
-import rules
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+from models.guard_types import type_models
+from models.rules import rule_models
 
-class Email:
+class EmailValidation:
     def __init__(self, value: str):
-        self.value = guard_types.StringType(value).execute()
-        self.value = rules.InAtmarkRule(value).execute()
+        self.value = value
     
     def execute(self):
-        return self.value
+        type_validated_value = type_models['StringType'](self.value).execute()
+        validated_value = rule_models['InAtmarkRule'](type_validated_value).execute()
+        
+        return validated_value
