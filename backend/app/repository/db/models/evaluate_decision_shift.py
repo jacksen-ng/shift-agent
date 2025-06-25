@@ -7,7 +7,3 @@ class EvaluateDecisionShift(Base):
     start_day = Column(Date)
     finish_day = Column(Date)
     evaluate = Column(Text)
-
-    __table_args__ = (
-        CheckConstraint(evaluate.in_(["1", "2", "3", "4", "5"]), name="check_evaluate"),
-    )
