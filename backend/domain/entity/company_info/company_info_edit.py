@@ -20,21 +20,17 @@ class CompanyInfoEditEntity:
         self.position_name = position_name
 
     def to_json(self):
-        company_info_edit_entity_to_json = [
-            {
-                "company_id": self.company_id,
-                "company_name": self.company_name,
-                "store_locate": self.store_locate,
-                "open_time": self.open_time,
-                "close_time": self.close_time,
-                "target_sales": self.target_sales,
-                "labor_cost": self.labor_cost
+        company_info_edit_entity_to_json = {
+            'company_info': {
+                'company_id': self.company_id,
+                'company_name': self.company_name,
+                'store_locate': self.store_locate,
+                'open_time': self.open_time,
+                'close_time': self.close_time,
+                'target_sales': self.target_sales,
+                'labor_cost': self.labor_cost
             },
-            {
-                "rest_day": self.rest_day
-            },
-            {
-                "position_name": self.position_name
-            }
-        ]
+            'rest_day': self.rest_day,
+            'position_name': self.position_name
+        }
         return company_info_edit_entity_to_json
