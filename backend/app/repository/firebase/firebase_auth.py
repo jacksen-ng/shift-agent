@@ -4,23 +4,56 @@ from typing import Dict, Optional
 import firebase_admin
 from firebase_admin import auth
 from firebase_admin.exceptions import FirebaseError
+import httpx
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 
-from secret_manager.secret_key import initialize_firebase
+from secret_manager.secret_key import initialize_firebase, get_firebase_secret
 
 class FirebaseAuthService:
     def __init__(self): 
         PROJECT_ID = "jacksen-server"
         SECRET_ID = "firebase-secret-credential"
         self.app = initialize_firebase(PROJECT_ID, SECRET_ID)
+        
+        FIREBASE_SECRET_ID = "firebase-key"
+        self.firebase_secret = get_firebase_secret(PROJECT_ID, FIREBASE_SECRET_ID)
+        
+        
+    def login_user(self, email: str, password: str) -> Dict:
+        url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + self.firebase_secret
+        payload = {
+            "email": email,
+            "password": password,
+            "returnSecureToken": True
+        }
+
+        try:
+            response = httpx.post(url, json=payload)
+            response.raise_for_status()
+            data = response.json()
+            return {
+                "success": True,
+                "firebase_uid": data.get("localId"),
+                "email": data.get("email"),
+                "id_token": data.get("idToken"),
+                "refresh_token": data.get("refreshToken"),
+                "expires_in": data.get("expiresIn"),
+
+            }
+        except httpx.HTTPStatusError as e:
+            error_message = e.response.json().get("error", {}).get("message", str(e))
+            return {
+                "success": False,
+                "error": error_message,
+            }
+
     
     def create_user(self, email: str, password: str, display_name: Optional[str] = None) -> Dict:
         try:
             user_record = auth.create_user(
                 email=email,
                 password=password,
-                display_name=display_name,
                 email_verified=False
             )
             
@@ -28,6 +61,9 @@ class FirebaseAuthService:
             
             return {
                 "success": True,
+                "firebase_uid": user_record.uid,
+                "email": email,
+                "password": password,
                 "custom_token": custom_token.decode('utf-8'),
             }
             
@@ -61,8 +97,8 @@ class FirebaseAuthService:
                 "success": True,
                 "user_id": user_record.uid,
                 "email": user_record.email,
-                "display_name": user_record.display_name,
                 "email_verified": user_record.email_verified,
+                "custom_token": auth.create_custom_token(user_record.uid).decode('utf-8'),
                 "creation_time": user_record.user_metadata.creation_timestamp,
                 "last_sign_in": user_record.user_metadata.last_sign_in_timestamp,
             }
@@ -81,7 +117,6 @@ class FirebaseAuthService:
                 "success": True,
                 "user_id": user_record.uid,
                 "email": user_record.email,
-                "display_name": user_record.display_name,
                 "email_verified": user_record.email_verified,
                 "creation_time": user_record.user_metadata.creation_timestamp,
                 "last_sign_in": user_record.user_metadata.last_sign_in_timestamp,
@@ -100,8 +135,6 @@ class FirebaseAuthService:
                 update_fields['email'] = email
             if password:
                 update_fields['password'] = password
-            if display_name:
-                update_fields['display_name'] = display_name
             
             user_record = auth.update_user(uid, **update_fields)
             
@@ -109,7 +142,6 @@ class FirebaseAuthService:
                 "success": True,
                 "user_id": user_record.uid,
                 "email": user_record.email,
-                "display_name": user_record.display_name,
             }
             
         except FirebaseError as e:
