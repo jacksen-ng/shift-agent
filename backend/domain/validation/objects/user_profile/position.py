@@ -5,7 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from models.guard_types import type_models
 
 class PositionValidation:
-    def __init__(self, value: int):
+    def __init__(self, value: str):
         self.value = value
     
     def execute(self):
