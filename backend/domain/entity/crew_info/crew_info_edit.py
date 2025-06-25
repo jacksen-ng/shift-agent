@@ -20,17 +20,15 @@ class CrewInfoEditEntity:
         self.post = post
         
     def to_json(self):
-        crew_info_edit_entity_to_json = [
-            {
-                "user_id": self.user_id,
-                "name": self.name,
-                "age": self.age,
-                "phone": self.phone,
-                "position": self.position,
-                "evaluate": self.evaluate,
-                "join_company_day": self.join_company_day,
-                "hour_pay": self.hour_pay,
-                "post": self.post
-            }
-        ]
+        crew_info_edit_entity_to_json = {
+            "user_id": self.user_id,
+            "name": self.name,
+            "age": self.age,
+            "phone": self.phone,
+            "position": self.position,
+            "evaluate": self.evaluate,
+            "join_company_day": self.join_company_day,
+            "hour_pay": self.hour_pay,
+            "post": self.post
+        }
         return crew_info_edit_entity_to_json
