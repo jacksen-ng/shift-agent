@@ -4,7 +4,7 @@ class ShiftInfoEntity:
 
     def to_json(self):
         shift_info_to_json = {
-            "company_id": self.company_id
+            'company_id': self.company_id
         }
 
         return shift_info_to_json

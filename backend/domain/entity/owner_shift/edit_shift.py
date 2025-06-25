@@ -7,10 +7,10 @@ class EditShiftEntity:
 
     def to_json(self):
         edit_shift_to_json = {
-            "company_id": self.company_id,
-            "add_edit_shift": self.add_edit_shift,
-            "update_shift": self.update_shift,
-            "delete_shift": self.delete_shift
+            'company_id': self.company_id,
+            'add_edit_shift': self.add_edit_shift,
+            'update_shift': self.update_shift,
+            'delete_shift': self.delete_shift
         }
 
         return edit_shift_to_json
