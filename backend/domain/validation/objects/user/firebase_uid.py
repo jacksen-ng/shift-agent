@@ -4,7 +4,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from models.guard_types import type_models
 
-class Auth0IDValidation:
+class FirebaseUIDValidation:
     def __init__(self, value: int):
         self.value = value
     
