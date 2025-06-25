@@ -8,8 +8,3 @@ class User(Base):
     email = Column(Text, unique=True)
     firebase_uid = Column(Text, unique=True)
     role = Column(Text)
-
-    __table_args__ = (
-        CheckConstraint(role.in_(["owner", "crew"]), name="check_role"),
-        CheckConstraint(email.like("%@%"), name="check_email"),
-    )

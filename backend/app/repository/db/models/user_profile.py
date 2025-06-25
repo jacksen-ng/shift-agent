@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, CheckConstraint, ForeignKey, Text
+from sqlalchemy import Column, Integer, ForeignKey, Text, Date
 from .base import Base
+from datetime import date
 
 class UserProfile(Base):
     __tablename__ = "user_profile"
@@ -14,10 +15,4 @@ class UserProfile(Base):
     experience = Column(Text)
     hour_pay = Column(Integer)
     post = Column(Text)
-
-    __table_args__ = (
-        CheckConstraint(phone.like("%-%"), name="check_phone"),
-        CheckConstraint(evaluate.in_(["1", "2", "3", "4", "5"]), name="check_evaluate"),
-        CheckConstraint(experience.in_(["beginner", "veteran"]), name="check_experience"),
-        CheckConstraint(post.in_(["part_timer", "employee"]), name="check_post"),
-    )
+    join_company_day = Column(Date)
