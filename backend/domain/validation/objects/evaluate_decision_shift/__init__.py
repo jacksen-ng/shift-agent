@@ -8,7 +8,7 @@ from evaluate_decision_shift.finish_day import FinishDayValidation
 from evaluate_decision_shift.is_completed import IsCompletedValidation
 from evaluate_decision_shift.evaluate import EvaluateValidation
 
-EvaluateDecisionShiftModels = {
+evaluate_decision_edit_shift_validation = {
     'EvaluateDecisionShiftIDValidation': EvaluateDecisionShiftIDValidation,
     'StartDayValidation': StartDayValidation,
     'FinishDayValidation': FinishDayValidation,

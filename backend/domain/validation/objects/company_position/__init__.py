@@ -6,7 +6,7 @@ from company_position.company_id import CompanyIDValidation
 from company_position.company_position_id import CompanyPositionIDValidation
 from company_position.position_name import PositionNameValidation
 
-CompanyPositionModels = {
+company_position_validation = {
     'CompanyIDValidation': CompanyIDValidation,
     'CompanyPositionIDValidation': CompanyPositionIDValidation,
     'PositionNameValidation': PositionNameValidation
