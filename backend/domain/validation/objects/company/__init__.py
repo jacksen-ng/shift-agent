@@ -1,14 +1,10 @@
-import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from company.company_id import CompanyIDValidation
-from company.company_name import CompanyNameValidation
-from company.store_locate import StoreLocateValidation
-from company.open_time import OpenTimeValidation
-from company.close_time import CloseTimeValidation
-from company.target_sales import TargetSalesValidation
-from company.labor_cost import LaborCostValidation
+from .company_id import CompanyIDValidation
+from .company_name import CompanyNameValidation
+from .store_locate import StoreLocateValidation
+from .open_time import OpenTimeValidation
+from .close_time import CloseTimeValidation
+from .target_sales import TargetSalesValidation
+from .labor_cost import LaborCostValidation
 
 company_validation = {
     'CompanyIDValidation': CompanyIDValidation,
