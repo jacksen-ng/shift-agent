@@ -1,9 +1,5 @@
-import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
-from repository.db.db_init import get_session_scope
-from repository.db.models import EditShift
+from ...db.db_init import get_session_scope
+from ...db.models import EditShift
 
 def delete_shifts_by_ids(edit_shift_ids: list[int]):
     with get_session_scope() as session:

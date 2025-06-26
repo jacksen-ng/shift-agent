@@ -1,10 +1,6 @@
-import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
 from datetime import datetime
-from repository.db.db_init import get_session_scope
-from repository.db.models import UserProfile
+from ...db.db_init import get_session_scope
+from ...db.models import UserProfile
 
 def crew_info_edit_request(
     user_id: int,

@@ -1,9 +1,5 @@
-import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
-from repository.db.db_init import get_session_scope
-from repository.db.models import EditShift
+from ...db.db_init import get_session_scope
+from ...db.models import EditShift
 from datetime import datetime
 
 def insert_future_shifts(new_shifts: list[dict]):

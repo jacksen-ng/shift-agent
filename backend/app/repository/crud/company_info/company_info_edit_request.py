@@ -1,6 +1,6 @@
 from datetime import datetime
-from repository.db.db_init import get_session_scope
-from repository.db.models import Company, CompanyRestDay, CompanyPosition
+from ...db.db_init import get_session_scope
+from ...db.models import Company, CompanyRestDay, CompanyPosition
 
 def company_info_edit_request(
     company_id: int,

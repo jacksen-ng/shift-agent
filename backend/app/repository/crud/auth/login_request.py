@@ -1,10 +1,5 @@
-import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
-
-from repository.db.db_init import get_session_scope
-from repository.db.models.user import User
+from ...db.db_init import get_session_scope
+from ...db.models.user import User
 
 def login_request(firebase_uid: str):
     with get_session_scope() as session:
