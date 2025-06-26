@@ -5,25 +5,23 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
 
 from repository.db.db_init import get_session_scope
 from repository.db.models import Company, User, UserProfile
-from datetime import datetime
+from datetime import datetime, date
 
-def signin_request_owner(company_name: str, 
-                        store_locate:str, 
-                        open_time:str, 
-                        close_time:str, 
-                        target_sales:int, 
-                        labor_cost:int,
-                        name:str,
-                        age:str,
-                        phone:str,
-                        position:str,
-                        evaluate:int,
-                        join_company_day:datetime,
-                        hour_pay:int,
-                        post:str,
-                        firebase_uid:str,
-                        email:str,
-                        role:str):
+def signin_request_owner(firebase_uid: str, email: str, role: str,
+                        company_name: str = None, 
+                        store_locate: str = None, 
+                        open_time: str = None, 
+                        close_time: str = None, 
+                        target_sales: int = None, 
+                        labor_cost: int = None,
+                        name: str = None,
+                        age: str = None,
+                        phone: str = None,
+                        position: str = None,
+                        evaluate: int = None,
+                        join_company_day: datetime = None,
+                        hour_pay: int = None,
+                        post: str = None):
     
     with get_session_scope() as session:
         company = Company(
@@ -54,29 +52,24 @@ def signin_request_owner(company_name: str,
             phone=phone or None,
             position=position or None,
             evaluate=evaluate or None,
-            join_company_day=join_company_day,
+            join_company_day=join_company_day or datetime.now(),
             hour_pay=hour_pay or None,
             post=post or None,
         )
         session.add(user_profile)
-        
-        return {
-            "company_id": company.company_id,
-            "user_id": user.user_id,
-        }
+        session.commit()
 
-def signin_request_crew(company_id:int, 
-                        name:str,
-                        age:str,
-                        phone:str,
-                        position:str,
-                        evaluate:int,
-                        join_company_day:str,
-                        hour_pay:int,
-                        post:str,
-                        firebase_uid:str,
-                        email:str,
-                        role:str):
+
+def signin_request_crew(firebase_uid: str, email: str, role: str,
+                        company_id: int = None, 
+                        name: str = None,
+                        age: str = None,
+                        phone: str = None,
+                        position: str = None,
+                        evaluate: int = None,
+                        join_company_day: str = None,
+                        hour_pay: int = None,
+                        post: str = None):
     with get_session_scope() as session:
         user = User(
             company_id=company_id,
@@ -95,14 +88,12 @@ def signin_request_crew(company_id:int,
             phone=phone or None,
             position=position or None,
             evaluate=evaluate or None,
-            join_company_day=join_company_day or None,
+            join_company_day=join_company_day or datetime.now(),
             hour_pay=hour_pay or None,
             post=post or None
         )
         session.add(user_profile)
-
-        return {
-            "user_id": user.user_id
-        }
+        session.commit()
+        
         
         

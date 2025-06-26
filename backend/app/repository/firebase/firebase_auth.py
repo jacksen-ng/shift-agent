@@ -49,7 +49,7 @@ class FirebaseAuthService:
             }
 
     
-    def create_user(self, email: str, password: str, display_name: Optional[str] = None) -> Dict:
+    def create_user(self, email: str, password: str, role: str, display_name: Optional[str] = None) -> Dict:
         try:
             user_record = auth.create_user(
                 email=email,
@@ -57,14 +57,12 @@ class FirebaseAuthService:
                 email_verified=False
             )
             
-            custom_token = auth.create_custom_token(user_record.uid)
+            auth.set_custom_user_claims(user_record.uid, {"role": role})
             
             return {
                 "success": True,
                 "firebase_uid": user_record.uid,
                 "email": email,
-                "password": password,
-                "custom_token": custom_token.decode('utf-8'),
             }
             
         except FirebaseError as e:
@@ -81,6 +79,7 @@ class FirebaseAuthService:
                 "success": True,
                 "email": decoded_token.get('email'),
                 "firebase_uid": decoded_token['uid'],
+                "role": decoded_token.get('role'),
             }
             
         except FirebaseError as e:
@@ -177,5 +176,3 @@ class FirebaseAuthService:
                 "success": False,
                 "error": str(e),
             }
-
-firebase_auth_service = FirebaseAuthService()
