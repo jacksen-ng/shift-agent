@@ -1,12 +1,7 @@
-import os
-import sys
 from datetime import date
 from typing import Dict, List
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
-
-from repository.db.db_init import get_session_scope
-from repository.db.models import Company, CompanyRestDay, UserProfile, EditShift, DecisionShift, EvaluateDecisionShift
+from ...db.db_init import get_session_scope
+from ...db.models import Company, CompanyRestDay, UserProfile, EditShift, DecisionShift, EvaluateDecisionShift
 
 def gemini_evaluate_shift(company_id: int, first_day: date, last_day: date) -> Dict[str, List[dict]]:
     with get_session_scope() as session:

@@ -1,12 +1,7 @@
-import os
-import sys
 from datetime import date
 from typing import Dict, List, Optional
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
-
-from repository.db.db_init import get_session_scope
-from repository.db.models import Company, CompanyRestDay, UserProfile, SubmittedShift
+from ...db.db_init import get_session_scope
+from ...db.models import Company, CompanyRestDay, UserProfile, SubmittedShift
 from sqlalchemy import func
 
 

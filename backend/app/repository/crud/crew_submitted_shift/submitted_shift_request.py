@@ -1,6 +1,6 @@
 from datetime import datetime
-from repository.db.db_init import get_session_scope
-from repository.db.models import SubmittedShift, EditShift
+from ...db.db_init import get_session_scope
+from ...db.models import SubmittedShift, EditShift
 
 def submit_shift_request(shifts: list[dict]):
     with get_session_scope() as session:

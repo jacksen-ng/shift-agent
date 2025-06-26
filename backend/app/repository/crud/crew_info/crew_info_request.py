@@ -1,9 +1,5 @@
-import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
-from repository.db.db_init import get_session_scope
-from repository.db.models import UserProfile
+from ...db.db_init import get_session_scope
+from ...db.models import UserProfile
 
 def get_user_profiles_by_company(company_id: int):
     with get_session_scope() as session:
