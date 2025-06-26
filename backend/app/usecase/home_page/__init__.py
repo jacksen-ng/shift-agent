@@ -1,9 +1,5 @@
-import os
-import sys
+from .get_decision_shift import GetDecisionShiftUseCase
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from home_page.get_decision_shift import GetDecisionShiftUseCase
-
-home_page_usecases = {
+home_page_usecase = {
     'GetDecisionShiftUseCase': GetDecisionShiftUseCase
 }
