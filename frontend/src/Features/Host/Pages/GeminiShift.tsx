@@ -11,6 +11,40 @@ interface GeneratedShift {
   finish_time: string;
 }
 
+interface EvaluationResponse {
+  company_info: {
+    company_id: number;
+    open_time: string;
+    close_time: string;
+    target_sales: number;
+    labor_cost: number;
+    rest_day: string[];
+  };
+  company_member: Array<{
+    user_id: number;
+    name: string;
+    evaluate: number;
+    position: string;
+    experience: number;
+    hour_pay: number;
+    post: string;
+  }>;
+  edit_shift_id: {
+    user_id: number;
+    day: string;
+    start_time: string;
+    finish_time: string;
+  };
+  evaluate_decision_shift: Array<{
+    user_id: number;
+    day: string;
+    start_time: string;
+    finish_time: string;
+    evaluate: string;
+  }>;
+  comment: string;
+}
+
 const GeminiShift = () => {
   const navigate = useNavigate();
   const [dateRange, setDateRange] = useState({
@@ -21,6 +55,8 @@ const GeminiShift = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedShifts, setGeneratedShifts] = useState<GeneratedShift[]>([]);
   const [showPreview, setShowPreview] = useState(false);
+  const [isEvaluating, setIsEvaluating] = useState(false);
+  const [evaluationResult, setEvaluationResult] = useState<EvaluationResponse | null>(null);
 
   // 今週の月曜日と日曜日を取得
   const getThisWeekRange = () => {
@@ -85,6 +121,15 @@ const GeminiShift = () => {
       return;
     }
 
+    // 既存データ削除の警告
+    const confirmMessage = 
+      `${dateRange.first_day}から${dateRange.last_day}までの既存のシフトデータは削除されます。\n` +
+      'AIで新しいシフトを生成してもよろしいですか？';
+    
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
     try {
       setIsGenerating(true);
       const companyId = localStorage.getItem('company_id') || '1';
@@ -103,6 +148,27 @@ const GeminiShift = () => {
       alert('シフトの生成に失敗しました');
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  // シフトを評価
+  const handleEvaluate = async () => {
+    try {
+      setIsEvaluating(true);
+      const companyId = localStorage.getItem('company_id') || '1';
+      
+      const response = await apiClient.post<EvaluationResponse>('/gemini-evaluate-shift', {
+        company_id: parseInt(companyId),
+        first_day: dateRange.first_day,
+        last_day: dateRange.last_day
+      });
+      
+      setEvaluationResult(response.data);
+    } catch (error) {
+      console.error('評価エラー:', error);
+      alert('シフトの評価に失敗しました');
+    } finally {
+      setIsEvaluating(false);
     }
   };
 
@@ -291,12 +357,94 @@ const GeminiShift = () => {
               </div>
             </div>
 
+            {/* 評価ボタン */}
+            <div className="flex justify-center my-6">
+              <button
+                onClick={handleEvaluate}
+                disabled={isEvaluating}
+                className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isEvaluating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    評価中...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    AIでシフトを評価
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* 評価結果 */}
+            {evaluationResult && (
+              <div className="space-y-6">
+                {/* 総合評価 */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className="w-full">
+                      <h3 className="text-lg font-bold text-blue-900 mb-2">AI評価結果</h3>
+                      <p className="text-sm text-blue-700 mb-4">{evaluationResult.comment}</p>
+                      
+                      {/* 店舗情報サマリー */}
+                      <div className="bg-white rounded-lg p-4 mb-4">
+                        <h4 className="font-semibold text-gray-800 mb-2">店舗情報</h4>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>営業時間: {evaluationResult.company_info.open_time} - {evaluationResult.company_info.close_time}</div>
+                          <div>売上目標: ¥{evaluationResult.company_info.target_sales.toLocaleString()}</div>
+                          <div>人件費率: {evaluationResult.company_info.labor_cost}%</div>
+                          <div>定休日: {evaluationResult.company_info.rest_day.join(', ')}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 個別評価 */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4">従業員別評価</h3>
+                  <div className="space-y-4">
+                    {evaluationResult.evaluate_decision_shift.map((evalShift, index) => {
+                      const member = evaluationResult.company_member.find(m => m.user_id === evalShift.user_id);
+                      return (
+                        <div key={index} className="border border-gray-200 rounded-lg p-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h4 className="font-semibold text-gray-800">{member?.name || `従業員 ${evalShift.user_id}`}</h4>
+                              <p className="text-sm text-gray-600">
+                                {member?.position} | {member?.post === 'employee' ? '社員' : 'アルバイト'}
+                              </p>
+                            </div>
+                            <div className="text-right text-sm">
+                              <p>{evalShift.day}</p>
+                              <p>{evalShift.start_time} - {evalShift.finish_time}</p>
+                            </div>
+                          </div>
+                          <div className="bg-gray-50 rounded p-3 mt-2">
+                            <p className="text-sm text-gray-700">{evalShift.evaluate}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* アクションボタン */}
             <div className="flex justify-between">
               <button
                 onClick={() => {
                   setShowPreview(false);
                   setGeneratedShifts([]);
+                  setEvaluationResult(null);
                 }}
                 className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >

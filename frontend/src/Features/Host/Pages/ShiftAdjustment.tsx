@@ -315,27 +315,31 @@ const ShiftAdjustment = () => {
                     {weekDates.map((date, index) => {
                       const dateStr = formatDate(date);
                       const shift = getShift(member.user_id, dateStr);
+                      const isPast = date < new Date(new Date().setHours(0, 0, 0, 0));
                       
                       return (
-                        <td key={index} className="border-t border-gray-200 p-2 text-center">
+                        <td key={index} className={`border-t border-gray-200 p-2 text-center ${isPast ? 'bg-gray-50' : ''}`}>
                           {shift ? (
                             <div className="space-y-2">
                               <input
                                 type="time"
                                 value={shift.start_time}
                                 onChange={(e) => handleUpdateShift(shift.edit_shift_id, 'start_time', e.target.value)}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                                className={`w-full px-2 py-1 text-sm border border-gray-300 rounded ${isPast ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                                disabled={isPast}
                               />
                               <div className="text-xs text-gray-500">〜</div>
                               <input
                                 type="time"
                                 value={shift.finish_time}
                                 onChange={(e) => handleUpdateShift(shift.edit_shift_id, 'finish_time', e.target.value)}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                                className={`w-full px-2 py-1 text-sm border border-gray-300 rounded ${isPast ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                                disabled={isPast}
                               />
                               <button
                                 onClick={() => handleDeleteShift(shift.edit_shift_id)}
-                                className="w-full px-2 py-1 text-xs text-red-600 hover:bg-red-50 rounded transition-colors"
+                                className={`w-full px-2 py-1 text-xs text-red-600 hover:bg-red-50 rounded transition-colors ${isPast ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                disabled={isPast}
                               >
                                 削除
                               </button>
@@ -343,7 +347,12 @@ const ShiftAdjustment = () => {
                           ) : (
                             <button
                               onClick={() => handleAddShift(member.user_id, date)}
-                              className="w-full h-24 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-colors flex items-center justify-center"
+                              className={`w-full h-24 border-2 border-dashed border-gray-300 rounded-lg transition-colors flex items-center justify-center ${
+                                isPast 
+                                  ? 'opacity-50 cursor-not-allowed' 
+                                  : 'hover:border-purple-400 hover:bg-purple-50'
+                              }`}
+                              disabled={isPast}
                             >
                               <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
