@@ -1,8 +1,3 @@
-import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from db_init import get_db_connection
 from .base import Base
 from .company_position import CompanyPosition
 from .company_rest_day import CompanyRestDay
