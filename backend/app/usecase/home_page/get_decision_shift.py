@@ -12,6 +12,6 @@ class GetDecisionShiftUseCase:
         company_id_validation = company_validation['CompanyIDValidation'](self.company_id).execute()
         company_id_entity = home_page_entities['DecisionShiftEntity'](company_id_validation).to_json()
 
-        company_decision_shift = decision_shift_repository['decision_shift_request'](company_id_entity)
+        company_decision_shift = decision_shift_repository['decision_shift_request'](company_id_entity['company_id'])
 
         return company_decision_shift
