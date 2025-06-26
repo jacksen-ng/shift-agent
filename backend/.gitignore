@@ -51,3 +51,5 @@ node_modules/
 .dataconnect
 
 credentials
+
+test/
