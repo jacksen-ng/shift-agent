@@ -1,8 +1,3 @@
-import os 
-import sys
-from fastapi import HTTPException
-
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
 from domain.validation.objects.user import user_validation
 from domain.entity.auth import auth_entities
 from repository.firebase.firebase_auth import FirebaseAuthService
@@ -16,8 +11,8 @@ class SigninUsecase:
         self.role = role
 
     def execute(self):
-        email_validation = user_validation['EmailValidation'](self.email).execute()
-        role_validation = user_validation['RoleValidation'](self.role).execute()
+        email_validation = user_validation['email_validation'](self.email).execute()
+        role_validation = user_validation['role_validation'](self.role).execute()
         
         values = auth_entities['SigninEntity'](email_validation, self.password, self.confirm_password, role_validation).to_json()
         

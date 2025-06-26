@@ -1,7 +1,3 @@
-import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 from domain.validation.objects.company import company_validation
 from domain.entity.company_info import company_info_entities
 from app.repository.crud.company_info import company_info_repository

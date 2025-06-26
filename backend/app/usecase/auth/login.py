@@ -1,8 +1,3 @@
-import os
-import sys
-from fastapi import HTTPException
-
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
 from domain.validation.objects.user import user_validation
 from domain.entity.auth import auth_entities
 from repository.firebase.firebase_auth import FirebaseAuthService
