@@ -1,6 +1,6 @@
-from domain.validation.objects.company import company_validation
-from domain.entity.home_page import home_page_entities
-from app.repository.crud.decision_shift import decision_shift_repository
+from ....domain.validation.objects.company import company_validation
+from ....domain.entity.home_page import home_page_entities
+from ...repository.crud.decision_shift import decision_shift_repository
 
 class GetDecisionShiftUseCase:
     def __init__(self, company_id):
