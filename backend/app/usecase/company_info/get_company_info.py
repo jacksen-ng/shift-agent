@@ -1,6 +1,6 @@
-from domain.validation.objects.company import company_validation
-from domain.entity.company_info import company_info_entities
-from app.repository.crud.company_info import company_info_repository
+from ....domain.validation.objects.company import company_validation
+from ....domain.entity.company_info import company_info_entities
+from ...repository.crud.company_info import company_info_repository
 
 class GetCompanyInfoUseCase:
     def __init__(self,company_id):
