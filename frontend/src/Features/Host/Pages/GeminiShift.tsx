@@ -174,7 +174,8 @@ const GeminiShift = () => {
 
   // 生成結果を適用して調整画面へ
   const handleApplyAndEdit = () => {
-    // 実際のアプリケーションでは、生成されたシフトを調整画面に渡す処理が必要
+    // AI生成されたシフトはバックエンドのedit_shiftテーブルに保存されているため、
+    // 調整画面で自動的に読み込まれます
     navigate('/host/shift-adjustment');
   };
 
