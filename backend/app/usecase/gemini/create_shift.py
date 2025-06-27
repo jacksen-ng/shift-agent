@@ -32,6 +32,10 @@ class GeminiCreateShiftUseCase:
         # detail_shift_rules をgeminiに送信する
         edit_shift_gemini = detail_shift_rules
 
-        # first_dayからlast_dayまでのedit_shiftを削除する関数を呼び出す（未完成）
+        edit_shift_repository['gemini_delete_shift'](
+            shift_rules_entity['company_id'],
+            shift_rules_entity['first_day'],
+            shift_rules_entity['last_day']
+        )
 
         edit_shift_repository['insert_shift_request'](edit_shift_gemini['edit_shift'])
