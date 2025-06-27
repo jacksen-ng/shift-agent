@@ -6,9 +6,7 @@ from firebase_admin import auth
 from firebase_admin.exceptions import FirebaseError
 import httpx
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
-
-from secret_manager.secret_key import initialize_firebase, get_firebase_secret
+from ...secret_manager.secret_key import initialize_firebase, get_firebase_secret
 
 class FirebaseAuthService:
     def __init__(self): 

@@ -1,6 +1,6 @@
 from ...db.db_init import get_session_scope
 from ...db.models import Company, User, UserProfile
-from datetime import datetime, date
+from datetime import datetime, date, time
 
 def signin_request_owner(firebase_uid: str, email: str, role: str,
                         company_name: str = None, 
@@ -18,12 +18,27 @@ def signin_request_owner(firebase_uid: str, email: str, role: str,
                         hour_pay: int = None,
                         post: str = None):
     
+    open_time_obj = None
+    close_time_obj = None
+    
+    if open_time:
+        try:
+            open_time_obj = datetime.strptime(open_time, '%H:%M').time()
+        except ValueError:
+            pass
+    
+    if close_time:
+        try:
+            close_time_obj = datetime.strptime(close_time, '%H:%M').time()
+        except ValueError:
+            pass
+    
     with get_session_scope() as session:
         company = Company(
             company_name=company_name or None,
             store_locate=store_locate or None,
-            open_time=open_time or None,
-            close_time=close_time or None,
+            open_time=open_time_obj,
+            close_time=close_time_obj,
             target_sales=target_sales or None,
             labor_cost=labor_cost or None,
         )
