@@ -7,7 +7,7 @@ from ..app.service.auth import auth_services
 app = APIRouter()
 
 @app.get('/decision-shift')
-def get_decision_shift(company_id: int):
+def get_decision_shift(company_id):
     try:
         # 認証機能が完了したらここで呼び出す
 
