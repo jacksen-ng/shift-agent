@@ -3,7 +3,7 @@ from ....domain.entity.gemini import gemini_entities
 from ...repository.crud.gemini_shift import gemini_shift_repository
 from ...repository.crud.edit_shift import edit_shift_repository
 
-class CreateShiftUseCase:
+class GeminiCreateShiftUseCase:
     def __init__(self, company_id, first_day, last_day, comment):
         self.company_id = company_id
         self.first_day = first_day
