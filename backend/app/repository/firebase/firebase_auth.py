@@ -176,3 +176,27 @@ class FirebaseAuthService:
                 "success": False,
                 "error": str(e),
             }
+
+    def refresh_id_token(self, refresh_token: str) -> Dict:
+        url = "https://securetoken.googleapis.com/v1/token?key=" + self.firebase_secret
+        payload = {
+            "grant_type": "refresh_token",
+            "refresh_token": refresh_token
+        }
+
+        try:
+            response = httpx.post(url, json=payload)
+            response.raise_for_status()
+            data = response.json()
+            return {
+                "success": True,
+                "id_token": data.get("id_token"),
+                "refresh_token": data.get("refresh_token"),
+                "expires_in": data.get("expires_in"),
+            }
+        except httpx.HTTPStatusError as e:
+            error_message = e.response.json().get("error", {}).get("message", str(e))
+            return {
+                "success": False,
+                "error": error_message,
+            }
