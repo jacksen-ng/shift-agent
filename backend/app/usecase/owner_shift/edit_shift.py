@@ -11,8 +11,6 @@ class EditShiftUseCase:
         self.delete_edit_shift = delete_edit_shift
 
     def execute(self):
-        # 認証
-
         company_id_validation = company_validation['CompanyIDValidation'](self.company_id).execute()
 
         add_edit_shift_validation = []

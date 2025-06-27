@@ -7,8 +7,6 @@ class CompleteShiftUseCase:
         self.company_id = company_id
 
     def execute(self):
-        # 認証
-
         company_id_validation = company_validation['CompanyIDValidation'](self.company_id).execute()
 
         company_id_entity = owner_shift_entities['CompleteShiftEntity'](company_id_validation).to_json()
