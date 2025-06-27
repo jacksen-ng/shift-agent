@@ -9,7 +9,7 @@ app = APIRouter()
 @app.get('/company-info')
 def get_company_info(request: Request, response: Response, company_id):
     try:
-        auth_services.verify_and_refresh_token(request, response, required_role="owner")
+        auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
         response_values = company_info_usecase['GetCompanyInfoUseCase'](company_id).execute()
         return response_values
@@ -23,7 +23,7 @@ def get_company_info(request: Request, response: Response, company_id):
 @app.post('/company-info-edit')
 def edit_company_info(request: Request, response: Response, company_info, rest_day, position):
     try:
-        auth_services.verify_and_refresh_token(request, response, required_role="owner")
+        auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
         response_values = company_info_usecase['EditCompanyInfoUseCase'](
             company_info['company_id'],
