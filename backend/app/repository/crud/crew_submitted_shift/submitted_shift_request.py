@@ -6,8 +6,8 @@ def submitted_shift_request(shifts: list[dict]):
     with get_session_scope() as session:
         for shift in shifts:
             day = datetime.strptime(shift["day"], "%Y-%m-%d").date()
-            start_time = datetime.strptime(shift["start_time"], "%H:%M").time()
-            finish_time = datetime.strptime(shift["finish_time"], "%H:%M").time()
+            start_time = datetime.strptime(shift["start_time"], "%H:%M:%S").time()
+            finish_time = datetime.strptime(shift["finish_time"], "%H:%M:%S").time()
 
             submitted_shift = SubmittedShift(
                 user_id=shift["user_id"],
@@ -26,5 +26,5 @@ def submitted_shift_request(shifts: list[dict]):
                 finish_time=finish_time
             )
             session.add(edit_shift)
-
-        return {"message": "Shift submitted successfully"}
+            
+        session.commit()

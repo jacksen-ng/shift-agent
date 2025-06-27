@@ -14,8 +14,8 @@ def insert_shift_request(new_shifts: list[dict]):
                     user_id=shift["user_id"],
                     company_id=shift["company_id"],
                     day=shift_day,
-                    start_time=datetime.strptime(shift["start_time"], "%H:%M").time(),
-                    finish_time=datetime.strptime(shift["finish_time"], "%H:%M").time()
+                    start_time=datetime.strptime(shift["start_time"], "%H:%M:%S").time(),
+                    finish_time=datetime.strptime(shift["finish_time"], "%H:%M:%S").time()
                 )
                 session.add(shift_obj)
                 inserted_count += 1
