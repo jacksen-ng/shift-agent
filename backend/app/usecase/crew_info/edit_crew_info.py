@@ -15,8 +15,6 @@ class EditCrewInfoUseCase:
         self.post = post
 
     def execute(self):
-        # 検証
-
         user_id_validation = user_profile_validation['UserIDValidation'](self.user_id).execute()
         name_validation = user_profile_validation['NameValidation'](self.name).execute()
         age_validation = user_profile_validation['AgeValidation'](self.age).execute()

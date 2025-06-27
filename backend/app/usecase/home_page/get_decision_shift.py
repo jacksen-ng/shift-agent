@@ -7,8 +7,6 @@ class GetDecisionShiftUseCase:
         self.company_id = company_id
 
     def execute(self):
-        # 認証機能が完成したら、ここで認証を行う
-
         company_id_validation = company_validation['CompanyIDValidation'](self.company_id).execute()
         company_id_entity = home_page_entities['DecisionShiftEntity'](company_id_validation).to_json()
 

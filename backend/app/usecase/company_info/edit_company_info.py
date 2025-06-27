@@ -17,8 +17,6 @@ class EditCompanyInfoUseCase:
         self.position = position
 
     def execute(self):
-        # 検証を実行
-
         company_id_validation = company_validation['CompanyIDValidation'](self.company_id).execute()
         company_name_validation = company_validation['CompanyNameValidation'](self.company_name).execute()
         store_location_validation = company_validation['StoreLocateValidation'](self.store_location).execute()
