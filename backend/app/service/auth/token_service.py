@@ -14,7 +14,6 @@ def verify_id_token(id_token: str, required_role: str = None) -> None:
         if required_role and user_role != required_role:
             raise HTTPException(f"{required_role}として認証されていません")
 
-        return None 
     
     except FirebaseError as e:
         if "token has expired" in str(e).lower():
