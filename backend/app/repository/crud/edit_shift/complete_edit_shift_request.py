@@ -3,7 +3,7 @@ from ...db.models import EditShift, DecisionShift
 from datetime import date
 from sqlalchemy import and_, exists
 
-def insert_new_shifts_from_edit(company_id: int):
+def complete_edit_shift_request(company_id: int):
     today = date.today()
     inserted_count = 0
 
@@ -43,5 +43,5 @@ def insert_new_shifts_from_edit(company_id: int):
                 )
                 session.add(new_decision)
                 inserted_count += 1
-
-    return {"message": f"{inserted_count} shifts inserted into decision_shift."}
+                
+        session.commit()
