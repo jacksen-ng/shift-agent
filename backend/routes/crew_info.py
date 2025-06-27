@@ -9,7 +9,7 @@ app = APIRouter()
 @app.get('/crew-info')
 def get_crew_info(request: Request, response: Response, company_id):
     try:
-        auth_services.verify_and_refresh_token(request, response, required_role="owner")
+        auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
         response_values = crew_info_usecase['GetCrewInfoUseCase'](company_id).execute()
         return response_values
@@ -33,7 +33,7 @@ def edit_crew_info(request: Request, response: Response,
     post
 ):
     try:
-        auth_services.verify_and_refresh_token(request, response, required_role="owner")
+        auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
         response_values = crew_info_usecase['EditCrewInfoUseCase'](
             user_id,

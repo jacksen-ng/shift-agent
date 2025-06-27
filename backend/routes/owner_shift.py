@@ -9,7 +9,7 @@ app = APIRouter()
 @app.get('/edit-shift')
 def get_shift_info(request: Request, response: Response, company_id):
     try:
-        auth_services.verify_and_refresh_token(request, response, required_role="owner")
+        auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
         response_values = owner_shift_usecase['owner_shift_usecase'](company_id).execute()
         return response_values
@@ -23,7 +23,7 @@ def get_shift_info(request: Request, response: Response, company_id):
 @app.post('/edit-shift')
 def edit_shift(request: Request, response: Response, company_id, add_edit_shift, update_edit_shift, delete_edit_shift):
     try:
-        auth_services.verify_and_refresh_token(request, response, required_role="owner")
+        auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
         response_values = owner_shift_usecase['EditShiftUseCase'](
             company_id,
@@ -42,7 +42,7 @@ def edit_shift(request: Request, response: Response, company_id, add_edit_shift,
 @app.post('/complete_edit_sift')
 def complete_shift(request: Request, response: Response, company_id):
     try:
-        auth_services.verify_and_refresh_token(request, response, required_role="owner")
+        auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
         owner_shift_usecase['CompleteShiftUseCase'](company_id).execute()
 

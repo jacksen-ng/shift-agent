@@ -9,7 +9,7 @@ app = APIRouter()
 @app.get('/decision-shift')
 def get_decision_shift(request: Request, response: Response, company_id):
     try:
-        auth_services.verify_and_refresh_token(request, response)
+        auth_services['verify_and_refresh_token'](request, response)
 
         response_values = home_page_usecase['GetDecisionShiftUseCase'](company_id).execute()
         return response_values
