@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 
 from ..app.usecase.crew_info import crew_info_usecase
@@ -7,9 +7,9 @@ from ..app.service.auth import auth_services
 app = APIRouter()
 
 @app.get('/crew-info')
-def get_crew_info(company_id):
+def get_crew_info(request: Request, response: Response, company_id):
     try:
-        # 認証機能が完了したらここで呼び出す
+        auth_services.verify_and_refresh_token(request, response, required_role="owner")
 
         response_values = crew_info_usecase['GetCrewInfoUseCase'](company_id).execute()
         return response_values
@@ -21,7 +21,7 @@ def get_crew_info(company_id):
         return JSONResponse(status_code=400, content={'message': e})
     
 @app.post('/crew-info-edit')
-def edit_crew_info(
+def edit_crew_info(request: Request, response: Response,
     user_id,
     name,
     age,
@@ -33,7 +33,7 @@ def edit_crew_info(
     post
 ):
     try:
-        # 認証機能が完了したらここで呼び出す
+        auth_services.verify_and_refresh_token(request, response, required_role="owner")
 
         response_values = crew_info_usecase['EditCrewInfoUseCase'](
             user_id,
