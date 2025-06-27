@@ -21,8 +21,8 @@ def edit_shift_request(company_id: int):
                 "edit_shift_id": r.edit_shift_id,
                 "user_id": r.user_id,
                 "day": r.day.isoformat() if r.day else None,
-                "start_time": r.start_time.strftime("%H:%M") if r.start_time else None,
-                "finish_time": r.finish_time.strftime("%H:%M") if r.finish_time else None
+                "start_time": r.start_time.strftime("%H:%M:%S") if r.start_time else None,
+                "finish_time": r.finish_time.strftime("%H:%M:%S") if r.finish_time else None
             }
             for r in shift_results
         ]

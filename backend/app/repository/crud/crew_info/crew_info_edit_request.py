@@ -26,5 +26,5 @@ def crew_info_edit_request(
         profile.join_company_day = datetime.strptime(join_company_day, "%Y-%m-%d").date()
         profile.hour_pay = hour_pay
         profile.post = post
-
-        return {"message": "Crew profile updated successfully"}
+        
+        session.commit()
