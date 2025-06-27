@@ -1,5 +1,5 @@
 from .models import Base
-from db_init import get_db_connection
+from .db_init import get_db_connection
 
 def drop_tables():
     try:

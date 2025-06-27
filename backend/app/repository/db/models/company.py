@@ -10,3 +10,4 @@ class Company(Base):
     close_time = Column(Time)
     target_sales = Column(Integer)
     labor_cost = Column(Integer)
+    comment = Column(Text, nullable=True)
