@@ -33,7 +33,6 @@ class FirebaseAuthService:
             return {
                 "success": True,
                 "firebase_uid": data.get("localId"),
-                "email": data.get("email"),
                 "id_token": data.get("idToken"),
                 "refresh_token": data.get("refreshToken"),
                 "expires_in": data.get("expiresIn"),
