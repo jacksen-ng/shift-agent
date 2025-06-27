@@ -10,7 +10,7 @@ def get_user_profiles_by_company(company_id: int):
             .all()
         )
 
-        return [
+        members = [
             {
                 "user_id": p.user_id,
                 "name": p.name,
@@ -24,3 +24,8 @@ def get_user_profiles_by_company(company_id: int):
             }
             for p in profiles
         ]
+
+        return {
+            "company_member": members
+        }
+

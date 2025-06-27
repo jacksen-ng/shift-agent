@@ -2,7 +2,7 @@ from ...db.db_init import get_session_scope
 from ...db.models import EditShift
 from datetime import datetime
 
-def insert_future_shifts(new_shifts: list[dict]):
+def insert_shift_request(new_shifts: list[dict]):
     today = datetime.today().date()
     inserted_count = 0
 
@@ -20,4 +20,4 @@ def insert_future_shifts(new_shifts: list[dict]):
                 session.add(shift_obj)
                 inserted_count += 1
 
-        return {"message": f"{inserted_count} future shifts inserted"}
+        session.commit()

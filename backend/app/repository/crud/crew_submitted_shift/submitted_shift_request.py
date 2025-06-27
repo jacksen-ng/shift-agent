@@ -2,7 +2,7 @@ from datetime import datetime
 from ...db.db_init import get_session_scope
 from ...db.models import SubmittedShift, EditShift
 
-def submit_shift_request(shifts: list[dict]):
+def submitted_shift_request(shifts: list[dict]):
     with get_session_scope() as session:
         for shift in shifts:
             day = datetime.strptime(shift["day"], "%Y-%m-%d").date()

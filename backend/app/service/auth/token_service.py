@@ -2,8 +2,8 @@ from fastapi import Request, Response
 from firebase_admin import auth
 from firebase_admin.exceptions import FirebaseError
 
-from app.repository.firebase.firebase_auth import FirebaseAuthService
-from app.service.auth.save_cookie import save_auth_cookies
+from ...repository.firebase.firebase_auth import FirebaseAuthService
+from ...service.auth.save_cookie import save_auth_cookies
 
 def verify_id_token(id_token: str, required_role: str = None) -> dict:
     try:

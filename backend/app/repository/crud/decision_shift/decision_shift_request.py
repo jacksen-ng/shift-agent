@@ -1,7 +1,7 @@
 from ...db.db_init import get_session_scope
 from ...db.models import User, UserProfile, DecisionShift, CompanyRestDay
 
-def decision_shift_request(company_id:int):
+def decision_shift_request(company_id: int):
     with get_session_scope() as session:
         shift_results = (
             session.query(
@@ -13,34 +13,36 @@ def decision_shift_request(company_id:int):
                 UserProfile.post
             )
             .join(User, User.user_id == DecisionShift.user_id)
-            .join(UserProfile, UserProfile.user_id == User.user_id)
+            .outerjoin(UserProfile, UserProfile.user_id == User.user_id)
             .filter(User.company_id == company_id)
             .order_by(DecisionShift.day, DecisionShift.start_time)
             .all()
         )
-        
+
         shifts = [
             {
                 "name": r.name,
                 "position": r.position,
-                "post": r.post,
                 "day": r.day.isoformat() if r.day else None,
+                "post": r.post,
                 "start_time": r.start_time.strftime("%H:%M") if r.start_time else None,
                 "finish_time": r.finish_time.strftime("%H:%M") if r.finish_time else None
             }
             for r in shift_results
         ]
-        
+
         rest_day_results = (
             session.query(CompanyRestDay.rest_day)
             .filter(CompanyRestDay.company_id == company_id)
             .order_by(CompanyRestDay.rest_day)
             .all()
         )
-        
-        rest_days = [{"rest_day": r.rest_day.isoformat()} for r in rest_day_results]
-        
+
+        rest_days = [
+            {"rest_day": r.rest_day.isoformat()} for r in rest_day_results
+        ]
+
         return {
-            "shifts": shifts,
-            "rest_days": rest_days
+            "decision_shift": shifts,
+            "rest_day": rest_days
         }
