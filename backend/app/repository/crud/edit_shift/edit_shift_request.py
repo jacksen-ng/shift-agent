@@ -1,6 +1,5 @@
 from ...db.db_init import get_session_scope
 from ...db.models import EditShift, UserProfile
-from datetime import datetime
 
 def edit_shift_request(company_id: int):
     with get_session_scope() as session:
@@ -17,13 +16,13 @@ def edit_shift_request(company_id: int):
             .all()
         )
 
-        shifts = [
+        edit_shifts = [
             {
                 "edit_shift_id": r.edit_shift_id,
                 "user_id": r.user_id,
-                "day": r.day.isoformat(),
-                "start_time": r.start_time.strftime("%H:%M"),
-                "finish_time": r.finish_time.strftime("%H:%M")
+                "day": r.day.isoformat() if r.day else None,
+                "start_time": r.start_time.strftime("%H:%M") if r.start_time else None,
+                "finish_time": r.finish_time.strftime("%H:%M") if r.finish_time else None
             }
             for r in shift_results
         ]
@@ -34,7 +33,7 @@ def edit_shift_request(company_id: int):
             .all()
         )
 
-        users = [
+        company_member_name = [
             {
                 "user_id": u.user_id,
                 "name": u.name
@@ -43,6 +42,6 @@ def edit_shift_request(company_id: int):
         ]
 
         return {
-            "shifts": shifts,
-            "users": users
+            "edit_shift": edit_shifts,
+            "company_member_name": company_member_name
         }
