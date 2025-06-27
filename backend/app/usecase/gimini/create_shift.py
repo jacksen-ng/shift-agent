@@ -20,7 +20,7 @@ class GeminiCreateShiftUseCase:
             first_day_validation,
             last_day_validation,
             self.comment
-        )
+        ).to_json()
 
         detail_shift_rules = gemini_shift_repository['gemini_create_shift'](
             shift_rules_entity['company_id'],
