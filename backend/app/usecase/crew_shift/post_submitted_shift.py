@@ -40,5 +40,5 @@ class PostSubmittedShiftUseCase:
                 'finish_time': a_submit_shift['finish_time']
             })
         
-        crew_submitted_shift_repository['submitted_shift_request'](submitted_shift_entity)
+        crew_submitted_shift_repository['submitted_shift_request'](submitted_shift_json)
         
