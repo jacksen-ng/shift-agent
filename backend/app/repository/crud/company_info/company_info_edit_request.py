@@ -51,5 +51,5 @@ def company_info_edit_request(
                 position_name=name
             )
             session.add(position)
-
-        return {"message": "Company info updated successfully"}
+            
+        session.commit()
