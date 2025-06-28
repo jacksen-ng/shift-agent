@@ -44,6 +44,7 @@
       "last 1 safari version"
     ]
   },
+  "proxy": "https://shift-agent-backend-562837022896.asia-northeast1.run.app",
   "devDependencies": {
     "@types/axios": "^0.9.36",
     "@types/react-router-dom": "^5.3.3",

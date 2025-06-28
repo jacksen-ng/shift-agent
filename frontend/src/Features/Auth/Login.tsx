@@ -33,11 +33,18 @@ const Login: React.FC = () => {
 
       // AuthService.tsで既にlocalStorageとCookieに保存されているため、
       // ここでは追加の保存処理は不要
+      
+      console.log('ログイン成功レスポンス:', response);
+      console.log('ユーザーロール:', response.role);
 
       if (response.role === 'owner') {
+        console.log('オーナーとしてログイン、/host/homeへ遷移');
         navigate('/host/home');
       } else if (response.role === 'crew') {
+        console.log('クルーとしてログイン、/crew/homeへ遷移');
         navigate('/crew/home');
+      } else {
+        console.error('不明なロール:', response.role);
       }
     } catch (error: any) {
       console.error('ログインエラー詳細:', {

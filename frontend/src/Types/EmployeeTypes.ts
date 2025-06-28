@@ -43,3 +43,15 @@ export interface CrewInfoEditRequest {
   hour_pay: number;
   post: Post;
 }
+
+export interface CrewInfoEditRequest {
+  user_id: number;
+  name: string;
+  age: number;
+  phone: string;
+  position: string;
+  evaluate: Evaluate;
+  experience: Experience;
+  hour_pay: number;
+  post: Post;
+}

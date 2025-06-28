@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://shift-agent-backend-562837022896.asia-northeast1.run.app';
+// 認証系APIのベースURL（直接アクセス）
+const AUTH_BASE_URL = 'https://shift-agent-backend-562837022896.asia-northeast1.run.app';
 
 interface LoginResponse {
   user_id: number;
@@ -44,58 +45,98 @@ export const getAccessToken = (): string | null => {
 
 export const login = async (email: string, password: string) => {
   try {
-    const response = await axios.post<LoginResponse>(`${API_BASE_URL}/login`, {
+    // 認証系は直接バックエンドにアクセス（プロキシを使わない）
+    const response = await axios.post<LoginResponse>(`${AUTH_BASE_URL}/login`, {
       email,
       password
     });
     
+    console.log('ログインAPIレスポンス:', response.data);
+    
     if (response.status === 200 && response.data) {
-      // Mock APIの変更に対応：トークンは返されないので、ダミートークンをセット
-      setCookie('access_token', 'dummy_access_token');
-      setCookie('token_type', 'Bearer');
+      // アクセストークンが返されれば使用、なければダミートークンをセット
+      const accessToken = response.data.access_token || 'dummy_access_token';
+      setCookie('access_token', accessToken);
+      setCookie('token_type', response.data.token_type || 'Bearer');
       
-      // 有効期限を1時間後に設定
-      const expiresAt = new Date().getTime() + (3600 * 1000);
+      // 有効期限を設定
+      const expiresIn = response.data.expires_in || 3600;
+      const expiresAt = new Date().getTime() + (expiresIn * 1000);
       setCookie('expires_at', expiresAt.toString());
       
       // LocalStorageに基本情報を保存
       localStorage.setItem('user_id', response.data.user_id.toString());
       localStorage.setItem('company_id', response.data.company_id.toString());
       
-      // APIから返されたroleを使用
-      const role = response.data.role;
+      // APIから返されたroleを使用（返されない場合はデフォルトで'owner'とする）
+      const role = response.data.role || 'owner';
+      console.warn('APIレスポンスにroleが含まれていません。デフォルトで"owner"を設定します。');
       localStorage.setItem('role', role);
       
-      return {
+      const result = {
         user_id: response.data.user_id.toString(),
         company_id: response.data.company_id.toString(),
         role: role,
-        access_token: 'dummy_access_token',
+        access_token: accessToken,
         message: 'ログイン成功'
       };
+      
+      console.log('ログイン処理の戻り値:', result);
+      return result;
     }
     
     throw new Error('ログインに失敗しました');
   } catch (error: any) {
-    if (error.response?.status === 400) {
-      throw error;
+    console.error('ログインエラー:', error.response?.data || error.message);
+    if (error.response?.status === 400 || error.response?.status === 422) {
+      throw new Error(error.response.data.detail || 'メールアドレスまたはパスワードが正しくありません');
+    }
+    if (error.response?.status === 500) {
+      throw new Error('サーバーエラーが発生しました。しばらくしてから再度お試しください');
     }
     throw new Error('サーバーとの通信に失敗しました');
   }
 };
 
-export const registerHost = async (_name: string, email: string, password: string) => {
+interface SignInRequest {
+  email: string;
+  password: string;
+  confirm_password: string;
+}
+
+export const registerHost = async (data: SignInRequest) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/sign-in`, {
-      email,
-      password,
-      confirm_password: password, // 確認用パスワードも同じ値を送る
-      role: 'owner'
-    });
+    // API設計図通り：/sign-in（ハイフン付き）で roleも必要
+    const requestBody = {
+      email: data.email,
+      password: data.password,
+      confirm_password: data.confirm_password,
+      role: 'owner'  // オーナー登録なのでroleは'owner'
+    };
+    
+    console.log('登録リクエスト:', requestBody);
+    
+    // 認証系は直接バックエンドにアクセス
+    const response = await axios.post(`${AUTH_BASE_URL}/signin`, requestBody);
+    console.log('登録成功:', response.data);
+    
     return response.data;
   } catch (error: any) {
+    console.error('登録エラー:', error.response?.data || error.message);
     if (error.response?.status === 400) {
-      throw error;
+      throw new Error(error.response.data.detail || '入力内容に誤りがあります');
+    }
+    if (error.response?.status === 422) {
+      // バリデーションエラーの詳細を表示
+      const details = error.response.data.detail;
+      if (Array.isArray(details)) {
+        const messages = details.map((d: any) => d.msg).join(', ');
+        throw new Error(`入力エラー: ${messages}`);
+      }
+      throw new Error('入力内容を確認してください');
+    }
+    if (error.response?.status === 500) {
+      throw new Error('サーバーエラーが発生しました');
     }
     throw new Error('登録に失敗しました');
   }

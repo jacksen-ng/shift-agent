@@ -2,38 +2,46 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../../Services/apiClient';
 import { getErrorMessage, logError } from '../../Utils/errorHandler';
 import ErrorToast from '../../Components/ErrorToast';
+import { registerHost } from '../../Services/AuthService';
 
 const HostRegister: React.FC = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
+    confirm_password: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  try {
-    const response = await apiClient.post("/host/register", formData);
-    alert("登録が完了しました");
-    navigate("/login");
-  } catch (error) {
-    logError(error, 'HostRegister.handleSubmit');
-    setErrorMessage(getErrorMessage(error));
-  }
-};
+    e.preventDefault();
+    
+    // パスワード確認
+    if (formData.password !== formData.confirm_password) {
+      setErrorMessage('パスワードが一致しません');
+      return;
+    }
+
+    try {
+      await registerHost(formData);
+      alert('登録が完了しました');
+      navigate('/login');
+    } catch (error) {
+      logError(error, 'HostRegister.handleSubmit');
+      setErrorMessage(getErrorMessage(error));
+    }
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -49,18 +57,6 @@ const HostRegister: React.FC = () => {
         className="bg-white p-8 rounded-lg shadow-md w-full max-w-md space-y-6"
       >
         <h2 className="text-2xl font-bold text-center">オーナー登録</h2>
-
-        <div>
-          <label className="block font-semibold mb-1">名前</label>
-          <input
-            type="text"
-            name="name"
-            className="w-full border rounded px-3 py-2"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
 
         <div>
           <label className="block font-semibold mb-1">メールアドレス</label>
@@ -83,6 +79,20 @@ const HostRegister: React.FC = () => {
             value={formData.password}
             onChange={handleChange}
             required
+            minLength={6}
+          />
+        </div>
+
+        <div>
+          <label className="block font-semibold mb-1">パスワード確認</label>
+          <input
+            type="password"
+            name="confirm_password"
+            className="w-full border rounded px-3 py-2"
+            value={formData.confirm_password}
+            onChange={handleChange}
+            required
+            minLength={6}
           />
         </div>
 
@@ -92,6 +102,10 @@ const HostRegister: React.FC = () => {
         >
           登録する
         </button>
+
+        <p className="text-sm text-gray-600 text-center">
+          登録後、店舗情報や個人情報の設定画面に移動します
+        </p>
       </form>
     </div>
   );

@@ -1,8 +1,10 @@
-import axios from 'axios';
+import axios, { InternalAxiosRequestConfig } from 'axios';
 import { getAccessToken, isTokenExpired, logout } from './AuthService';
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || 'https://shift-agent-backend-562837022896.asia-northeast1.run.app';
+// 開発環境ではプロキシを使用してCORSを回避
+const API_BASE_URL = process.env.NODE_ENV === 'development' 
+  ? '' // 開発環境ではプロキシ経由
+  : (process.env.REACT_APP_API_BASE_URL || 'https://shift-agent-backend-562837022896.asia-northeast1.run.app');
 
 // axiosインスタンスを作成
 const apiClient = axios.create({
@@ -26,11 +28,8 @@ apiClient.interceptors.request.use(
 
     const token = getAccessToken();
     if (token && !config.url?.includes('/login') && !config.url?.includes('/sign-in')) {
-      // headers が undefined の場合は初期化
-      if (!config.headers) {
-        config.headers = {};
-      }
-      config.headers['Authorization'] = `Bearer ${token}`;
+      // Authorizationヘッダーを設定
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
