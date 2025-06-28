@@ -21,10 +21,11 @@ def get_crew_info(company_id, request: Request, response: Response):
         return JSONResponse(status_code=400, content={'message': e})
     
 @app.post('/crew-info-edit')
-def edit_crew_info(request_body, request: Request, response: Response):
+def edit_crew_info(request: Request, response: Response):
     try:
         auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
+        request_body = request.json()
         response_values = crew_info_usecase['EditCrewInfoUseCase'](
             request_body['user_id'],
             request_body['name'],

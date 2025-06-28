@@ -7,10 +7,11 @@ from ..app.service.auth import auth_services
 app = APIRouter()
 
 @app.post('/submitted-shift')
-def post_submit_shift(request_body, request: Request, response: Response):
+def post_submit_shift(request: Request, response: Response):
     try:
         auth_services['verify_and_refresh_token'](request, response, required_role="crew")
 
+        request_body = request.json()
         crew_shift_usecases['PostSubmittedShiftUseCase'](
             request_body['company_member_info']['user_id'],
             request_body['company_member_info']['company_id'],
