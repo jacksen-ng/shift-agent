@@ -20,8 +20,7 @@ async def post_login(request: Request, response: Response):
 async def post_signin(request: Request):
     try:
         request_body = await request.json()
-        response_values = auth_usecase['SigninUsecase'](request_body['email'], request_body['password'], request_body['confirm_password'], request_body['role']).execute()
-        return response_values
+        auth_usecase['SigninUsecase'](request_body['email'], request_body['password'], request_body['confirm_password'], request_body['role']).execute()
     except HTTPException as e:
         return JSONResponse(status_code=401, content={'message': e})
     except Exception as e:
