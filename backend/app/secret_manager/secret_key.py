@@ -27,3 +27,12 @@ def get_firebase_secret(project_id, secret_id, version_id="latest"):
     name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
     response = client.access_secret_version(name=name)
     return response.payload.data.decode("UTF-8")
+
+def get_gemini_secret(project_id, secret_id, version_id="latest"):
+    client = secretmanager.SecretManagerServiceClient()
+    name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
+    response = client.access_secret_version(name=name)
+    secret_value = response.payload.data.decode("UTF-8")
+    if "=" in secret_value:
+        return secret_value.split("=", 1)[1]
+    return secret_value
