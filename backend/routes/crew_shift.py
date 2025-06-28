@@ -7,11 +7,15 @@ from ..app.service.auth import auth_services
 app = APIRouter()
 
 @app.post('/submitted-shift')
-def post_submit_shift(request: Request, response: Response, company_member_info, submit_shift):
+def post_submit_shift(request_body, request: Request, response: Response):
     try:
         auth_services['verify_and_refresh_token'](request, response, required_role="crew")
 
-        crew_shift_usecases['PostSubmittedShiftUseCase'](company_member_info['user_id'], company_member_info['company_id'], submit_shift)
+        crew_shift_usecases['PostSubmittedShiftUseCase'](
+            request_body['company_member_info']['user_id'],
+            request_body['company_member_info']['company_id'],
+            request_body['submit_shift']
+        )
 
     except HTTPException as e:
         return JSONResponse(status_code=401, content={'message': e})

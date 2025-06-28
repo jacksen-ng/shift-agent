@@ -7,7 +7,7 @@ from ..app.service.auth import auth_services
 app = APIRouter()
 
 @app.get('/company-info')
-def get_company_info(request: Request, response: Response, company_id):
+def get_company_info(company_id, request: Request, response: Response):
     try:
         auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
@@ -21,20 +21,20 @@ def get_company_info(request: Request, response: Response, company_id):
         return JSONResponse(status_code=400, content={'message': e})
     
 @app.post('/company-info-edit')
-def edit_company_info(request: Request, response: Response, company_info, rest_day, position):
+def edit_company_info(request_body, request: Request, response: Response):
     try:
         auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
         response_values = company_info_usecase['EditCompanyInfoUseCase'](
-            company_info['company_id'],
-            company_info['company_name'],
-            company_info['store_location'],
-            company_info['open_time'],
-            company_info['close_time'],
-            company_info['target_sales'],
-            company_info['labor_cast'],
-            rest_day,
-            position
+            request_body['company_info']['company_id'],
+            request_body['company_info']['company_name'],
+            request_body['company_info']['store_location'],
+            request_body['company_info']['open_time'],
+            request_body['company_info']['close_time'],
+            request_body['company_info']['target_sales'],
+            request_body['company_info']['labor_cast'],
+            request_body['rest_day'],
+            request_body['position']
         )
         return response_values
     

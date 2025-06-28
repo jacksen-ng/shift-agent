@@ -7,7 +7,7 @@ from ..app.service.auth import auth_services
 app = APIRouter()
 
 @app.get('/crew-info')
-def get_crew_info(request: Request, response: Response, company_id):
+def get_crew_info(company_id, request: Request, response: Response):
     try:
         auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
@@ -21,30 +21,20 @@ def get_crew_info(request: Request, response: Response, company_id):
         return JSONResponse(status_code=400, content={'message': e})
     
 @app.post('/crew-info-edit')
-def edit_crew_info(request: Request, response: Response,
-    user_id,
-    name,
-    age,
-    phone,
-    position,
-    evaluate,
-    join_company_day,
-    hour_pay,
-    post
-):
+def edit_crew_info(request_body, request: Request, response: Response):
     try:
         auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
         response_values = crew_info_usecase['EditCrewInfoUseCase'](
-            user_id,
-            name,
-            age,
-            phone,
-            position,
-            evaluate,
-            join_company_day,
-            hour_pay,
-            post
+            request_body['user_id'],
+            request_body['name'],
+            request_body['age'],
+            request_body['phone'],
+            request_body['position'],
+            request_body['evaluate'],
+            request_body['join_company_day'],
+            request_body['hour_pay'],
+            request_body['post']
         ).execute()
         return response_values
     

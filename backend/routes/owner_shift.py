@@ -7,7 +7,7 @@ from ..app.service.auth import auth_services
 app = APIRouter()
 
 @app.get('/edit-shift')
-def get_shift_info(request: Request, response: Response, company_id):
+def get_shift_info(company_id, request: Request, response: Response):
     try:
         auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
@@ -21,15 +21,15 @@ def get_shift_info(request: Request, response: Response, company_id):
         return JSONResponse(status_code=400, content={'message': e})
     
 @app.post('/edit-shift')
-def edit_shift(request: Request, response: Response, company_id, add_edit_shift, update_edit_shift, delete_edit_shift):
+def edit_shift(request_body, request: Request, response: Response):
     try:
         auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
         response_values = owner_shift_usecase['EditShiftUseCase'](
-            company_id,
-            add_edit_shift,
-            update_edit_shift,
-            delete_edit_shift
+            request_body['company_id'],
+            request_body['add_edit_shift'],
+            request_body['update_edit_shift'],
+            request_body['delete_edit_shift']
         ).execute()
         return response_values
     
@@ -40,11 +40,11 @@ def edit_shift(request: Request, response: Response, company_id, add_edit_shift,
         return JSONResponse(status_code=400, content={'message': e})
     
 @app.post('/complete_edit_sift')
-def complete_shift(request: Request, response: Response, company_id):
+def complete_shift(request_body, request: Request, response: Response):
     try:
         auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
-        owner_shift_usecase['CompleteShiftUseCase'](company_id).execute()
+        owner_shift_usecase['CompleteShiftUseCase'](request_body['company_id']).execute()
 
     except HTTPException as e:
         return JSONResponse(status_code=401, content={'message': e})
