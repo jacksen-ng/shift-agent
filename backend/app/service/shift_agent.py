@@ -27,9 +27,12 @@ def call_gemini_model(
   system_instruction: str,
   user_content: str,
   model_name: str = "gemini-2.0-flash",
-  api_key=api_key
+  api_key: str = api_key
 ) -> str:
-    """Geminiモデルを呼び出し、システムプロンプトとユーザーコンテンツを渡すヘルパー関数"""
+    """
+    Geminiを呼び出し、システムプロンプトとユーザーコンテンツを渡すヘルパー関数．
+    すべてのツールはこのヘルパー関数を呼び出すように設計している．
+    """
     client = genai.Client(api_key=api_key)
     response = client.models.generate_content(
       model="gemini-2.0-flash",
@@ -40,6 +43,40 @@ def call_gemini_model(
     )
     return response.text
 
+# ツール要件
+"""
+- シフト作成ツール．
+  - 投げた情報を考慮してシフトを作成してくれる．
+  - 大まかなシフトを作るのが得意．基本的に考慮して欲しい部分など．
+  - input: json -> output: json
+
+- シフト評価ツール
+  - 作成したシフトに関して評価をするツール．
+  - 定義した要件に基づき，定量的な評価をする．最終的なスコアと改善するべきFBを作成する．
+  - input: json -> output: str
+
+- シフト修正ツール
+  - 評価とFBに基づき．シフトを修正してくれるツール．
+  - 細かな調整や，コメントの対応をおこなう．
+  - input: [json, str] -> output: json
+
+- シフト完成ガードレール．
+  - 絶対守らないといけない要件を満たすためのツール．
+  - 例えば定休日にシフトが入っていないかを確認．希望シフト以外に入れられていないかを確認．
+  - ガードに引っかかった場合はjsonの中に何らかのinputをするか，もう一度シフト作成ツールを叩く？
+  - input: json -> output: json
+"""
+@tool
+def create_first_shift(user_content: json) ->:
+  """
+
+  Args:
+      user_content (json): _description_
+
+  Returns:
+      : _description_
+  """
+  system_instruction
 
 
 @tool
@@ -90,8 +127,6 @@ def hello(user_content: str) -> str:
       user_content=user_content
     )
     return result
-
-
 
 all_tools = [
     multiply,
