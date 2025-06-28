@@ -21,11 +21,11 @@ def get_shift_info(company_id, request: Request, response: Response):
         return JSONResponse(status_code=400, content={'message': e})
     
 @app.post('/edit-shift')
-def edit_shift(request: Request, response: Response):
+async def edit_shift(request: Request, response: Response):
     try:
         auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
-        request_body = request.json()
+        request_body = await request.json()
         response_values = owner_shift_usecase['EditShiftUseCase'](
             request_body['company_id'],
             request_body['add_edit_shift'],
@@ -41,11 +41,11 @@ def edit_shift(request: Request, response: Response):
         return JSONResponse(status_code=400, content={'message': e})
     
 @app.post('/complete_edit_sift')
-def complete_shift(request: Request, response: Response):
+async def complete_shift(request: Request, response: Response):
     try:
         auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
-        request_body = request.json()
+        request_body = await request.json()
         owner_shift_usecase['CompleteShiftUseCase'](request_body['company_id']).execute()
 
     except HTTPException as e:
