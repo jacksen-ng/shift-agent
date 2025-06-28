@@ -7,7 +7,7 @@ from ..app.service.auth import auth_services
 app = APIRouter()
 
 @app.get('/decision-shift')
-def get_decision_shift(request: Request, response: Response, company_id):
+def get_decision_shift(company_id, request: Request, response: Response):
     try:
         auth_services['verify_and_refresh_token'](request, response)
 
