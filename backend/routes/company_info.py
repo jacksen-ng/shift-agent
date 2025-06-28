@@ -21,11 +21,11 @@ def get_company_info(company_id, request: Request, response: Response):
         return JSONResponse(status_code=400, content={'message': e})
     
 @app.post('/company-info-edit')
-def edit_company_info(request: Request, response: Response):
+async def edit_company_info(request: Request, response: Response):
     try:
         auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
-        request_body = request.json()
+        request_body = await request.json()
         response_values = company_info_usecase['EditCompanyInfoUseCase'](
             request_body['company_info']['company_id'],
             request_body['company_info']['company_name'],
