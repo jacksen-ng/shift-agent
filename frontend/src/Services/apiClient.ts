@@ -1,7 +1,8 @@
-import axios, { AxiosHeaders } from 'axios';
+import axios from 'axios';
 import { getAccessToken, isTokenExpired, logout } from './AuthService';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || 'https://shift-agent-backend-562837022896.asia-northeast1.run.app';
 
 // axiosインスタンスを作成
 const apiClient = axios.create({
@@ -15,9 +16,7 @@ const apiClient = axios.create({
 // リクエストインターセプター
 apiClient.interceptors.request.use(
   (config) => {
-    // トークンが期限切れの場合
     if (isTokenExpired()) {
-      // ログインページへリダイレクト（ログインAPI自体は除外）
       if (!config.url?.includes('/login') && !config.url?.includes('/sign-in')) {
         logout();
         window.location.href = '/login';
@@ -25,14 +24,13 @@ apiClient.interceptors.request.use(
       }
     }
 
-    // アクセストークンを取得してヘッダーに追加
     const token = getAccessToken();
     if (token && !config.url?.includes('/login') && !config.url?.includes('/sign-in')) {
       // headers が undefined の場合は初期化
       if (!config.headers) {
-        config.headers = new AxiosHeaders();
+        config.headers = {};
       }
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
 
     return config;
@@ -44,16 +42,12 @@ apiClient.interceptors.request.use(
 
 // レスポンスインターセプター
 apiClient.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
-    // 401エラー（認証エラー）の場合
     if (error.response?.status === 401) {
       logout();
       window.location.href = '/login';
     }
-    
     return Promise.reject(error);
   }
 );
