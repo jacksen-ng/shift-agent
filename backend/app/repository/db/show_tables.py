@@ -1,11 +1,7 @@
-import os
-import sys
 import sqlalchemy
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
-
-from repository.db.db_init import get_session_scope
-from repository.db.models import tables
+from .db_init import get_session_scope
+from .models import tables
 
 def display_all_table_contents():
     print("Attempting to connect to the database to display all table contents...")

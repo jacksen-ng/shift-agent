@@ -11,8 +11,8 @@ class SigninUsecase:
         self.role = role
 
     def execute(self):
-        email_validation = user_validation['email_validation'](self.email).execute()
-        role_validation = user_validation['role_validation'](self.role).execute()
+        email_validation = user_validation['EmailValidation'](self.email).execute()
+        role_validation = user_validation['RoleValidation'](self.role).execute()
         
         values = auth_entities['SigninEntity'](email_validation, self.password, self.confirm_password, role_validation).to_json()
         
