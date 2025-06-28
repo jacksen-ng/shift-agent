@@ -19,7 +19,8 @@ class LoginUsecase:
         auth_values = firebase_auth.login_user(values['email'], values['password'])
         
         if auth_values['success']:
-            login_request(auth_values['firebase_uid'])
+            return_values = login_request(auth_values['firebase_uid'])
             save_id_token_cookie(response, auth_values['id_token'])
+            return return_values
         else:
             raise Exception("Failed to login")
