@@ -40,8 +40,19 @@ const Login: React.FC = () => {
         navigate('/crew/home');
       }
     } catch (error: any) {
-      if (error.response?.data?.error) {
+      console.error('ログインエラー詳細:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        url: error.config?.url
+      });
+      
+      if (error.response?.data?.detail) {
+        setError(error.response.data.detail);
+      } else if (error.response?.data?.error) {
         setError(error.response.data.error);
+      } else if (error.message === 'Network Error') {
+        setError('サーバーに接続できません。Mock APIが起動していることを確認してください。');
       } else {
         setError('ログインに失敗しました。メールアドレスとパスワードを確認してください。');
       }
@@ -52,17 +63,17 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center px-4">
       {/* 背景装飾 */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-32 w-80 h-80 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-purple-200 rounded-full opacity-20 blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
       </div>
       
       <div className="relative max-w-md w-full">
         {/* ロゴエリア */}
         <div className="text-center mb-8 animate-[fadeIn_0.6s_ease-out]">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-600 rounded-2xl mb-4 shadow-lg">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-[#2563EB] rounded-2xl mb-4 shadow-lg">
             <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
@@ -149,7 +160,7 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 rounded-xl font-medium transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-4 focus:ring-blue-200 text-white disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full py-3.5 rounded-xl font-medium transition-all duration-200 bg-gradient-to-r from-[#2563EB] to-blue-600 hover:from-blue-600 hover:to-blue-700 focus:ring-4 focus:ring-blue-200 text-white disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
             >
               {isLoading ? (
                 <span className="inline-flex items-center gap-2">
@@ -182,7 +193,7 @@ const Login: React.FC = () => {
             </p>
             <Link 
               to="/register/host" 
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border-2 border-purple-600 text-purple-600 hover:bg-purple-50 transition-all duration-200 font-medium"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border-2 border-[#2563EB] text-[#2563EB] hover:bg-blue-50 transition-all duration-200 font-medium"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -195,21 +206,6 @@ const Login: React.FC = () => {
           </div>
         </div>
 
-        {/* テスト用認証情報（開発環境のみ） */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-6 p-4 bg-blue-50/80 backdrop-blur-sm rounded-xl text-sm text-blue-700 border border-blue-200 animate-[fadeIn_0.6s_ease-out]">
-            <p className="font-medium mb-2 flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              テスト用アカウント
-            </p>
-            <div className="space-y-1 text-xs">
-              <p>🏢 管理者: admin@example.com / password123</p>
-              <p>👤 スタッフ: crew@example.com / password123</p>
-            </div>
-          </div>
-        )}
       </div>
 
     </div>

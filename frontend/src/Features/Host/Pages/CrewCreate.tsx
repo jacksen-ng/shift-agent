@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import apiClient from '../../../Services/apiClient';
 import { logout } from '../../../Services/AuthService';
+import { getErrorMessage, logError } from '../../../Utils/errorHandler';
+import ErrorToast from '../../../Components/ErrorToast';
 
-interface CrewProfile {
-  user_id: number;
+interface CrewFormData {
   name: string;
+  email: string;
   age: number;
   phone: string;
   position: string;
@@ -15,27 +17,22 @@ interface CrewProfile {
   post: string;
 }
 
-interface CrewResponse {
-  company_member: CrewProfile[];
-}
-
-const CrewEdit = () => {
-  const { id } = useParams<{ id: string }>();
+const CrewCreate = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<CrewProfile>({
-    user_id: 0,
+  const [formData, setFormData] = useState<CrewFormData>({
     name: '',
-    age: 0,
+    email: '',
+    age: 20,
     phone: '',
     position: '',
-    evaluate: 1,
-    join_company_day: '',
-    hour_pay: 0,
+    evaluate: 3,
+    join_company_day: new Date().toISOString().split('T')[0],
+    hour_pay: 1000,
     post: 'part_timer',
   });
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [positions, setPositions] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // 評価を星で表示
   const renderStars = (rating: number, interactive: boolean = false) => {
@@ -60,22 +57,10 @@ const CrewEdit = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchPositions = async () => {
       try {
-        setLoading(true);
         const companyId = localStorage.getItem('company_id') || '1';
         
-        // 従業員情報を取得
-        const crewResponse = await apiClient.get<CrewResponse>('/crew-info', {
-          params: { company_id: parseInt(companyId) },
-        });
-        
-        const crew = crewResponse.data.company_member.find((c: any) => c.user_id === parseInt(id!));
-        if (crew) {
-          setFormData(crew);
-        }
-
-        // 店舗情報からポジションを取得
         interface StoreResponse {
           company_name: string;
           store_locate: string;
@@ -92,14 +77,13 @@ const CrewEdit = () => {
         });
         setPositions(storeResponse.data.position_name || []);
       } catch (error) {
-        console.error('データの取得に失敗しました', error);
-      } finally {
-        setLoading(false);
+        logError(error, 'CrewCreate.fetchPositions');
+        setErrorMessage(getErrorMessage(error));
       }
     };
 
-    fetchData();
-  }, [id]);
+    fetchPositions();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -116,9 +100,11 @@ const CrewEdit = () => {
       setSaving(true);
       const companyId = localStorage.getItem('company_id') || '1';
       
-      // API設計に準拠したリクエスト
+      // APIに準拠したリクエスト
       const requestData = {
-        user_id: parseInt(id!),
+        company_id: parseInt(companyId),
+        email: formData.email,
+        auth0_id: `auth0|${Date.now()}`, // Mock用の仮ID
         name: formData.name,
         age: formData.age,
         phone: formData.phone,
@@ -129,28 +115,27 @@ const CrewEdit = () => {
         post: formData.post
       };
 
-      await apiClient.post('/crew-info-edit', requestData);
+      await apiClient.post('/crew-info', requestData);
       
-      alert('更新が完了しました');
+      alert('従業員を追加しました');
       navigate('/host/crew-info');
     } catch (error) {
-      alert('更新に失敗しました');
-      console.error(error);
+      logError(error, 'CrewCreate.handleSubmit');
+      setErrorMessage(getErrorMessage(error));
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* エラー表示 */}
+      {errorMessage && (
+        <ErrorToast
+          message={errorMessage}
+          onClose={() => setErrorMessage(null)}
+        />
+      )}
       {/* ヘッダー */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -163,7 +148,7 @@ const CrewEdit = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <h1 className="text-2xl font-bold text-gray-900">従業員情報編集</h1>
+            <h1 className="text-2xl font-bold text-gray-900">従業員追加</h1>
           </div>
           <button
             onClick={() => {
@@ -193,7 +178,7 @@ const CrewEdit = () => {
             
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">氏名</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">氏名 <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   name="name"
@@ -205,7 +190,20 @@ const CrewEdit = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">年齢</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">メールアドレス <span className="text-red-500">*</span></label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="example@email.com"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">年齢 <span className="text-red-500">*</span></label>
                 <input
                   type="number"
                   name="age"
@@ -219,7 +217,7 @@ const CrewEdit = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">電話番号</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">電話番号 <span className="text-red-500">*</span></label>
                 <input
                   type="tel"
                   name="phone"
@@ -231,8 +229,8 @@ const CrewEdit = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">入社日</label>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">入社日 <span className="text-red-500">*</span></label>
                 <input
                   type="date"
                   name="join_company_day"
@@ -256,7 +254,7 @@ const CrewEdit = () => {
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">ポジション</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">ポジション <span className="text-red-500">*</span></label>
                 <select
                   name="position"
                   value={formData.position}
@@ -272,7 +270,7 @@ const CrewEdit = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">雇用形態</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">雇用形態 <span className="text-red-500">*</span></label>
                 <select
                   name="post"
                   value={formData.post}
@@ -286,7 +284,7 @@ const CrewEdit = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">時給</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">時給 <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">¥</span>
                   <input
@@ -303,11 +301,28 @@ const CrewEdit = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">評価</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">初期評価</label>
                 <div className="flex items-center gap-2">
                   {renderStars(formData.evaluate, true)}
                   <span className="text-sm text-gray-600 ml-2">({formData.evaluate}/5)</span>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 注意事項 */}
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <p className="text-sm font-medium text-yellow-800">登録時の注意事項</p>
+                <ul className="text-sm text-yellow-700 mt-1 list-disc list-inside">
+                  <li>登録後、従業員にログイン情報がメールで送信されます</li>
+                  <li>初回ログイン時にパスワードの変更が必要です</li>
+                  <li>登録後の情報変更は編集画面から行えます</li>
+                </ul>
               </div>
             </div>
           </div>
@@ -329,14 +344,14 @@ const CrewEdit = () => {
               {saving ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                  保存中...
+                  登録中...
                 </>
               ) : (
                 <>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  保存する
+                  登録する
                 </>
               )}
             </button>
@@ -347,4 +362,4 @@ const CrewEdit = () => {
   );
 };
 
-export default CrewEdit;
+export default CrewCreate;

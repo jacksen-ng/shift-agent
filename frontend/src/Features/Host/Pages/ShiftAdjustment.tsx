@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../../Services/apiClient';
 import { logout } from '../../../Services/AuthService';
+import { getErrorMessage, logError } from '../../../Utils/errorHandler';
+import ErrorToast from '../../../Components/ErrorToast';
+import { formatDateToISO, formatTimeToISO } from '../../../Utils/FormatDate';
 
 interface EditShift {
   edit_shift_id: number;
@@ -41,6 +44,7 @@ const ShiftAdjustment = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(new Date());
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   // 追加・更新・削除の管理
   const [addShifts, setAddShifts] = useState<ShiftAdd[]>([]);
@@ -69,10 +73,7 @@ const ShiftAdjustment = () => {
 
   // 日付をフォーマット
   const formatDate = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return formatDateToISO(date);
   };
 
   // シフトデータを取得
@@ -87,8 +88,8 @@ const ShiftAdjustment = () => {
       setShifts(response.data.edit_shift || []);
       setMembers(response.data.company_member_name || []);
     } catch (error) {
-      console.error('シフト取得エラー:', error);
-      alert('シフトデータの取得に失敗しました');
+      logError(error, 'ShiftAdjustment.fetchShifts');
+      setErrorMessage(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -180,8 +181,16 @@ const ShiftAdjustment = () => {
       
       const requestData = {
         company_id: parseInt(companyId),
-        add_edit_shift: addShifts,
-        update_edit_shift: updateShifts,
+        add_edit_shift: addShifts.map(shift => ({
+          ...shift,
+          start_time: formatTimeToISO(shift.start_time),
+          finish_time: formatTimeToISO(shift.finish_time)
+        })),
+        update_edit_shift: updateShifts.map(shift => ({
+          ...shift,
+          start_time: formatTimeToISO(shift.start_time),
+          finish_time: formatTimeToISO(shift.finish_time)
+        })),
         delete_edit_shift: deleteShiftIds.map(id => ({ edit_shift_id: id }))
       };
       
@@ -195,8 +204,8 @@ const ShiftAdjustment = () => {
       alert('シフトの変更を保存しました');
       await fetchShifts(); // 最新データを再取得
     } catch (error) {
-      console.error('保存エラー:', error);
-      alert('保存に失敗しました');
+      logError(error, 'ShiftAdjustment.handleSaveChanges');
+      setErrorMessage(getErrorMessage(error));
     } finally {
       setSaving(false);
     }
@@ -224,6 +233,13 @@ const ShiftAdjustment = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* エラー表示 */}
+      {errorMessage && (
+        <ErrorToast
+          message={errorMessage}
+          onClose={() => setErrorMessage(null)}
+        />
+      )}
       {/* ヘッダー */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -381,7 +397,7 @@ const ShiftAdjustment = () => {
           <div className="flex gap-4">
             <button
               onClick={() => navigate('/host/gemini-shift')}
-              className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
+              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -411,7 +427,7 @@ const ShiftAdjustment = () => {
             
             <button
               onClick={handleProceedToConfirm}
-              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

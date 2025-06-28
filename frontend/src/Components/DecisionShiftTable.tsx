@@ -1,5 +1,6 @@
 // src/Components/DecisionShiftTable.tsx
 import React from 'react';
+import { formatTimeDisplay } from '../Utils/FormatDate';
 
 interface ShiftItem {
   name: string;
@@ -37,8 +38,8 @@ const DecisionShiftTable: React.FC<Props> = ({ shifts, restDays }) => {
               <td className="border px-2 py-1">{shift.position}</td>
               <td className="border px-2 py-1">{shift.post}</td>
               <td className="border px-2 py-1">{shift.day}</td>
-              <td className="border px-2 py-1">{shift.start_time}</td>
-              <td className="border px-2 py-1">{shift.finish_time}</td>
+              <td className="border px-2 py-1">{formatTimeDisplay(shift.start_time)}</td>
+              <td className="border px-2 py-1">{formatTimeDisplay(shift.finish_time)}</td>
             </tr>
           ))}
         </tbody>

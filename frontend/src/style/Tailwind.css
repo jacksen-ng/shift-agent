@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* «¹¿à¢Ëáü·çó */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 @layer utilities {
   @keyframes fadeIn {
     from {
@@ -36,7 +36,7 @@
     }
   }
 
-  /* ¹ÔÊü¢Ëáü·çó */
+  /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
   @keyframes spin {
     to {
       transform: rotate(360deg);
@@ -44,21 +44,21 @@
   }
 }
 
-/* °íüÐë¹¿¤ë */
+/* ï¿½ï¿½ï¿½ï¿½ë¹¿ï¿½ï¿½ */
 @layer base {
   body {
     @apply antialiased;
   }
 }
 
-/* «¹¿à³óÝüÍóÈ */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 @layer components {
-  /* Ü¿ónÕ©ü«¹êó° */
+  /* Ü¿ï¿½nÕ©ï¿½ï¿½ï¿½ï¿½ï¿½ */
   .btn-focus-ring {
     @apply focus:outline-none focus:ring-4 focus:ring-opacity-50;
   }
 
-  /* Õ©üàe›Õ£üëÉ */
+  /* Õ©ï¿½ï¿½eï¿½Õ£ï¿½ï¿½ï¿½ */
   .form-input {
     @apply w-full px-4 py-3 rounded-xl border border-gray-300 
            focus:ring-2 focus:border-transparent 
@@ -66,12 +66,12 @@
            bg-gray-50 hover:bg-white;
   }
 
-  /* «üÉ¹¿¤ë */
+  /* ï¿½ï¿½É¹ï¿½ï¿½ï¿½ */
   .card {
     @apply bg-white rounded-2xl shadow-xl border border-gray-100 p-8;
   }
 
-  /* °éÇü·çóÌo */
+  /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½o */
   .gradient-bg {
     @apply bg-gradient-to-br from-blue-50 via-white to-purple-50;
   }

@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../../Services/apiClient';
 import { logout } from '../../../Services/AuthService';
+import { getErrorMessage, logError } from '../../../Utils/errorHandler';
+import ErrorToast from '../../../Components/ErrorToast';
+import { formatTimeToISO, formatTimeDisplay } from '../../../Utils/FormatDate';
 
 interface CompanyInfo {
   company_id: number;
@@ -10,7 +13,7 @@ interface CompanyInfo {
   open_time: string;
   close_time: string;
   target_sales: number;
-  laber_cost: number;
+  labor_cost: number;
 }
 
 interface RestDay {
@@ -27,7 +30,7 @@ interface StoreData {
   open_time: string;
   close_time: string;
   target_sales: number;
-  laber_cost: number;
+  labor_cost: number;
   rest_day: string[];
   position_name: string[];
 }
@@ -42,7 +45,7 @@ const StoreInfo = () => {
     open_time: '',
     close_time: '',
     target_sales: 0,
-    laber_cost: 0,
+    labor_cost: 0,
     rest_day: [],
     position_name: []
   });
@@ -50,6 +53,7 @@ const StoreInfo = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [newRestDay, setNewRestDay] = useState('');
   const [newPosition, setNewPosition] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const weekDays = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
 
@@ -64,7 +68,8 @@ const StoreInfo = () => {
         setStoreData(response.data);
         setFormData(response.data);
       } catch (error) {
-        console.error('店舗情報の取得に失敗しました', error);
+        logError(error, 'StoreInfo.fetchStoreData');
+        setErrorMessage(getErrorMessage(error));
       } finally {
         setIsLoading(false);
       }
@@ -75,7 +80,7 @@ const StoreInfo = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name === 'target_sales' || name === 'laber_cost') {
+    if (name === 'target_sales' || name === 'labor_cost') {
       setFormData({ ...formData, [name]: parseInt(value) || 0 });
     } else {
       setFormData({ ...formData, [name]: value });
@@ -123,11 +128,11 @@ const StoreInfo = () => {
         company_info: {
           company_id: parseInt(companyId),
           company_name: formData.company_name,
-          store_location: formData.store_locate,
-          open_time: formData.open_time,
-          close_time: formData.close_time,
+          store_locate: formData.store_locate,
+          open_time: formatTimeToISO(formData.open_time),
+          close_time: formatTimeToISO(formData.close_time),
           target_sales: formData.target_sales,
-          laber_cost: formData.laber_cost
+          labor_cost: formData.labor_cost
         },
         rest_day: formData.rest_day.map(day => ({ rest_day: day })),
         position: formData.position_name.map(pos => ({ position_name: pos }))
@@ -138,8 +143,8 @@ const StoreInfo = () => {
       setIsEditing(false);
       alert('保存が完了しました');
     } catch (error) {
-      alert('保存に失敗しました');
-      console.error(error);
+      logError(error, 'StoreInfo.handleSave');
+      setErrorMessage(getErrorMessage(error));
     } finally {
       setIsSaving(false);
     }
@@ -163,6 +168,13 @@ const StoreInfo = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* エラー表示 */}
+      {errorMessage && (
+        <ErrorToast
+          message={errorMessage}
+          onClose={() => setErrorMessage(null)}
+        />
+      )}
       {/* ヘッダー */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -238,7 +250,7 @@ const StoreInfo = () => {
                       name="open_time"
                       type="time"
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors disabled:bg-gray-50 disabled:text-gray-500"
-                      value={formData.open_time}
+                      value={formatTimeDisplay(formData.open_time)}
                       onChange={handleChange}
                       disabled={!isEditing}
                     />
@@ -249,7 +261,7 @@ const StoreInfo = () => {
                       name="close_time"
                       type="time"
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors disabled:bg-gray-50 disabled:text-gray-500"
-                      value={formData.close_time}
+                      value={formatTimeDisplay(formData.close_time)}
                       onChange={handleChange}
                       disabled={!isEditing}
                     />
@@ -293,10 +305,10 @@ const StoreInfo = () => {
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">¥</span>
                   <input
-                    name="laber_cost"
+                    name="labor_cost"
                     type="number"
                     className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors disabled:bg-gray-50 disabled:text-gray-500"
-                    value={formData.laber_cost}
+                    value={formData.labor_cost}
                     onChange={handleChange}
                     disabled={!isEditing}
                   />
@@ -310,7 +322,7 @@ const StoreInfo = () => {
                   <span className="text-sm font-medium text-gray-700">人件費率</span>
                   <span className="text-lg font-bold text-purple-600">
                     {formData.target_sales > 0 
-                      ? `${((formData.laber_cost / formData.target_sales) * 100).toFixed(1)}%`
+                      ? `${((formData.labor_cost / formData.target_sales) * 100).toFixed(1)}%`
                       : '---%'
                     }
                   </span>

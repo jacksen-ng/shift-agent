@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../../Services/apiClient';
+import { getErrorMessage, logError } from '../../../Utils/errorHandler';
+import ErrorToast from '../../../Components/ErrorToast';
+import { formatDateToISO, formatTimeToISO } from '../../../Utils/FormatDate';
 
 interface ShiftSubmission {
   day: string;
@@ -17,6 +20,7 @@ const ShiftSubmit: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   // 時間プリセット
   const timePresets = [
@@ -52,7 +56,7 @@ const ShiftSubmit: React.FC = () => {
 
   // 日付をキーに変換
   const dateToKey = (date: Date) => {
-    return date.toISOString().split('T')[0];
+    return formatDateToISO(date);
   };
 
   // 提出済み日数を計算
@@ -75,8 +79,8 @@ const ShiftSubmit: React.FC = () => {
       ...submissions,
       [key]: {
         day: key,
-        start_time: preset.start,
-        finish_time: preset.end,
+        start_time: `${preset.start}:00`,
+        finish_time: `${preset.end}:00`,
       }
     });
     setSelectedPreset(preset.id);
@@ -157,8 +161,8 @@ const ShiftSubmit: React.FC = () => {
         },
         submit_shift: validSubmissions.map(submission => ({
           day: submission.day,
-          start_time: submission.start_time,
-          finish_time: submission.finish_time
+          start_time: formatTimeToISO(submission.start_time),
+          finish_time: formatTimeToISO(submission.finish_time)
         }))
       };
       
@@ -169,8 +173,9 @@ const ShiftSubmit: React.FC = () => {
         navigate('/crew/home');
       }, 2000);
     } catch (error) {
-      console.error('提出エラー:', error);
-      alert('提出に失敗しました');
+      logError(error, 'ShiftSubmit.handleSubmitAll');
+      const message = getErrorMessage(error);
+      setErrorMessage(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -446,6 +451,14 @@ const ShiftSubmit: React.FC = () => {
             <p className="text-gray-600">シフト希望を受け付けました</p>
           </div>
         </div>
+      )}
+      
+      {/* エラートースト */}
+      {errorMessage && (
+        <ErrorToast
+          message={errorMessage}
+          onClose={() => setErrorMessage(null)}
+        />
       )}
     </div>
   );

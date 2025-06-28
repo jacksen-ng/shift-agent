@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../../Services/apiClient';
 import { logout } from '../../../Services/AuthService';
+import { getErrorMessage, logError } from '../../../Utils/errorHandler';
+import ErrorToast from '../../../Components/ErrorToast';
 
 interface EditShift {
   edit_shift_id: number;
@@ -28,6 +30,7 @@ const ShiftConfirm = () => {
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(new Date());
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // 週の開始日（月曜日）を取得
   const getWeekStart = (date: Date) => {
@@ -49,8 +52,8 @@ const ShiftConfirm = () => {
       setShifts(response.data.edit_shift || []);
       setMembers(response.data.company_member_name || []);
     } catch (error) {
-      console.error('シフト取得エラー:', error);
-      alert('シフトデータの取得に失敗しました');
+      logError(error, 'ShiftConfirm.fetchShifts');
+      setErrorMessage(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -82,8 +85,8 @@ const ShiftConfirm = () => {
       alert('シフトを確定しました！従業員に公開されました。');
       navigate('/host/home');
     } catch (error) {
-      console.error('確定エラー:', error);
-      alert('シフトの確定に失敗しました');
+      logError(error, 'ShiftConfirm.handleConfirmShifts');
+      setErrorMessage(getErrorMessage(error));
     } finally {
       setConfirming(false);
     }
@@ -115,6 +118,13 @@ const ShiftConfirm = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* エラー表示 */}
+      {errorMessage && (
+        <ErrorToast
+          message={errorMessage}
+          onClose={() => setErrorMessage(null)}
+        />
+      )}
       {/* ヘッダー */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -168,8 +178,8 @@ const ShiftConfirm = () => {
                 <p className="text-sm text-gray-600">総シフト数</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.totalShifts}件</p>
               </div>
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-3 bg-purple-100 rounded-lg">
+                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
@@ -196,8 +206,8 @@ const ShiftConfirm = () => {
                 <p className="text-sm text-gray-600">総労働時間</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.totalHours.toFixed(1)}時間</p>
               </div>
-              <div className="p-3 bg-green-100 rounded-lg">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-3 bg-purple-100 rounded-lg">
+                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -268,7 +278,7 @@ const ShiftConfirm = () => {
           <button
             onClick={handleConfirmShifts}
             disabled={confirming || shifts.length === 0}
-            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {confirming ? (
               <>

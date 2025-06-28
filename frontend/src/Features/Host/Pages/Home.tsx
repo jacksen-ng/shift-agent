@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchDecisionShift } from '../../../Services/ShiftService';
 import { logout } from '../../../Services/AuthService';
+import { getErrorMessage, logError } from '../../../Utils/errorHandler';
+import ErrorToast from '../../../Components/ErrorToast';
 
 interface Shift {
   name: string;
@@ -19,6 +21,7 @@ const HostHome: React.FC = () => {
   const [restDays, setRestDays] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentWeek, setCurrentWeek] = useState(new Date());
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // 週の開始日（月曜日）を取得
   const getWeekStart = (date: Date) => {
@@ -50,8 +53,10 @@ const HostHome: React.FC = () => {
         const res = await fetchDecisionShift(companyId);
         setShifts(res.decision_shift || []);
         setRestDays(res.rest_day || []);
-      } catch (e) {
-        console.error('シフト取得に失敗しました', e);
+      } catch (error) {
+        logError(error, 'HostHome.fetchData');
+        const message = getErrorMessage(error);
+        setErrorMessage(message);
       } finally {
         setIsLoading(false);
       }
@@ -62,7 +67,7 @@ const HostHome: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#2563EB] border-t-transparent"></div>
       </div>
     );
   }
@@ -121,9 +126,9 @@ const HostHome: React.FC = () => {
 
               {/* シフトサマリー */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-purple-50 rounded-lg p-4">
+                <div className="bg-blue-50 rounded-lg p-4">
                   <p className="text-sm text-gray-600">今週の稼働人数</p>
-                  <p className="text-2xl font-bold text-purple-600">
+                  <p className="text-2xl font-bold text-[#2563EB]">
                     {(() => {
                       const weekStart = getWeekStart(currentWeek);
                       const weekEnd = new Date(weekStart);
@@ -140,7 +145,7 @@ const HostHome: React.FC = () => {
                 </div>
                 <div className="bg-blue-50 rounded-lg p-4">
                   <p className="text-sm text-gray-600">今週の総労働時間</p>
-                  <p className="text-2xl font-bold text-blue-600">
+                  <p className="text-2xl font-bold text-[#2563EB]">
                     {(() => {
                       const weekStart = getWeekStart(currentWeek);
                       const weekEnd = new Date(weekStart);
@@ -234,7 +239,7 @@ const HostHome: React.FC = () => {
               <div className="space-y-3">
                 <button
                   onClick={() => navigate('/host/store-info')}
-                  className="w-full px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-between group"
+                  className="w-full px-4 py-3 bg-[#2563EB] text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-between group"
                 >
                   <span className="flex items-center gap-3">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -249,7 +254,7 @@ const HostHome: React.FC = () => {
 
                 <button
                   onClick={() => navigate('/host/crew-info')}
-                  className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-between group"
+                  className="w-full px-4 py-3 bg-[#2563EB] text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-between group"
                 >
                   <span className="flex items-center gap-3">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -264,7 +269,7 @@ const HostHome: React.FC = () => {
 
                 <button
                   onClick={() => navigate('/host/shift-submit')}
-                  className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-between group"
+                  className="w-full px-4 py-3 bg-[#2563EB] text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-between group"
                 >
                   <span className="flex items-center gap-3">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,7 +284,7 @@ const HostHome: React.FC = () => {
 
                 <button
                   onClick={() => navigate('/host/shift-adjustment')}
-                  className="w-full px-4 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-between group"
+                  className="w-full px-4 py-3 bg-[#2563EB] text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-between group"
                 >
                   <span className="flex items-center gap-3">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -294,7 +299,7 @@ const HostHome: React.FC = () => {
 
                 <button
                   onClick={() => navigate('/host/gemini-shift')}
-                  className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-between group"
+                  className="w-full px-4 py-3 bg-[#2563EB] text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-between group"
                 >
                   <span className="flex items-center gap-3">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -302,7 +307,7 @@ const HostHome: React.FC = () => {
                     </svg>
                     AI自動生成
                   </span>
-                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -330,6 +335,14 @@ const HostHome: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* エラートースト */}
+      {errorMessage && (
+        <ErrorToast
+          message={errorMessage}
+          onClose={() => setErrorMessage(null)}
+        />
+      )}
     </div>
   );
 };

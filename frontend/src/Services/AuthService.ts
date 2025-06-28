@@ -5,10 +5,11 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:800
 interface LoginResponse {
   user_id: number;
   company_id: number;
-  access_token: string;
-  id_token: string;
-  token_type: string;
-  expires_in: number;
+  role: 'owner' | 'crew';
+  access_token?: string;
+  id_token?: string;
+  token_type?: string;
+  expires_in?: number;
 }
 
 // Cookieを設定するヘルパー関数
@@ -61,14 +62,14 @@ export const login = async (email: string, password: string) => {
       localStorage.setItem('user_id', response.data.user_id.toString());
       localStorage.setItem('company_id', response.data.company_id.toString());
       
-      // Mock APIではroleが返されないため、emailで判定する暫定対応
-      const role = email === 'admin@example.com' ? 'owner' : 'crew';
+      // APIから返されたroleを使用
+      const role = response.data.role;
       localStorage.setItem('role', role);
       
       return {
         user_id: response.data.user_id.toString(),
         company_id: response.data.company_id.toString(),
-        role: role as 'owner' | 'crew',
+        role: role,
         access_token: 'dummy_access_token',
         message: 'ログイン成功'
       };

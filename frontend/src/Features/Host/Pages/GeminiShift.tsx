@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../../Services/apiClient';
 import { logout } from '../../../Services/AuthService';
+import { getErrorMessage, logError } from '../../../Utils/errorHandler';
+import ErrorToast from '../../../Components/ErrorToast';
+import { formatDateToISO } from '../../../Utils/FormatDate';
 
 interface GeneratedShift {
   user_id: number;
@@ -57,6 +60,7 @@ const GeminiShift = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [evaluationResult, setEvaluationResult] = useState<EvaluationResponse | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // 今週の月曜日と日曜日を取得
   const getThisWeekRange = () => {
@@ -91,10 +95,7 @@ const GeminiShift = () => {
 
   // 日付をフォーマット
   const formatDate = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return formatDateToISO(date);
   };
 
   // プリセットを適用
@@ -144,8 +145,9 @@ const GeminiShift = () => {
       setGeneratedShifts(response.data.edit_shift || []);
       setShowPreview(true);
     } catch (error) {
-      console.error('AI生成エラー:', error);
-      alert('シフトの生成に失敗しました');
+      logError(error, 'GeminiShift.handleGenerate');
+      const message = getErrorMessage(error);
+      setErrorMessage(message);
     } finally {
       setIsGenerating(false);
     }
@@ -165,8 +167,9 @@ const GeminiShift = () => {
       
       setEvaluationResult(response.data);
     } catch (error) {
-      console.error('評価エラー:', error);
-      alert('シフトの評価に失敗しました');
+      logError(error, 'GeminiShift.handleEvaluate');
+      const message = getErrorMessage(error);
+      setErrorMessage(message);
     } finally {
       setIsEvaluating(false);
     }
@@ -214,14 +217,14 @@ const GeminiShift = () => {
         {!showPreview ? (
           <div className="space-y-6">
             {/* AI生成の説明 */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
               <div className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-purple-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
                 <div>
-                  <h3 className="text-lg font-bold text-blue-900">Gemini AIによるシフト自動生成</h3>
-                  <p className="text-sm text-blue-700 mt-1">
+                  <h3 className="text-lg font-bold text-purple-900">Gemini AIによるシフト自動生成</h3>
+                  <p className="text-sm text-purple-700 mt-1">
                     従業員の希望シフト、スキル、過去の実績を基に、最適なシフトを自動生成します。
                     生成後は手動で調整することも可能です。
                   </p>
@@ -263,7 +266,7 @@ const GeminiShift = () => {
                     type="date"
                     value={dateRange.first_day}
                     onChange={(e) => setDateRange({ ...dateRange, first_day: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -272,7 +275,7 @@ const GeminiShift = () => {
                     type="date"
                     value={dateRange.last_day}
                     onChange={(e) => setDateRange({ ...dateRange, last_day: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -285,7 +288,7 @@ const GeminiShift = () => {
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="例：土日は多めに人員を配置してください、新人は熟練者とペアで配置してください"
-                className="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                className="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
               />
               <p className="text-xs text-gray-500 mt-2">
                 ※ 特別な要望がある場合は、ここに記入してください
@@ -297,7 +300,7 @@ const GeminiShift = () => {
               <button
                 onClick={handleGenerate}
                 disabled={isGenerating || !dateRange.first_day || !dateRange.last_day}
-                className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isGenerating ? (
                   <>
@@ -363,7 +366,7 @@ const GeminiShift = () => {
               <button
                 onClick={handleEvaluate}
                 disabled={isEvaluating}
-                className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isEvaluating ? (
                   <>
@@ -385,14 +388,14 @@ const GeminiShift = () => {
             {evaluationResult && (
               <div className="space-y-6">
                 {/* 総合評価 */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
                   <div className="flex items-start gap-3">
-                    <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-purple-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div className="w-full">
-                      <h3 className="text-lg font-bold text-blue-900 mb-2">AI評価結果</h3>
-                      <p className="text-sm text-blue-700 mb-4">{evaluationResult.comment}</p>
+                      <h3 className="text-lg font-bold text-purple-900 mb-2">AI評価結果</h3>
+                      <p className="text-sm text-purple-700 mb-4">{evaluationResult.comment}</p>
                       
                       {/* 店舗情報サマリー */}
                       <div className="bg-white rounded-lg p-4 mb-4">
@@ -464,6 +467,14 @@ const GeminiShift = () => {
           </div>
         )}
       </div>
+      
+      {/* エラートースト */}
+      {errorMessage && (
+        <ErrorToast
+          message={errorMessage}
+          onClose={() => setErrorMessage(null)}
+        />
+      )}
     </div>
   );
 };

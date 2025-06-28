@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchDecisionShift } from '../../../Services/ShiftService';
 import { logout } from '../../../Services/AuthService';
+import { formatDateToISO, formatTimeDisplay } from '../../../Utils/FormatDate';
 
 interface Shift {
   name: string;
@@ -64,7 +65,7 @@ const ShiftCheck: React.FC = () => {
 
   // 日付をキーに変換
   const dateToKey = (date: Date) => {
-    return date.toISOString().split('T')[0];
+    return formatDateToISO(date);
   };
 
   // 特定の日のシフトを取得
@@ -266,7 +267,7 @@ const ShiftCheck: React.FC = () => {
                             {dayShifts.slice(0, 2).map((shift, idx) => (
                               <div key={idx} className="border-b border-gray-100 last:border-0 pb-1 last:pb-0">
                                 <div className="text-xs font-semibold text-gray-900">
-                                  {shift.start_time}-{shift.finish_time}
+                                  {formatTimeDisplay(shift.start_time)}-{formatTimeDisplay(shift.finish_time)}
                                 </div>
                                 <div className="text-xs text-gray-700 font-medium">
                                   {shift.name}
@@ -334,7 +335,7 @@ const ShiftCheck: React.FC = () => {
                           </div>
                           <div>
                             <div className="text-lg font-medium text-gray-900">
-                              {shift.start_time} - {shift.finish_time}
+                              {formatTimeDisplay(shift.start_time)} - {formatTimeDisplay(shift.finish_time)}
                             </div>
                             <div className="text-sm font-medium text-gray-700 mt-1">
                               {shift.name}

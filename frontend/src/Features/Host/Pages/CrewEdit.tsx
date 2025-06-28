@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import apiClient from '../../../Services/apiClient';
 import { logout } from '../../../Services/AuthService';
+import { getErrorMessage, logError } from '../../../Utils/errorHandler';
+import ErrorToast from '../../../Components/ErrorToast';
 
 interface CrewProfile {
   user_id: number;
@@ -36,6 +38,7 @@ const CrewEdit = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [positions, setPositions] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // 評価を星で表示
   const renderStars = (rating: number, interactive: boolean = false) => {
@@ -70,7 +73,7 @@ const CrewEdit = () => {
           params: { company_id: parseInt(companyId) },
         });
         
-        const crew = crewResponse.data.company_member.find((c: any) => c.user_id === parseInt(id!));
+        const crew = crewResponse.data.company_member.find((c) => c.user_id === parseInt(id!));
         if (crew) {
           setFormData(crew);
         }
@@ -92,7 +95,8 @@ const CrewEdit = () => {
         });
         setPositions(storeResponse.data.position_name || []);
       } catch (error) {
-        console.error('データの取得に失敗しました', error);
+        logError(error, 'CrewEdit.fetchData');
+        setErrorMessage(getErrorMessage(error));
       } finally {
         setLoading(false);
       }
@@ -134,8 +138,8 @@ const CrewEdit = () => {
       alert('更新が完了しました');
       navigate('/host/crew-info');
     } catch (error) {
-      alert('更新に失敗しました');
-      console.error(error);
+      logError(error, 'CrewEdit.handleSubmit');
+      setErrorMessage(getErrorMessage(error));
     } finally {
       setSaving(false);
     }
@@ -151,6 +155,13 @@ const CrewEdit = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* エラー表示 */}
+      {errorMessage && (
+        <ErrorToast
+          message={errorMessage}
+          onClose={() => setErrorMessage(null)}
+        />
+      )}
       {/* ヘッダー */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between">

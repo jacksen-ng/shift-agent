@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosHeaders } from 'axios';
 import { getAccessToken, isTokenExpired, logout } from './AuthService';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
@@ -30,9 +30,9 @@ apiClient.interceptors.request.use(
     if (token && !config.url?.includes('/login') && !config.url?.includes('/sign-in')) {
       // headers が undefined の場合は初期化
       if (!config.headers) {
-        config.headers = axios.AxiosHeaders.from({});
+        config.headers = new AxiosHeaders();
       }
-      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;

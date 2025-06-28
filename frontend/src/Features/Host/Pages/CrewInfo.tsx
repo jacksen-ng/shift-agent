@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../../Services/apiClient';
 import { logout } from '../../../Services/AuthService';
+import { getErrorMessage, logError } from '../../../Utils/errorHandler';
+import ErrorToast from '../../../Components/ErrorToast';
 
 interface CrewProfile {
   user_id: number;
@@ -26,6 +28,7 @@ const CrewInfo = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPosition, setFilterPosition] = useState<string>('all');
   const [filterPost, setFilterPost] = useState<string>('all');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCrewData = async () => {
@@ -37,7 +40,8 @@ const CrewInfo = () => {
         });
         setCrewList(response.data.company_member || []);
       } catch (error) {
-        console.error('従業員情報の取得に失敗しました', error);
+        logError(error, 'CrewInfo.fetchCrewData');
+        setErrorMessage(getErrorMessage(error));
       } finally {
         setLoading(false);
       }
@@ -80,6 +84,13 @@ const CrewInfo = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* エラー表示 */}
+      {errorMessage && (
+        <ErrorToast
+          message={errorMessage}
+          onClose={() => setErrorMessage(null)}
+        />
+      )}
       {/* ヘッダー */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -118,8 +129,8 @@ const CrewInfo = () => {
                 <p className="text-sm text-gray-600">総従業員数</p>
                 <p className="text-2xl font-bold text-gray-900">{crewList.length}名</p>
               </div>
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-3 bg-purple-100 rounded-lg">
+                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
@@ -150,8 +161,8 @@ const CrewInfo = () => {
                   {crewList.filter(c => c.post === 'part_timer').length}名
                 </p>
               </div>
-              <div className="p-3 bg-teal-100 rounded-lg">
-                <svg className="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-3 bg-purple-100 rounded-lg">
+                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -241,7 +252,7 @@ const CrewInfo = () => {
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                     crew.post === 'employee' 
                       ? 'bg-purple-100 text-purple-700' 
-                      : 'bg-teal-100 text-teal-700'
+                      : 'bg-purple-50 text-purple-600'
                   }`}>
                     {crew.post === 'employee' ? '社員' : 'アルバイト'}
                   </span>

@@ -3,6 +3,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../../Services/apiClient';
 import { logout } from '../../../Services/AuthService';
+import { getErrorMessage, logError } from '../../../Utils/errorHandler';
+import ErrorToast from '../../../Components/ErrorToast';
+import { formatDateToISO, formatTimeToISO } from '../../../Utils/FormatDate';
 
 interface ShiftSubmission {
   day: string;
@@ -22,6 +25,7 @@ const ShiftSubmit = () => {
   const [submissions, setSubmissions] = useState<ShiftSubmission[]>([]);
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // 時間プリセット
   const timePresets: TimePreset[] = [
@@ -53,10 +57,7 @@ const ShiftSubmit = () => {
 
   // 日付をフォーマット
   const formatDate = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return formatDateToISO(date);
   };
 
   // シフトを追加
@@ -115,7 +116,11 @@ const ShiftSubmit = () => {
           user_id: parseInt(userId),
           company_id: parseInt(companyId)
         },
-        submit_shift: submissions
+        submit_shift: submissions.map(shift => ({
+          ...shift,
+          start_time: formatTimeToISO(shift.start_time),
+          finish_time: formatTimeToISO(shift.finish_time)
+        }))
       };
 
       await apiClient.post('/submitted-shift', submitData);
@@ -123,8 +128,8 @@ const ShiftSubmit = () => {
       alert('シフト希望を提出しました！');
       setSubmissions([]);
     } catch (error) {
-      alert('提出に失敗しました');
-      console.error(error);
+      logError(error, 'HostShiftSubmit.handleSubmit');
+      setErrorMessage(getErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }
@@ -132,6 +137,13 @@ const ShiftSubmit = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* エラー表示 */}
+      {errorMessage && (
+        <ErrorToast
+          message={errorMessage}
+          onClose={() => setErrorMessage(null)}
+        />
+      )}
       {/* ヘッダー */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">

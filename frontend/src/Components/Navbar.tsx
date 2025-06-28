@@ -8,16 +8,16 @@ const Navbar = () => {
     <nav className="w-full bg-gray-100 px-6 py-3 flex justify-between items-center shadow">
       <div className="text-xl font-bold">ShiftGemini</div>
       <div className="space-x-4">
-        <button className="text-gray-700 hover:text-mint" onClick={() => navigate('/host/home')}>
+        <button className="text-gray-700 hover:text-purple-600" onClick={() => navigate('/host/home')}>
           Home
         </button>
-        <button className="text-gray-700 hover:text-mint" onClick={() => navigate('/host/store-info')}>
+        <button className="text-gray-700 hover:text-purple-600" onClick={() => navigate('/host/store-info')}>
           店舗情報
         </button>
-        <button className="text-gray-700 hover:text-mint" onClick={() => navigate('/host/crew-info')}>
+        <button className="text-gray-700 hover:text-purple-600" onClick={() => navigate('/host/crew-info')}>
           従業員情報
         </button>
-        <button className="text-gray-700 hover:text-mint" onClick={() => navigate('/host/shift-submit')}>
+        <button className="text-gray-700 hover:text-purple-600" onClick={() => navigate('/host/shift-submit')}>
           シフト
         </button>
       </div>
