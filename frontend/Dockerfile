@@ -1,16 +1,16 @@
-# Step 1: ビルド
+# Step 1: Reactアプリのビルド
 FROM node:18-alpine AS build
 WORKDIR /app
 COPY . .
 RUN npm install && npm run build
 
-# Step 2: Nginxで公開
+# Step 2: Nginxで配信
 FROM nginx:stable-alpine
 COPY --from=build /app/build /usr/share/nginx/html
-
-# 追加ここから 👇
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-# 追加ここまで 👆
 
+# Cloud Run は 8080 番ポートで受け取る仕様
 EXPOSE 8080
+
+# Nginx をフォアグラウンドで起動
 CMD ["nginx", "-g", "daemon off;"]
