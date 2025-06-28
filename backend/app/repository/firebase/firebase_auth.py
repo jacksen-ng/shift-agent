@@ -9,13 +9,24 @@ import httpx
 from ...secret_manager.secret_key import initialize_firebase, get_firebase_secret
 
 class FirebaseAuthService:
+    _instance = None
+    _initialized = False
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+    
     def __init__(self): 
-        PROJECT_ID = "jacksen-server"
-        SECRET_ID = "firebase-secret-credential"
-        self.app = initialize_firebase(PROJECT_ID, SECRET_ID)
-        
-        FIREBASE_SECRET_ID = "firebase-key"
-        self.firebase_secret = get_firebase_secret(PROJECT_ID, FIREBASE_SECRET_ID)
+        if not self._initialized:
+            PROJECT_ID = "jacksen-server"
+            SECRET_ID = "firebase-secret-credential"
+            self.app = initialize_firebase(PROJECT_ID, SECRET_ID)
+            
+            FIREBASE_SECRET_ID = "firebase-key"
+            self.firebase_secret = get_firebase_secret(PROJECT_ID, FIREBASE_SECRET_ID)
+            
+            FirebaseAuthService._initialized = True
         
         
     def login_user(self, email: str, password: str) -> Dict:
