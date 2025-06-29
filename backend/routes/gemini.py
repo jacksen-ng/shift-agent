@@ -26,7 +26,8 @@ async def gemini_evaluate_shift(request: Request, response: Response):
         auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
         request_body = await request.json()
-        gemini_usecase['GeminiEvaluateShiftUseCase'](request_body['company_id'], request_body['first_day'], request_body['last_day']).execute()
+        response_value = gemini_usecase['GeminiEvaluateShiftUseCase'](request_body['company_id'], request_body['first_day'], request_body['last_day']).execute()
+        return response_value
 
     except HTTPException as e:
         return JSONResponse(status_code=401, content={'message': e})
