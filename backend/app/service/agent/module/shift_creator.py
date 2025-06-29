@@ -7,6 +7,7 @@ from langchain_google_genai.chat_models import ChatGoogleGenerativeAI
 from langchain.chat_models import init_chat_model
 from langchain.tools import tool
 
+
 # --- Pydantic Models ---
 class Shift(BaseModel):
     """Represents a single shift with a day, start time, and finish time."""
@@ -33,18 +34,28 @@ class ShiftEvaluation(BaseModel):
     feedback_japanese: str = Field(..., description="Detailed feedback in Japanese.")
 
 # --- LLM and Environment Setup ---
-load_dotenv()
+# 高橋の環境で
+# load_dotenv()
 
-if os.getenv('GOOGLE_API_KEY'):
-  os.environ["GOOGLE_API_KEY"] = os.getenv('GOOGLE_API_KEY')
-else:
-  print("Google API key not found.")
+# if os.getenv('GOOGLE_API_KEY'):
+#   os.environ["GOOGLE_API_KEY"] = os.getenv('GOOGLE_API_KEY')
+# else:
+#   print("Google API key not found.")
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..')))
+from app.secret_manager.secret_key import get_gemini_secret
+
+PROJECT_ID = "jacksen-server"
+SECRET_ID = "gemini-api-key"
+api_key = get_gemini_secret(PROJECT_ID, SECRET_ID)
 
 llm = init_chat_model(
     model="gemini-2.5-flash",
     model_provider='google_genai',
     temperature=0,
-    max_retries=2
+    max_retries=2,
+    api_key=api_key
 )
 
 # --- LLM-based Tool Helper ---
@@ -265,3 +276,44 @@ def modify_shift_tool(input_data: str) -> str:
         response = response[3:-3].strip()
 
     return response
+
+
+
+def shift_creator_run(
+    shift_request_path: str = "data/inputs/02_sample.json",
+    numb_rate_revisions: int = 3
+):
+    # JSONファイルを読み込み
+    with open(shift_request_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+        employee_preferences = json.dumps(data, ensure_ascii=False)
+
+    # 初期シフトドラフトを作成
+    current_shift = create_shift_draft_tool.invoke(employee_preferences)
+    print(current_shift)
+    print("シフトドラフトが完成しました．")
+
+    # 評価・修正の繰り返し処理
+    for i in range(numb_rate_revisions):
+        iteration_num = i + 1
+
+        # シフトの評価
+        print(f"{iteration_num}回目のシフトの評価をします．")
+        eval_input = json.dumps({
+            "employee_preferences": employee_preferences,
+            "shift_draft": current_shift
+        })
+        eval_result = eval_shift_tool.invoke(eval_input)
+        print(eval_result)
+        print(f"{iteration_num}回目のシフトの評価が完了しました．")
+
+        # シフトの修正
+        print(f"{iteration_num}回目のシフトの修正をします．")
+        modify_input = json.dumps({
+            "shift_draft": current_shift,
+            "evaluation_result": eval_result
+        })
+        current_shift = modify_shift_tool.invoke(modify_input)
+        print(current_shift)
+        print(f"{iteration_num}回目のシフト修正が完了しました．")
+    return current_shift

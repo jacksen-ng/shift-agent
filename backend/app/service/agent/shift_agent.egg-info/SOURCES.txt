@@ -6,3 +6,4 @@ shift_agent.egg-info/dependency_links.txt
 shift_agent.egg-info/requires.txt
 shift_agent.egg-info/top_level.txt
 tests/test_shift_creator.py
+tests/test_shift_creator_ver2.py

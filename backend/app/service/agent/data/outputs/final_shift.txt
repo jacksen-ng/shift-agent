@@ -1,0 +1,326 @@
+{
+  "edit_shift": [
+    {
+      "user_id": "佐藤 照明",
+      "company_id": 1,
+      "day": "2025-07-02",
+      "start_time": "17:00",
+      "finish_time": "23:00"
+    },
+    {
+      "user_id": "田中 昌弘",
+      "company_id": 1,
+      "day": "2025-07-02",
+      "start_time": "18:00",
+      "finish_time": "22:00"
+    },
+    {
+      "user_id": "吉田 正孝",
+      "company_id": 1,
+      "day": "2025-07-02",
+      "start_time": "11:00",
+      "finish_time": "19:00"
+    },
+    {
+      "user_id": "高橋 康成",
+      "company_id": 1,
+      "day": "2025-07-02",
+      "start_time": "11:00",
+      "finish_time": "20:00"
+    },
+    {
+      "user_id": "need staff!!!",
+      "company_id": 1,
+      "day": "2025-07-02",
+      "start_time": "09:00",
+      "finish_time": "11:00"
+    },
+    {
+      "user_id": "佐藤 照明",
+      "company_id": 1,
+      "day": "2025-07-03",
+      "start_time": "11:00",
+      "finish_time": "18:00"
+    },
+    {
+      "user_id": "山本 良伸",
+      "company_id": 1,
+      "day": "2025-07-03",
+      "start_time": "11:00",
+      "finish_time": "19:00"
+    },
+    {
+      "user_id": "高橋 康成",
+      "company_id": 1,
+      "day": "2025-07-03",
+      "start_time": "11:00",
+      "finish_time": "20:00"
+    },
+    {
+      "user_id": "鈴木 一浪",
+      "company_id": 1,
+      "day": "2025-07-03",
+      "start_time": "17:00",
+      "finish_time": "23:00"
+    },
+    {
+      "user_id": "大谷 昌平",
+      "company_id": 1,
+      "day": "2025-07-03",
+      "start_time": "18:00",
+      "finish_time": "22:00"
+    },
+    {
+      "user_id": "前田 賢太",
+      "company_id": 1,
+      "day": "2025-07-04",
+      "start_time": "09:00",
+      "finish_time": "17:00"
+    },
+    {
+      "user_id": "山本 良伸",
+      "company_id": 1,
+      "day": "2025-07-04",
+      "start_time": "09:00",
+      "finish_time": "17:00"
+    },
+    {
+      "user_id": "高橋 康成",
+      "company_id": 1,
+      "day": "2025-07-04",
+      "start_time": "14:00",
+      "finish_time": "23:00"
+    },
+    {
+      "user_id": "田中 昌弘",
+      "company_id": 1,
+      "day": "2025-07-04",
+      "start_time": "18:00",
+      "finish_time": "22:00"
+    },
+    {
+      "user_id": "吉田 正孝",
+      "company_id": 1,
+      "day": "2025-07-04",
+      "start_time": "09:00",
+      "finish_time": "17:00"
+    },
+    {
+      "user_id": "吉田 正孝",
+      "company_id": 1,
+      "day": "2025-07-05",
+      "start_time": "09:00",
+      "finish_time": "17:00"
+    },
+    {
+      "user_id": "佐藤 照明",
+      "company_id": 1,
+      "day": "2025-07-05",
+      "start_time": "12:00",
+      "finish_time": "21:00"
+    },
+    {
+      "user_id": "田中 昌弘",
+      "company_id": 1,
+      "day": "2025-07-05",
+      "start_time": "18:00",
+      "finish_time": "23:00"
+    },
+    {
+      "user_id": "山本 良伸",
+      "company_id": 1,
+      "day": "2025-07-06",
+      "start_time": "09:00",
+      "finish_time": "17:00"
+    },
+    {
+      "user_id": "前田 賢太",
+      "company_id": 1,
+      "day": "2025-07-06",
+      "start_time": "10:00",
+      "finish_time": "20:00"
+    },
+    {
+      "user_id": "鈴木 一浪",
+      "company_id": 1,
+      "day": "2025-07-06",
+      "start_time": "11:00",
+      "finish_time": "23:00"
+    },
+    {
+      "user_id": "大谷 昌平",
+      "company_id": 1,
+      "day": "2025-07-06",
+      "start_time": "18:00",
+      "finish_time": "22:00"
+    },
+    {
+      "user_id": "田中 昌弘",
+      "company_id": 1,
+      "day": "2025-07-06",
+      "start_time": "18:00",
+      "finish_time": "22:00"
+    },
+    {
+      "user_id": "高橋 康成",
+      "company_id": 1,
+      "day": "2025-07-07",
+      "start_time": "09:00",
+      "finish_time": "18:00"
+    },
+    {
+      "user_id": "吉田 正孝",
+      "company_id": 1,
+      "day": "2025-07-07",
+      "start_time": "10:00",
+      "finish_time": "18:00"
+    },
+    {
+      "user_id": "田中 昌弘",
+      "company_id": 1,
+      "day": "2025-07-07",
+      "start_time": "17:00",
+      "finish_time": "22:00"
+    },
+    {
+      "user_id": "鈴木 一浪",
+      "company_id": 1,
+      "day": "2025-07-09",
+      "start_time": "11:00",
+      "finish_time": "20:00"
+    },
+    {
+      "user_id": "吉田 正孝",
+      "company_id": 1,
+      "day": "2025-07-09",
+      "start_time": "11:00",
+      "finish_time": "19:00"
+    },
+    {
+      "user_id": "佐藤 照明",
+      "company_id": 1,
+      "day": "2025-07-09",
+      "start_time": "17:00",
+      "finish_time": "23:00"
+    },
+    {
+      "user_id": "大谷 昌平",
+      "company_id": 1,
+      "day": "2025-07-09",
+      "start_time": "18:00",
+      "finish_time": "23:00"
+    },
+    {
+      "user_id": "山本 良伸",
+      "company_id": 1,
+      "day": "2025-07-10",
+      "start_time": "10:00",
+      "finish_time": "18:00"
+    },
+    {
+      "user_id": "高橋 康成",
+      "company_id": 1,
+      "day": "2025-07-10",
+      "start_time": "11:00",
+      "finish_time": "20:00"
+    },
+    {
+      "user_id": "田中 昌弘",
+      "company_id": 1,
+      "day": "2025-07-10",
+      "start_time": "18:00",
+      "finish_time": "23:00"
+    },
+    {
+      "user_id": "前田 賢太",
+      "company_id": 1,
+      "day": "2025-07-11",
+      "start_time": "09:00",
+      "finish_time": "19:00"
+    },
+    {
+      "user_id": "大谷 昌平",
+      "company_id": 1,
+      "day": "2025-07-11",
+      "start_time": "17:00",
+      "finish_time": "22:00"
+    },
+    {
+      "user_id": "鈴木 一浪",
+      "company_id": 1,
+      "day": "2025-07-11",
+      "start_time": "17:00",
+      "finish_time": "23:00"
+    },
+    {
+      "user_id": "田中 昌弘",
+      "company_id": 1,
+      "day": "2025-07-11",
+      "start_time": "17:00",
+      "finish_time": "22:00"
+    },
+    {
+      "user_id": "佐藤 照明",
+      "company_id": 1,
+      "day": "2025-07-12",
+      "start_time": "09:00",
+      "finish_time": "18:00"
+    },
+    {
+      "user_id": "吉田 正孝",
+      "company_id": 1,
+      "day": "2025-07-12",
+      "start_time": "09:00",
+      "finish_time": "17:00"
+    },
+    {
+      "user_id": "田中 昌弘",
+      "company_id": 1,
+      "day": "2025-07-12",
+      "start_time": "17:00",
+      "finish_time": "22:00"
+    },
+    {
+      "user_id": "山本 良伸",
+      "company_id": 1,
+      "day": "2025-07-13",
+      "start_time": "11:00",
+      "finish_time": "19:00"
+    },
+    {
+      "user_id": "高橋 康成",
+      "company_id": 1,
+      "day": "2025-07-13",
+      "start_time": "14:00",
+      "finish_time": "23:00"
+    },
+    {
+      "user_id": "大谷 昌平",
+      "company_id": 1,
+      "day": "2025-07-13",
+      "start_time": "18:00",
+      "finish_time": "23:00"
+    },
+    {
+      "user_id": "鈴木 一浪",
+      "company_id": 1,
+      "day": "2025-07-14",
+      "start_time": "09:00",
+      "finish_time": "18:00"
+    },
+    {
+      "user_id": "吉田 正孝",
+      "company_id": 1,
+      "day": "2025-07-14",
+      "start_time": "10:00",
+      "finish_time": "18:00"
+    },
+    {
+      "user_id": "前田 賢太",
+      "company_id": 1,
+      "day": "2025-07-14",
+      "start_time": "10:00",
+      "finish_time": "18:00"
+    }
+  ]
+}
