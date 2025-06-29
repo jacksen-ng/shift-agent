@@ -51,7 +51,7 @@ SECRET_ID = "gemini-api-key"
 api_key = get_gemini_secret(PROJECT_ID, SECRET_ID)
 
 llm = init_chat_model(
-    model="gemini-2.5-flash",
+    model="gemini-2.0-flash-lite",
     model_provider='google_genai',
     temperature=0,
     max_retries=2,
