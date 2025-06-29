@@ -1,12 +1,12 @@
-from datetime import date
+from datetime import datetime
 from typing import Dict, List, Optional
 from ...db.db_init import get_session_scope
 from ...db.models import Company, CompanyRestDay, UserProfile, SubmittedShift
 
 def gemini_create_shift(
     company_id: int,
-    first_day: date,
-    last_day: date,
+    first_day: str,
+    last_day: str,
     new_shift_data: Optional[List[Dict[str, str]]] = None
 ) -> Dict:
 
@@ -14,8 +14,8 @@ def gemini_create_shift(
         # 1. delete old shift
         session.query(SubmittedShift).filter(
             SubmittedShift.company_id == company_id,
-            SubmittedShift.day >= first_day,
-            SubmittedShift.day <= last_day
+            SubmittedShift.day >= datetime.strptime(first_day, '%Y-%m-%d').date(),
+            SubmittedShift.day <= datetime.strptime(last_day, '%Y-%m-%d').date()
         ).delete(synchronize_session=False)
 
         # 2. insert new shift
@@ -34,8 +34,8 @@ def gemini_create_shift(
         company_data = session.query(Company).filter(Company.company_id == company_id).first()
         rest_days = session.query(CompanyRestDay.rest_day).filter(
             CompanyRestDay.company_id == company_id,
-            CompanyRestDay.rest_day >= first_day,
-            CompanyRestDay.rest_day <= last_day
+            CompanyRestDay.rest_day >= datetime.strptime(first_day, '%Y-%m-%d').date(),
+            CompanyRestDay.rest_day <= datetime.strptime(last_day, '%Y-%m-%d').date()
         ).all()
 
         company_info = {
@@ -56,8 +56,8 @@ def gemini_create_shift(
             SubmittedShift.finish_time
         ).filter(
             SubmittedShift.company_id == company_id,
-            SubmittedShift.day >= first_day,
-            SubmittedShift.day <= last_day
+            SubmittedShift.day >= datetime.strptime(first_day, '%Y-%m-%d').date(),
+            SubmittedShift.day <= datetime.strptime(last_day, '%Y-%m-%d').date()
         ).all()
 
         # build user_id -> [shifts] map
