@@ -7,7 +7,8 @@ class GetCompanyInfoUseCase:
         self.company_id = company_id
 
     def execute(self):
-        company_id_validation = company_validation['CompanyIDValidation'](self.company_id).execute()
+        value_change_type = self.company_id
+        company_id_validation = company_validation['CompanyIDValidation'](value_change_type).execute()
         company_id_entity = company_info_entities['CompanyInfoEntity'](company_id_validation).to_json()
 
         response_values = company_info_repository['company_info_request'](company_id_entity['company_id'])
