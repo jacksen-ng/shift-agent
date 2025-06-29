@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
 from .routes import (
     auth_router,
     company_info_router,
@@ -10,15 +9,8 @@ from .routes import (
     home_page_router,
     owner_shift_router
 )
-from .app.repository.firebase.firebase_auth import FirebaseAuthService
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    FirebaseAuthService().init()
-    print("Firebase service initialized.")
-    yield
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
