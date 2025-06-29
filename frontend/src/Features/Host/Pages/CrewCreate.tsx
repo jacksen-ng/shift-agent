@@ -12,6 +12,7 @@ interface CrewFormData {
   phone: string;
   position: string;
   evaluate: number;
+  experience: 'beginner' | 'veteran';
   join_company_day: string;
   hour_pay: number;
   post: string;
@@ -26,6 +27,7 @@ const CrewCreate = () => {
     phone: '',
     position: '',
     evaluate: 3,
+    experience: 'beginner',
     join_company_day: new Date().toISOString().split('T')[0],
     hour_pay: 1000,
     post: 'part_timer',
@@ -110,6 +112,7 @@ const CrewCreate = () => {
         phone: formData.phone,
         position: formData.position,
         evaluate: formData.evaluate,
+        experience: formData.experience,
         join_company_day: formData.join_company_day,
         hour_pay: formData.hour_pay,
         post: formData.post
@@ -306,6 +309,20 @@ const CrewCreate = () => {
                   {renderStars(formData.evaluate, true)}
                   <span className="text-sm text-gray-600 ml-2">({formData.evaluate}/5)</span>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">経験レベル <span className="text-red-500">*</span></label>
+                <select
+                  name="experience"
+                  value={formData.experience}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  required
+                >
+                  <option value="beginner">初心者</option>
+                  <option value="veteran">ベテラン</option>
+                </select>
               </div>
             </div>
           </div>
