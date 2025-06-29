@@ -2,6 +2,7 @@ from google.cloud import secretmanager
 import firebase_admin
 from firebase_admin import credentials
 import json
+from typing import Optional
 
 _secret_cache = {}
 _secret_client = None
@@ -21,16 +22,24 @@ def _get_secret_from_cache(project_id, secret_id, version_id="latest"):
         _secret_cache[cache_key] = response.payload.data.decode("UTF-8")
     return _secret_cache[cache_key]
 
-def initialize_firebase(project_id, secret_id, version_id="latest"):
-    if firebase_admin._apps:
+def initialize_firebase(project_id: str, secret_id: str, version_id: str = "latest", app_name: Optional[str] = None):
+    options = {
+        'credential': credentials.Certificate(
+            json.loads(_get_secret_from_cache(project_id, secret_id, version_id))
+        )
+    }
+
+    if app_name:
+        try:
+            return firebase_admin.get_app(name=app_name)
+        except ValueError:
+            return firebase_admin.initialize_app(options['credential'], name=app_name)
+    
+    if not firebase_admin._apps:
+        return firebase_admin.initialize_app(options['credential'])
+    else:
         return firebase_admin.get_app()
 
-    firebase_credentials_json = json.loads(_get_secret_from_cache(project_id, secret_id, version_id))
-    cred = credentials.Certificate(firebase_credentials_json)
-
-    app = firebase_admin.initialize_app(cred)
-    return app
-    
 def get_cloudsql_secret(project_id, secret_id, version_id="latest"):
     return _get_secret_from_cache(project_id, secret_id, version_id)
 
