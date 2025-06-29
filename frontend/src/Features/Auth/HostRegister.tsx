@@ -1,3 +1,4 @@
+
 // src/Features/Auth/Pages/HostRegister.tsx
 
 import React, { useState } from 'react';
@@ -14,9 +15,11 @@ const HostRegister: React.FC = () => {
     email: '',
     password: '',
     confirm_password: '',
+    role: 'owner' as 'owner' | 'crew',
+    company_id: '',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -34,7 +37,19 @@ const HostRegister: React.FC = () => {
     }
 
     try {
-      await registerHost(formData);
+      // クルーの場合はcompany_idが必要
+      if (formData.role === 'crew' && !formData.company_id) {
+        setErrorMessage('会社IDを入力してください');
+        return;
+      }
+
+      await registerHost({
+        email: formData.email,
+        password: formData.password,
+        confirm_password: formData.confirm_password,
+        role: formData.role,
+        ...(formData.role === 'crew' && { company_id: formData.company_id })
+      });
       alert('登録が完了しました');
       navigate('/login');
     } catch (error) {
@@ -56,7 +71,39 @@ const HostRegister: React.FC = () => {
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-lg shadow-md w-full max-w-md space-y-6"
       >
-        <h2 className="text-2xl font-bold text-center">オーナー登録</h2>
+        <h2 className="text-2xl font-bold text-center">新規登録</h2>
+
+        <div>
+          <label className="block font-semibold mb-1">役割</label>
+          <select
+            name="role"
+            className="w-full border rounded px-3 py-2"
+            value={formData.role}
+            onChange={handleChange}
+            required
+          >
+            <option value="owner">オーナー（店舗管理者）</option>
+            <option value="crew">クルー（従業員）</option>
+          </select>
+        </div>
+
+        {formData.role === 'crew' && (
+          <div>
+            <label className="block font-semibold mb-1">会社ID</label>
+            <input
+              type="number"
+              name="company_id"
+              className="w-full border rounded px-3 py-2"
+              value={formData.company_id}
+              onChange={handleChange}
+              placeholder="所属する会社のIDを入力"
+              required={formData.role === 'crew'}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              ※会社IDは管理者から教えてもらってください
+            </p>
+          </div>
+        )}
 
         <div>
           <label className="block font-semibold mb-1">メールアドレス</label>
@@ -104,7 +151,10 @@ const HostRegister: React.FC = () => {
         </button>
 
         <p className="text-sm text-gray-600 text-center">
-          登録後、店舗情報や個人情報の設定画面に移動します
+          {formData.role === 'owner' 
+            ? '登録後、店舗情報の設定画面に移動します'
+            : '登録後、ログイン画面に移動します'
+          }
         </p>
       </form>
     </div>

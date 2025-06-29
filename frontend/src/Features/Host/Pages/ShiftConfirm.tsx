@@ -29,16 +29,8 @@ const ShiftConfirm = () => {
   const [members, setMembers] = useState<CompanyMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
-  const [currentWeek, setCurrentWeek] = useState(new Date());
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // 週の開始日（月曜日）を取得
-  const getWeekStart = (date: Date) => {
-    const d = new Date(date);
-    const day = d.getDay();
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-    return new Date(d.setDate(diff));
-  };
 
   // シフトデータを取得
   const fetchShifts = async () => {
@@ -114,7 +106,6 @@ const ShiftConfirm = () => {
   }
 
   const stats = calculateStats();
-  const weekDays = ['月', '火', '水', '木', '金', '土', '日'];
 
   return (
     <div className="min-h-screen bg-gray-50">

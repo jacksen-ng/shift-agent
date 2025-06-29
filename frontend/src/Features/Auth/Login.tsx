@@ -35,16 +35,17 @@ const Login: React.FC = () => {
       // ここでは追加の保存処理は不要
       
       console.log('ログイン成功レスポンス:', response);
-      console.log('ユーザーロール:', response.role);
 
+      // roleに基づいて適切な画面に遷移
       if (response.role === 'owner') {
-        console.log('オーナーとしてログイン、/host/homeへ遷移');
+        console.log('ログイン成功、オーナーホーム画面へ遷移');
         navigate('/host/home');
       } else if (response.role === 'crew') {
-        console.log('クルーとしてログイン、/crew/homeへ遷移');
+        console.log('ログイン成功、クルーホーム画面へ遷移');
         navigate('/crew/home');
       } else {
-        console.error('不明なロール:', response.role);
+        console.error('不明なrole:', response.role);
+        navigate('/host/home'); // デフォルトはオーナーホーム
       }
     } catch (error: any) {
       console.error('ログインエラー詳細:', {
@@ -196,7 +197,7 @@ const Login: React.FC = () => {
           {/* フッター */}
           <div className="text-center space-y-3">
             <p className="text-sm text-gray-600">
-              店舗管理者の方で初めてご利用の場合
+              アカウントをお持ちでない方
             </p>
             <Link 
               to="/register/host" 

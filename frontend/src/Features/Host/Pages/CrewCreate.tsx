@@ -319,8 +319,8 @@ const CrewCreate = () => {
               <div>
                 <p className="text-sm font-medium text-yellow-800">登録時の注意事項</p>
                 <ul className="text-sm text-yellow-700 mt-1 list-disc list-inside">
-                  <li>登録後、従業員にログイン情報がメールで送信されます</li>
-                  <li>初回ログイン時にパスワードの変更が必要です</li>
+                  <li>従業員は自分で新規登録画面からアカウントを作成する必要があります</li>
+                  <li>登録時には会社IDが必要となります</li>
                   <li>登録後の情報変更は編集画面から行えます</li>
                 </ul>
               </div>

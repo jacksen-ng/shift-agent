@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// 認証系APIのベースURL（直接アクセス）
-const AUTH_BASE_URL = 'https://shift-agent-backend-562837022896.asia-northeast1.run.app';
+// 認証系APIのベースURL（環境変数から取得、なければデフォルト値）
+const AUTH_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://shift-agent-backend-562837022896.asia-northeast1.run.app';
 
 interface LoginResponse {
   user_id: number;
@@ -9,6 +9,7 @@ interface LoginResponse {
   role: 'owner' | 'crew';
   access_token?: string;
   id_token?: string;
+  token?: string;
   token_type?: string;
   expires_in?: number;
 }
@@ -52,12 +53,12 @@ export const login = async (email: string, password: string) => {
     });
     
     console.log('ログインAPIレスポンス:', response.data);
+    console.log('Response headers:', response.headers);
     
     if (response.status === 200 && response.data) {
-      // アクセストークンが返されれば使用、なければダミートークンをセット
-      const accessToken = response.data.access_token || 'dummy_access_token';
-      setCookie('access_token', accessToken);
-      setCookie('token_type', response.data.token_type || 'Bearer');
+      // バックエンドはトークンを返さないため、ダミー値を設定
+      setCookie('access_token', 'logged_in');
+      setCookie('token_type', 'Bearer');
       
       // 有効期限を設定
       const expiresIn = response.data.expires_in || 3600;
@@ -67,17 +68,13 @@ export const login = async (email: string, password: string) => {
       // LocalStorageに基本情報を保存
       localStorage.setItem('user_id', response.data.user_id.toString());
       localStorage.setItem('company_id', response.data.company_id.toString());
-      
-      // APIから返されたroleを使用（返されない場合はデフォルトで'owner'とする）
-      const role = response.data.role || 'owner';
-      console.warn('APIレスポンスにroleが含まれていません。デフォルトで"owner"を設定します。');
-      localStorage.setItem('role', role);
+      localStorage.setItem('role', response.data.role);
       
       const result = {
         user_id: response.data.user_id.toString(),
         company_id: response.data.company_id.toString(),
-        role: role,
-        access_token: accessToken,
+        role: response.data.role,
+        access_token: 'logged_in',
         message: 'ログイン成功'
       };
       
@@ -102,17 +99,24 @@ interface SignInRequest {
   email: string;
   password: string;
   confirm_password: string;
+  role?: 'owner' | 'crew';
+  company_id?: string;
 }
 
 export const registerHost = async (data: SignInRequest) => {
   try {
-    // API設計図通り：/sign-in（ハイフン付き）で roleも必要
-    const requestBody = {
+    // API設計図通り：/signin（ハイフンなし）で roleも必要
+    const requestBody: any = {
       email: data.email,
       password: data.password,
       confirm_password: data.confirm_password,
-      role: 'owner'  // オーナー登録なのでroleは'owner'
+      role: data.role || 'owner'  // roleが指定されていない場合はownerをデフォルト
     };
+
+    // クルーの場合はcompany_idも追加（数値として送信）
+    if (data.role === 'crew' && data.company_id) {
+      requestBody.company_id = parseInt(data.company_id);
+    }
     
     console.log('登録リクエスト:', requestBody);
     

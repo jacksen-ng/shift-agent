@@ -116,7 +116,7 @@ const CrewHome: React.FC = () => {
       }
     };
     fetchData();
-  }, [currentWeek]);
+  }, [currentWeek, navigate]);
 
   // 週を変更
   const changeWeek = (direction: 'prev' | 'next') => {

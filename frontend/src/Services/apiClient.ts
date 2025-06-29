@@ -1,10 +1,8 @@
-import axios, { InternalAxiosRequestConfig } from 'axios';
-import { getAccessToken, isTokenExpired, logout } from './AuthService';
+import axios from 'axios';
+import { logout } from './AuthService';
 
-// 開発環境ではプロキシを使用してCORSを回避
-const API_BASE_URL = process.env.NODE_ENV === 'development' 
-  ? '' // 開発環境ではプロキシ経由
-  : (process.env.REACT_APP_API_BASE_URL || 'https://shift-agent-backend-562837022896.asia-northeast1.run.app');
+// バックエンドのベースURL（環境変数から取得、なければデフォルト値）
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://shift-agent-backend-562837022896.asia-northeast1.run.app';
 
 // axiosインスタンスを作成
 const apiClient = axios.create({
@@ -18,19 +16,22 @@ const apiClient = axios.create({
 // リクエストインターセプター
 apiClient.interceptors.request.use(
   (config) => {
-    if (isTokenExpired()) {
-      if (!config.url?.includes('/login') && !config.url?.includes('/sign-in')) {
+    // ログインしているかチェック
+    if (!config.url?.includes('/login') && !config.url?.includes('/signin')) {
+      const userId = localStorage.getItem('user_id');
+      const companyId = localStorage.getItem('company_id');
+      
+      // ログインしていない場合はリダイレクト
+      if (!userId || !companyId) {
         logout();
         window.location.href = '/login';
-        throw new Error('トークンの有効期限が切れています');
+        throw new Error('ログインが必要です');
       }
     }
-
-    const token = getAccessToken();
-    if (token && !config.url?.includes('/login') && !config.url?.includes('/sign-in')) {
-      // Authorizationヘッダーを設定
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    
+    // CORSエラー回避のため、一時的にCredentialsを無効化
+    // TODO: バックエンドのCORS設定が修正されたら有効化する
+    config.withCredentials = false;
 
     return config;
   },

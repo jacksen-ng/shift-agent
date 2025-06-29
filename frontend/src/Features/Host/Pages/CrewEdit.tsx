@@ -118,7 +118,6 @@ const CrewEdit = () => {
     e.preventDefault();
     try {
       setSaving(true);
-      const companyId = localStorage.getItem('company_id') || '1';
       
       // API設計に準拠したリクエスト
       const requestData = {
