@@ -11,7 +11,7 @@ def get_shift_info(company_id, request: Request, response: Response):
     try:
         auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
-        response_values = owner_shift_usecase['owner_shift_usecase'](company_id).execute()
+        response_values = owner_shift_usecase['GetShiftInfoUseCase'](company_id).execute()
         return response_values
     
     except HTTPException as e:
