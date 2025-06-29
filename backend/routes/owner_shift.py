@@ -26,13 +26,12 @@ async def edit_shift(request: Request, response: Response):
         auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
         request_body = await request.json()
-        response_values = owner_shift_usecase['EditShiftUseCase'](
+        owner_shift_usecase['EditShiftUseCase'](
             request_body['company_id'],
             request_body['add_edit_shift'],
             request_body['update_edit_shift'],
             request_body['delete_edit_shift']
         ).execute()
-        return response_values
     
     except HTTPException as e:
         return JSONResponse(status_code=401, content={'message': e})
