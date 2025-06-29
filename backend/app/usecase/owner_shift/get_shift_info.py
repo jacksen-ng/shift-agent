@@ -12,6 +12,6 @@ class GetShiftInfoUseCase:
 
         company_id_entity = owner_shift_entities['ShiftInfoEntity'](company_id_validation).to_json()
 
-        return_values = edit_shift_repository['edit_shift_request'](company_id_entity)
+        return_values = edit_shift_repository['edit_shift_request'](company_id_entity['company_id'])
 
         return return_values
