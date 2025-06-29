@@ -1,6 +1,7 @@
 from ....domain.validation.objects.submitted_decision_edit_shift import submitted_decision_edit_shift_validation
 from ....domain.entity.gemini import gemini_entities
 from ...repository.crud.gemini_shift import gemini_shift_repository
+# from ...service.agent.module import
 
 class GeminiEvaluateShiftUseCase:
     def __init__(self, company_id, first_day, last_day):
@@ -25,7 +26,9 @@ class GeminiEvaluateShiftUseCase:
             evaluate_rules_entity['last_day']
         )
 
-        # detail_shift_rules をgeminiに送信する
-        evalute_shift_gemini = detail_shift
+        # データ整形必要であればデータ整形
 
-        return evalute_shift_gemini
+        # detail_shift_rules をgeminiに送信する
+        # evalute_shift_gemini = detail_shift
+
+        # return evalute_shift_gemini
