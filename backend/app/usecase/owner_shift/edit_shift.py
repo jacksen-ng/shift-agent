@@ -40,7 +40,7 @@ class EditShiftUseCase:
 
         delete_edit_shift_validation = []
         for a_delete_shift in self.delete_edit_shift:
-            edit_shift_id_validation = submitted_decision_edit_shift_validation['EditShiftIDValidation'](a_delete_shift['edit_shift_id']).execute()
+            edit_shift_id_validation = submitted_decision_edit_shift_validation['EditShiftIDValidation'](a_delete_shift).execute()
             delete_edit_shift_validation.append(edit_shift_id_validation)
 
         edit_shift_entity = owner_shift_entities['EditShiftEntity'](
