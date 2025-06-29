@@ -1,18 +1,15 @@
 from fastapi import Request, Response, HTTPException
+from firebase_admin import auth
 from firebase_admin.exceptions import FirebaseError
 
 from ...repository.firebase.firebase_auth import FirebaseAuthService
 from ...service.auth.save_cookie import save_auth_cookies
 
-firebase_service = FirebaseAuthService()
-
 def verify_id_token(id_token: str, required_role: str = None) -> None:
     try:
-        verification_result = firebase_service.verify_id_token(id_token)
-        if not verification_result["success"]:
-            raise HTTPException(f"FirebaseVerificationError: {verification_result.get('error', 'Unknown error')}")
+        decoded = auth.verify_id_token(id_token)
 
-        user_role = verification_result.get("role") 
+        user_role = decoded.get("role") 
 
         if required_role and user_role != required_role:
             raise HTTPException(f"{required_role}として認証されていません")
@@ -42,6 +39,7 @@ def verify_and_refresh_token(request: Request, response: Response, required_role
     
     except Exception as e:
         if "TokenExpiredError" in str(e) and refresh_token:
+            firebase_service = FirebaseAuthService()
             refresh_result = firebase_service.refresh_id_token(refresh_token)
             
             if refresh_result["success"]:
