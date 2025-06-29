@@ -33,18 +33,28 @@ class ShiftEvaluation(BaseModel):
     feedback_japanese: str = Field(..., description="Detailed feedback in Japanese.")
 
 # --- LLM and Environment Setup ---
-load_dotenv()
+# 高橋の環境で
+# load_dotenv()
 
-if os.getenv('GOOGLE_API_KEY'):
-  os.environ["GOOGLE_API_KEY"] = os.getenv('GOOGLE_API_KEY')
-else:
-  print("Google API key not found.")
+# if os.getenv('GOOGLE_API_KEY'):
+#   os.environ["GOOGLE_API_KEY"] = os.getenv('GOOGLE_API_KEY')
+# else:
+#   print("Google API key not found.")
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..')))
+from app.secret_manager.secret_key import get_gemini_secret
+
+PROJECT_ID = "jacksen-server"
+SECRET_ID = "gemini-api-key"
+api_key = get_gemini_secret(PROJECT_ID, SECRET_ID)
 
 llm = init_chat_model(
     model="gemini-2.5-flash",
     model_provider='google_genai',
     temperature=0,
-    max_retries=2
+    max_retries=2,
+    api_key=api_key
 )
 
 # --- LLM-based Tool Helper ---
