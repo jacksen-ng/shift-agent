@@ -16,7 +16,7 @@ async def post_submit_shift(request: Request, response: Response):
             request_body['company_member_info']['user_id'],
             request_body['company_member_info']['company_id'],
             request_body['submit_shift']
-        )
+        ).execute()
 
     except HTTPException as e:
         return JSONResponse(status_code=401, content={'message': e})
