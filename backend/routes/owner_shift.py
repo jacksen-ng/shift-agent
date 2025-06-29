@@ -39,7 +39,7 @@ async def edit_shift(request: Request, response: Response):
     except Exception as e:
         return JSONResponse(status_code=400, content={'message': e})
     
-@app.post('/complete_edit_sift')
+@app.post('/complete_edit_shift')
 async def complete_shift(request: Request, response: Response):
     try:
         auth_services['verify_and_refresh_token'](request, response, required_role="owner")
