@@ -26,7 +26,7 @@ async def edit_company_info(request: Request, response: Response):
         auth_services['verify_and_refresh_token'](request, response, required_role="owner")
 
         request_body = await request.json()
-        response_values = company_info_usecase['EditCompanyInfoUseCase'](
+        company_info_usecase['EditCompanyInfoUseCase'](
             request_body['company_info']['company_id'],
             request_body['company_info']['company_name'],
             request_body['company_info']['store_location'],
@@ -36,8 +36,7 @@ async def edit_company_info(request: Request, response: Response):
             request_body['company_info']['labor_cast'],
             request_body['rest_day'],
             request_body['position']
-        )
-        return response_values
+        ).execute()
     
     except HTTPException as e:
         return JSONResponse(status_code=401, content={'message': e})

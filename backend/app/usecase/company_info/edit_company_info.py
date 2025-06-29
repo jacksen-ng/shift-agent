@@ -5,14 +5,14 @@ from ....domain.entity.company_info import company_info_entities
 from ...repository.crud.company_info import company_info_repository
 
 class EditCompanyInfoUseCase:
-    def __init__(self, company_id, company_name, store_location, open_time, close_time, target_sales, labor_cast, rest_day, position):
+    def __init__(self, company_id, company_name, store_location, open_time, close_time, target_sales, labor_cost, rest_day, position):
         self.company_id = company_id
         self.company_name = company_name
         self.store_location = store_location
         self.open_time = open_time
         self.close_time = close_time
         self.target_sales = target_sales
-        self.labor_cast = labor_cast
+        self.labor_cost = labor_cost
         self.rest_day = rest_day
         self.position = position
 
@@ -23,7 +23,7 @@ class EditCompanyInfoUseCase:
         open_time_validation = company_validation['OpenTimeValidation'](self.open_time).execute()
         close_time_validation = company_validation['CloseTimeValidation'](self.close_time).execute()
         target_sales_validation = company_validation['TargetSalesValidation'](self.target_sales).execute()
-        labor_cost_validation = company_validation['LaborCostValidation'](self.labor_cast).execute()
+        labor_cost_validation = company_validation['LaborCostValidation'](self.labor_cost).execute()
 
         rest_day_validation = []
         for a_rest_day in self.rest_day:
@@ -48,13 +48,13 @@ class EditCompanyInfoUseCase:
         ).to_json()
 
         company_info_repository['company_info_edit_request'](
-            edit_company_info_entity['company_id'],
-            edit_company_info_entity['company_name'],
-            edit_company_info_entity['store_location'],
-            edit_company_info_entity['open_time'],
-            edit_company_info_entity['close_time'],
-            edit_company_info_entity['target_sales'],
-            edit_company_info_entity['labor_cast'],
+            edit_company_info_entity['company_info']['company_id'],
+            edit_company_info_entity['company_info']['company_name'],
+            edit_company_info_entity['company_info']['store_location'],
+            edit_company_info_entity['company_info']['open_time'],
+            edit_company_info_entity['company_info']['close_time'],
+            edit_company_info_entity['company_info']['target_sales'],
+            edit_company_info_entity['company_info']['labor_cost'],
             edit_company_info_entity['rest_day'],
             edit_company_info_entity['position']
         )
