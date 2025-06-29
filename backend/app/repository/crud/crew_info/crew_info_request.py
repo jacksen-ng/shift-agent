@@ -18,6 +18,7 @@ def get_user_profiles_by_company(company_id: int):
                 "phone": p.phone,
                 "position": p.position,
                 "evaluate": p.evaluate,
+                "experience": p.experience,
                 "join_company_day": p.join_company_day.isoformat() if p.join_company_day else None,
                 "hour_pay": p.hour_pay,
                 "post": p.post

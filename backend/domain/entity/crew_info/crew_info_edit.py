@@ -6,7 +6,7 @@ class CrewInfoEditEntity:
                 phone,
                 position,
                 evaluate,
-                join_company_day,
+                experience,
                 hour_pay,
                 post):
         self.user_id = user_id
@@ -15,7 +15,7 @@ class CrewInfoEditEntity:
         self.phone = phone
         self.position = position
         self.evaluate = evaluate
-        self.join_company_day = join_company_day
+        self.experience = experience
         self.hour_pay = hour_pay
         self.post = post
         
@@ -27,7 +27,7 @@ class CrewInfoEditEntity:
             "phone": self.phone,
             "position": self.position,
             "evaluate": self.evaluate,
-            "join_company_day": self.join_company_day,
+            "experience": self.experience,
             "hour_pay": self.hour_pay,
             "post": self.post
         }
