@@ -7,7 +7,8 @@ class GetShiftInfoUseCase:
         self.company_id = company_id
 
     def execute(self):
-        company_id_validation = company_validation['CompanyIDValidation'](self.company_id).execute()
+        value_change_type = int(self.company_id)
+        company_id_validation = company_validation['CompanyIDValidation'](value_change_type).execute()
 
         company_id_entity = owner_shift_entities['ShiftInfoEntity'](company_id_validation).to_json()
 
