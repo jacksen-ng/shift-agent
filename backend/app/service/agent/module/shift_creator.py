@@ -51,7 +51,7 @@ SECRET_ID = "gemini-api-key"
 api_key = get_gemini_secret(PROJECT_ID, SECRET_ID)
 
 llm = init_chat_model(
-    model="gemini-2.5-flash",
+    model="gemini-2.0-flash-lite",
     model_provider='google_genai',
     temperature=0,
     max_retries=2,
@@ -265,6 +265,106 @@ def modify_shift_tool(input_data: str) -> str:
 
     # Create user content with both shift draft and evaluation result
     user_content = f"Current Shift Draft: {shift_draft_json}\nEvaluation Result: {evaluation_result_json}"
+
+    response = call_gemini_model(system_instruction, user_content)
+    response = response.strip()
+
+    # Remove markdown code block if present
+    if response.startswith("```json") and response.endswith("```"):
+        response = response[len("```json"): -len("```")].strip()
+    elif response.startswith("```") and response.endswith("```"):
+        response = response[3:-3].strip()
+
+    return response
+
+
+
+
+def eval_final_shift_tool(input_data: str) -> str:
+    """
+    Evaluates a proposed shift schedule using a 100-point deduction system.
+    The evaluation prioritizes essential criteria like minimum staffing levels
+    for different roles (hall, cashier, kitchen) and adherence to labor cost limits.
+    Employee shift preferences are considered as a desirable goal. This tool
+    provides a quantitative score and detailed feedback in Japanese.
+
+    Args:
+        input_data: A JSON string containing both employee preferences and shift draft.
+                   Format: '{"employee_preferences": "...", "shift_draft": "..."}'
+                   Or a combined string with both data separated by a delimiter.
+
+    Returns:
+        A JSON string containing the evaluation results, including a quantitative score
+        based on deductions, and specific feedback in Japanese regarding adherence
+        to staffing requirements, labor cost constraints, and efforts made to accommodate
+        employee shift preferences.
+    """
+
+    # Parse input data to extract employee preferences and shift draft
+    try:
+        # Try to parse as structured JSON first
+        data = json.loads(input_data)
+        if isinstance(data, dict) and 'employee_preferences' in data and 'shift_draft' in data:
+            employee_preferences_json = data['employee_preferences']
+            shift_draft_json = data['shift_draft']
+        else:
+            # Fallback: treat as single string containing both data
+            employee_preferences_json = ""
+            shift_draft_json = input_data
+    except (json.JSONDecodeError, KeyError):
+        # Fallback: treat as single string containing both data
+        employee_preferences_json = ""
+        shift_draft_json = input_data
+
+    system_instruction = """
+あなたは飲食店のシフトを厳密に評価するAIアシスタントです。与えられたシフトデータ、従業員情報、過去のシフト評価データを基に、以下の評価基準に従ってシフト案を評価し、結果をJSONオブジェクト形式で出力してください。
+
+### 初期スコア
+100点
+
+### 評価基準（減点・加点項目）
+
+**1. 最低人員配置の未達（減点）**
+- **条件**: ホール、レジ、キッチンの各ポジションにおいて、同じ時間帯にスタッフが1人も配置されていない時間帯が存在する場合。
+- **減点**: 1ポジション、1時間帯の不足につき **-3点**。
+
+**2. 人件費の超過（減点）**
+- **条件**: シフト全体の総人件費が、設定された人件費予算(`labor_cost`)を超過している場合。
+- **減点**: **-2点**。
+- **人件費の計算手順**:
+    1. 各従業員のシフト時間（"finish_time" - "start_time"）を算出します。
+    2. 各従業員の「日給」（シフト時間 × "hour_pay"）を算出します。
+    3. 全従業員の日給を合計し、総人件費を算出します。
+    4. 算出した総人件費が `labor_cost` を上回っているか判定します。
+
+**3. 過去データとの相関（加点）**
+- **分析**: `company_member`情報と`evaluate_decision_shift`（`decision_shift`と`evaluate`を含む）を分析し、「特定の従業員がシフトに多く入ると評価が高くなる/低くなる」といった傾向を把握してください。
+- **条件**: 上記の分析結果と、今回評価する確定シフトの従業員構成に正の相関が見られる場合（例: 過去の評価が高いシフトに多く参加していた従業員が、今回のシフトにも適切に配置されているなど）。
+- **加点**: **+3点**。
+
+### 入力データ
+- `company_member`: 全従業員の情報（時給 "hour_pay" を含む）。
+- 確定シフトスケジュールデータ: 評価対象のシフト。
+- `evaluate_decision_shift`:
+    - `decision_shift`: 過去のシフト履歴。
+    - `evaluate`: `decision_shift`に対応する期間のシフト全体の評価。
+- `labor_cost`: 人件費の予算。
+
+### 出力フォーマット
+'comment'というキーを持つJSONオブジェクト形式で、評価結果のみを出力してください。説明やマークダウンなど、JSON以外のテキストは一切含めないでください。
+
+- 'comment': quantitative_scoreとfeedback_japaneseの内容を中に埋め込んだ，単一のjsonオブジェクト．出力はこの形式に必ず則る．全体的な評価を50文字程度，修正ポイント，修正箇所についてを50文字程度で出力する．これ以外のフォーマットを採用することを固く禁ずる．
+    - quantitative_scoreは，初期値100点からの減点・加点を反映した最終的な定量的スコア。
+    - feedback_japaneseは，評価結果に関する日本語の具体的なフィードバック。減点・加点された項目とその理由を必ず含めてください。
+
+### 出力例
+```json
+{
+    'comment': '初期スコア100点から，{quantitative_score}と評価しました。\n- 人件費超過: -2点 (予算100,000円に対し、実績105,000円でした。)\n- キッチン人員不足: -3点 (XX月XX日の14:00-15:00のキッチン担当が0人でした。)\n- レジ人員不足: -3点 (XX月XX日の21:00-22:00のレジ担当が0人でした。)\n過去の評価傾向と今回のシフト構成に良い相関が見られたため+2点です。ホール人員は全ての時間帯で満たされています。人件費の削減と、特定時間帯の人員不足の解消が必要です。'
+}
+    """
+    # Create user content with both employee preferences and shift draft
+    user_content = f"Employee Shift Preferences: {employee_preferences_json}\nShift Draft: {shift_draft_json}"
 
     response = call_gemini_model(system_instruction, user_content)
     response = response.strip()
