@@ -70,8 +70,7 @@ def signin_request_owner(firebase_uid: str, email: str, role: str,
         session.commit()
 
 
-def signin_request_crew(firebase_uid: str, email: str, role: str,
-                        company_id: int = None, 
+def signin_request_crew(firebase_uid: str, email: str, role: str, company_id: int, 
                         name: str = None,
                         age: str = None,
                         phone: str = None,
