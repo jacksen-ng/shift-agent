@@ -23,13 +23,13 @@ def signin_request_owner(firebase_uid: str, email: str, role: str,
     
     if open_time:
         try:
-            open_time_obj = datetime.strptime(open_time, '%H:%M').time()
+            open_time_obj = datetime.strptime(open_time, '%H:%M:%S').time()
         except ValueError:
             pass
     
     if close_time:
         try:
-            close_time_obj = datetime.strptime(close_time, '%H:%M').time()
+            close_time_obj = datetime.strptime(close_time, '%H:%M:%S').time()
         except ValueError:
             pass
     

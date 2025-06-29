@@ -42,8 +42,8 @@ def gemini_evaluate_shift(company_id: int, first_day: date, last_day: date) -> D
             shift_data = {
                 "edit_shift_id": shift.edit_shift_id,
                 "day": shift.day.isoformat(),
-                "start_time": shift.start_time.strftime("%H:%M"),
-                "finish_time": shift.finish_time.strftime("%H:%M")
+                "start_time": shift.start_time.strftime("%H:%M:%S"),
+                "finish_time": shift.finish_time.strftime("%H:%M:%S")
             }
             edit_shift_map.setdefault(shift.user_id, []).append(shift_data)
 
@@ -82,8 +82,8 @@ def gemini_evaluate_shift(company_id: int, first_day: date, last_day: date) -> D
             {
                 "user_id": d.user_id,
                 "day": d.day.isoformat(),
-                "start_time": d.start_time.strftime("%H:%M"),
-                "finish_time": d.finish_time.strftime("%H:%M")
+                "start_time": d.start_time.strftime("%H:%M:%S"),
+                "finish_time": d.finish_time.strftime("%H:%M:%S")
             }
             for d in decision_shifts
         ]

@@ -22,8 +22,8 @@ def company_info_edit_request(
 
         company.company_name = company_name
         company.store_locate = store_locate
-        company.open_time = datetime.strptime(open_time, "%H:%M").time()
-        company.close_time = datetime.strptime(close_time, "%H:%M").time()
+        company.open_time = datetime.strptime(open_time, "%H:%M:%S").time()
+        company.close_time = datetime.strptime(close_time, "%H:%M:%S").time()
         company.target_sales = target_sales
         company.labor_cost = labor_cost
 

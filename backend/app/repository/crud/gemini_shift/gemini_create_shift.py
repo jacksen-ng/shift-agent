@@ -66,8 +66,8 @@ def gemini_create_shift(
             shift_data = {
                 "edit_shift_id": shift.submitted_shift_id,
                 "day": shift.day.isoformat(),
-                "start_time": shift.start_time.strftime("%H:%M"),
-                "finish_time": shift.finish_time.strftime("%H:%M")
+                "start_time": shift.start_time.strftime("%H:%M:%S"),
+                "finish_time": shift.finish_time.strftime("%H:%M:%S")
             }
             shift_map.setdefault(shift.user_id, []).append(shift_data)
 
