@@ -1,12 +1,20 @@
 from fastapi import Request, Response, HTTPException
-from firebase_admin import auth
+from firebase_admin import auth, credentials
 from firebase_admin.exceptions import FirebaseError
+import firebase_admin
 
 from ...repository.firebase.firebase_auth import FirebaseAuthService
 from ...service.auth.save_cookie import save_auth_cookies
+from ...secret_manager.secret_key import get_firebase_secret
 
 def verify_id_token(id_token: str, required_role: str = None) -> None:
     try:
+        PROJECT_ID = "jacksen-server"
+        FIREBASE_SECRET_ID = "firebase-secret-credential"
+        if not firebase_admin._apps:
+            cred = credentials.Certificate(get_firebase_secret(PROJECT_ID, FIREBASE_SECRET_ID))
+            firebase_admin.initialize_app(cred)
+
         decoded = auth.verify_id_token(id_token)
 
         user_role = decoded.get("role") 
