@@ -3,6 +3,14 @@ import os
 from module.shift_creator import shift_creator_run
 from module.shift_creator import eval_final_shift_tool
 
+"""
+このモジュールは，従業員のシフト希望からシフトを作成するモジュール．
+以下のように使用する．
+エージェントとはのたまっているが，シフト作成→[評価→修正] × numb_rate_revisions
+を回すだけ．
+3回やるとなんか精度が良くなるからデフォルトを3回にしてる．
+使う時はコメントアウトを外してね．
+"""
 # def load_dummy_input_json():
 #     with open("data/inputs/02_sample.json", "r", encoding="utf-8") as f:
 #         data = json.load(f)
@@ -20,7 +28,11 @@ from module.shift_creator import eval_final_shift_tool
 # print("終わり！！！！！！")
 
 
-
+"""
+このモジュールは，確定シフトに対して評価をするモジュール．
+以下のように使用する，
+ちなみに，シフト作成エージェントとは独立したモジュール．
+"""
 file_path = "data/inputs/05_evaluate-gemini-input.json"
 with open(file_path, 'r', encoding='utf-8') as file:
     shift_data = file.read()
