@@ -7,7 +7,7 @@ class GetCompanyInfoUseCase:
         self.company_id = company_id
 
     def execute(self):
-        value_change_type = self.company_id
+        value_change_type = int(self.company_id)
         company_id_validation = company_validation['CompanyIDValidation'](value_change_type).execute()
         company_id_entity = company_info_entities['CompanyInfoEntity'](company_id_validation).to_json()
 
