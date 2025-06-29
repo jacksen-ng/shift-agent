@@ -7,6 +7,6 @@ def update_shift_request(shift_updates: list[dict]):
         for shift in shift_updates:
             shift_obj = session.query(EditShift).filter(EditShift.edit_shift_id == shift["edit_shift_id"]).first()
             if shift_obj:
-                shift_obj.start_time = datetime.strptime(shift["start_time"], "%H:%M").time()
-                shift_obj.finish_time = datetime.strptime(shift["finish_time"], "%H:%M").time()
+                shift_obj.start_time = datetime.strptime(shift["start_time"], "%H:%M:%S").time()
+                shift_obj.finish_time = datetime.strptime(shift["finish_time"], "%H:%M:%S").time()
         session.commit()
