@@ -27,12 +27,7 @@ def company_info_edit_request(
         company.target_sales = target_sales
         company.labor_cost = labor_cost
 
-        session.query(CompanyRestDay) \
-            .filter(
-                CompanyRestDay.company_id == company_id,
-                CompanyRestDay.rest_day >= today
-            ) \
-            .delete(synchronize_session=False)
+        session.query(CompanyRestDay).filter(CompanyRestDay.company_id == company_id).delete(synchronize_session=False)
 
         for day in new_rest_days:
             rest_day = CompanyRestDay(
@@ -41,9 +36,7 @@ def company_info_edit_request(
             )
             session.add(rest_day)
 
-        session.query(CompanyPosition) \
-            .filter(CompanyPosition.company_id == company_id) \
-            .delete(synchronize_session=False)
+        session.query(CompanyPosition).filter(CompanyPosition.company_id == company_id).delete(synchronize_session=False)
 
         for name in new_position_names:
             position = CompanyPosition(
