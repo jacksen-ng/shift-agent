@@ -17,6 +17,7 @@ origins = [
     "http://127.0.0.1:8080",
     "http://localhost:3000",
     "http://localhost:5173",
+    "https://shift-agent-frontend-969879868411.asia-northeast1.run.app/"
 ]
 
 app.add_middleware(
