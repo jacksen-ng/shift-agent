@@ -8,6 +8,7 @@ def login_request(firebase_uid: str):
             return {
                 "user_id": user.user_id,
                 "company_id": user.company_id,
+                "role": user.role
             }
         else:
             return {"error": "User not found"}
