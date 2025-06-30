@@ -6,14 +6,10 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  success: boolean;
-  firebase_uid: string;
-  id_token: string;
-  refresh_token: string;
-  expires_in: number;
   user_id: number;
   company_id: number;
   role: 'owner' | 'crew';
+  firebase_uid: string;
 }
 
 export interface RegisterRequest {
@@ -21,6 +17,7 @@ export interface RegisterRequest {
   password: string;
   confirm_password: string;
   role: 'owner' | 'crew';
+  company_id?: string;
 }
 
 export interface RegisterResponse {

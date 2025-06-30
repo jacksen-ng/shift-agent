@@ -47,8 +47,22 @@ const StoreInfo = () => {
         const response = await apiClient.get<StoreData>('/company-info', {
           params: { company_id: parseInt(companyId) },
         });
-        setStoreData(response.data);
-        setFormData(response.data);
+
+        // データがnullの場合も考慮し、安全なデフォルト値で正規化
+        const data = response.data || {};
+        const sanitizedData = {
+          company_name: data.company_name || '',
+          store_locate: data.store_locate || '',
+          open_time: data.open_time || '',
+          close_time: data.close_time || '',
+          target_sales: data.target_sales || 0,
+          labor_cost: data.labor_cost || 0,
+          rest_day: data.rest_day || [],
+          position_name: data.position_name || []
+        };
+        
+        setStoreData(sanitizedData);
+        setFormData(sanitizedData);
       } catch (error) {
         logError(error, 'StoreInfo.fetchStoreData');
         setErrorMessage(getErrorMessage(error));
@@ -116,8 +130,8 @@ const StoreInfo = () => {
           target_sales: formData.target_sales,
           labor_cost: formData.labor_cost
         },
-        rest_day: formData.rest_day.map(day => ({ rest_day: day })),
-        position: formData.position_name.map(pos => ({ position_name: pos }))
+        rest_day: formData.rest_day,
+        position: formData.position_name
       };
 
       await apiClient.post('/company-info-edit', requestData);
@@ -333,7 +347,7 @@ const StoreInfo = () => {
                   onClick={() => isEditing && handleRestDayToggle(day)}
                   disabled={!isEditing}
                   className={`px-4 py-3 rounded-lg font-medium transition-all ${
-                    formData.rest_day.includes(day)
+                    (formData.rest_day || []).includes(day)
                       ? 'bg-red-100 text-red-700 border-2 border-red-300'
                       : 'bg-gray-50 text-gray-600 border-2 border-gray-200'
                   } ${

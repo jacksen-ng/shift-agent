@@ -1,4 +1,3 @@
-
 // src/Features/Auth/Pages/HostRegister.tsx
 
 import React, { useState } from 'react';

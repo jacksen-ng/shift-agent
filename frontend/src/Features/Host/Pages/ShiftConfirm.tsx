@@ -70,11 +70,11 @@ const ShiftConfirm = () => {
       setConfirming(true);
       const companyId = localStorage.getItem('company_id') || '1';
       
-      await apiClient.post('/complete_edit_sift', { // APIのタイポに注意
+      await apiClient.post('/complete_edit_shift', { 
         company_id: parseInt(companyId)
       });
       
-      alert('シフトを確定しました！従業員に公開されました。');
+      alert('シフトの確定が完了しました。');
       navigate('/host/home');
     } catch (error) {
       logError(error, 'ShiftConfirm.handleConfirmShifts');

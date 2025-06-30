@@ -15,18 +15,18 @@ interface DecisionShiftResponse {
   rest_day: string[];
 }
 
-export const fetchDecisionShift = async (company_id: string): Promise<DecisionShiftResponse> => {
+export const fetchDecisionShift = async (company_id: number): Promise<DecisionShiftResponse> => {
   const response = await apiClient.get<DecisionShiftResponse>('/decision-shift', {
-    params: { company_id: parseInt(company_id) },
+    params: { company_id },
   });
 
   return response.data;
 };
 
 // Fetch adjustment shifts for owner
-export const fetchAdjustmentShift = async (company_id: string) => {
+export const fetchAdjustmentShift = async (company_id: number) => {
   const response = await apiClient.get('/edit-shift', {
-    params: { company_id: parseInt(company_id) },
+    params: { company_id },
   });
   return response.data;
 };

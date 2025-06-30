@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { login } from '../../Services/AuthService';
+import { login as apiLogin } from '../../Services/AuthService';
+import { useAuth } from '../../Hooks/UseAuth';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { login: contextLogin } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -23,26 +25,19 @@ const Login: React.FC = () => {
     setError('');
     
     try {
-      // AuthServiceのlogin関数を呼び出す
-      const response = await login(formData.email, formData.password);
+      const response = await apiLogin(formData.email, formData.password);
+      
+      contextLogin(response);
 
-      // ログイン成功後の処理はAuthServiceに集約されているため、ここでは画面遷移のみ行う
-      console.log('ログイン成功レスポンス:', response);
-
-      // roleに基づいて適切な画面に遷移
       if (response.role === 'owner') {
-        console.log('ログイン成功、オーナーホーム画面へ遷移');
         navigate('/host/home');
       } else if (response.role === 'crew') {
-        console.log('ログイン成功、クルーホーム画面へ遷移');
         navigate('/crew/home');
       } else {
-        // 想定外のroleだった場合、デフォルト画面へ遷移
-        console.error('不明なrole:', response.role);
+        console.error('Unknown role:', response.role);
         navigate('/host/home');
       }
     } catch (error: any) {
-      // エラーハンドリング
       console.error('ログインエラー詳細:', {
         message: error.message,
         response: error.response?.data,
@@ -50,7 +45,6 @@ const Login: React.FC = () => {
         url: error.config?.url
       });
       
-      // ユーザーに表示するエラーメッセージを設定
       if (error.response?.data?.detail) {
         setError(error.response.data.detail);
       } else if (error.message) {
@@ -65,14 +59,12 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center px-4">
-      {/* 背景装飾 */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-32 w-80 h-80 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
         <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
       </div>
       
       <div className="relative max-w-md w-full">
-        {/* ロゴエリア */}
         <div className="text-center mb-8 animate-[fadeIn_0.6s_ease-out]">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-[#2563EB] rounded-2xl mb-4 shadow-lg">
             <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,11 +75,9 @@ const Login: React.FC = () => {
           <p className="mt-2 text-gray-600">シフト管理をもっとスマートに</p>
         </div>
 
-        {/* ログインカード */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-8 animate-[slideUp_0.8s_ease-out]">
           <h2 className="text-xl font-semibold text-gray-800 mb-6 text-center">アカウントにログイン</h2>
           
-          {/* ログインフォーム */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -177,7 +167,6 @@ const Login: React.FC = () => {
             </button>
           </form>
 
-          {/* 区切り線 */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200"></div>
@@ -187,13 +176,12 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          {/* フッター */}
           <div className="text-center space-y-3">
             <p className="text-sm text-gray-600">
               アカウントをお持ちでない方
             </p>
             <Link 
-              to="/register/host" 
+              to="/register" 
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border-2 border-[#2563EB] text-[#2563EB] hover:bg-blue-50 transition-all duration-200 font-medium"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
