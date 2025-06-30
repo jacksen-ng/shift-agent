@@ -23,19 +23,37 @@ const HostHome: React.FC = () => {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // 週の開始日（月曜日）を取得
-  const getWeekStart = (date: Date) => {
-    const d = new Date(date);
+  // 週の開始日（月曜日）と終了日（日曜日）を取得
+  const getWeekRange = (date: Date) => {
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const day = d.getDay();
     const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-    return new Date(d.setDate(diff));
+    const monday = new Date(d.setDate(diff));
+    const sunday = new Date(monday);
+    sunday.setDate(sunday.getDate() + 6);
+    return { start: monday, end: sunday };
   };
 
-  // 週番号を取得
-  const getWeekNumber = (date: Date) => {
-    const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-    const weekStart = getWeekStart(date);
-    return Math.ceil((weekStart.getDate() + firstDayOfMonth.getDay() - 1) / 7);
+  // 週の表示テキストを生成
+  const getWeekDisplayText = (date: Date) => {
+    const { start, end } = getWeekRange(date);
+    const startMonth = start.getMonth() + 1;
+    const endMonth = end.getMonth() + 1;
+    const startDate = start.getDate();
+    const endDate = end.getDate();
+    
+    // 年をまたぐ場合
+    if (start.getFullYear() !== end.getFullYear()) {
+      return `${start.getFullYear()}年${startMonth}月${startDate}日 - ${end.getFullYear()}年${endMonth}月${endDate}日`;
+    }
+    // 月をまたぐ場合
+    else if (startMonth !== endMonth) {
+      return `${start.getFullYear()}年${startMonth}月${startDate}日 - ${endMonth}月${endDate}日`;
+    }
+    // 同じ月内の場合
+    else {
+      return `${start.getFullYear()}年${startMonth}月${startDate}日 - ${endDate}日`;
+    }
   };
 
   // 週を変更
@@ -55,8 +73,20 @@ const HostHome: React.FC = () => {
         }
         const companyId = parseInt(companyIdString, 10);
         const res = await fetchDecisionShift(companyId);
-        setShifts(res.decision_shift || []);
+        const fetchedShifts = res.decision_shift || [];
+        setShifts(fetchedShifts);
         setRestDays(res.rest_day || []);
+
+        // 直近のシフトがある週をデフォルト表示
+        if (fetchedShifts.length > 0) {
+          const latestShift = fetchedShifts.reduce((latest, current) => {
+            return new Date(latest.day) > new Date(current.day) ? latest : current;
+          });
+          setCurrentWeek(new Date(latestShift.day));
+        } else {
+          setCurrentWeek(new Date()); // シフトがない場合は今日の週
+        }
+
       } catch (error) {
         logError(error, 'HostHome.fetchData');
         const message = getErrorMessage(error);
@@ -116,7 +146,7 @@ const HostHome: React.FC = () => {
                   </svg>
                 </button>
                 <h2 className="text-lg font-bold text-gray-800">
-                  {currentWeek.getFullYear()}年{currentWeek.getMonth() + 1}月第{getWeekNumber(currentWeek)}週
+                  {getWeekDisplayText(currentWeek)}
                 </h2>
                 <button
                   onClick={() => changeWeek('next')}
@@ -134,13 +164,11 @@ const HostHome: React.FC = () => {
                   <p className="text-sm text-gray-600">今週の稼働人数</p>
                   <p className="text-2xl font-bold text-[#2563EB]">
                     {(() => {
-                      const weekStart = getWeekStart(currentWeek);
-                      const weekEnd = new Date(weekStart);
-                      weekEnd.setDate(weekEnd.getDate() + 6);
+                      const { start, end } = getWeekRange(currentWeek);
                       
                       const weekShifts = shifts.filter(shift => {
                         const shiftDate = new Date(shift.day);
-                        return shiftDate >= weekStart && shiftDate <= weekEnd;
+                        return shiftDate >= start && shiftDate <= end;
                       });
                       
                       return new Set(weekShifts.map(s => s.name)).size;
@@ -151,13 +179,11 @@ const HostHome: React.FC = () => {
                   <p className="text-sm text-gray-600">今週の総労働時間</p>
                   <p className="text-2xl font-bold text-[#2563EB]">
                     {(() => {
-                      const weekStart = getWeekStart(currentWeek);
-                      const weekEnd = new Date(weekStart);
-                      weekEnd.setDate(weekEnd.getDate() + 6);
+                      const { start, end } = getWeekRange(currentWeek);
                       
                       const weekShifts = shifts.filter(shift => {
                         const shiftDate = new Date(shift.day);
-                        return shiftDate >= weekStart && shiftDate <= weekEnd;
+                        return shiftDate >= start && shiftDate <= end;
                       });
                       
                       return weekShifts.reduce((total, shift) => {
@@ -172,15 +198,13 @@ const HostHome: React.FC = () => {
 
               {/* 休業日情報 */}
               {(() => {
-                const weekStart = getWeekStart(currentWeek);
-                const weekEnd = new Date(weekStart);
-                weekEnd.setDate(weekEnd.getDate() + 6);
+                const { start, end } = getWeekRange(currentWeek);
                 
                 // 今週の曜日を取得
                 const weekDayNames = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
                 const currentWeekDays = [];
                 for (let i = 0; i < 7; i++) {
-                  const date = new Date(weekStart);
+                  const date = new Date(start);
                   date.setDate(date.getDate() + i);
                   const dayName = weekDayNames[date.getDay()];
                   if (restDays.includes(dayName) && date >= new Date()) {

@@ -11,8 +11,8 @@ interface CrewProfile {
   age: number;
   phone: string;
   position: string;
-  evaluate: number;
-  experience: 'beginner' | 'veteran';
+  evaluate: number | string;
+  experience: 'beginner' | 'veteran' | '';
   join_company_day: string;
   hour_pay: number;
   post: string;
@@ -28,14 +28,14 @@ const CrewEdit = () => {
   const [formData, setFormData] = useState<CrewProfile>({
     user_id: 0,
     name: '',
-    age: 0,
+    age: 20,
     phone: '',
     position: '',
     evaluate: 1,
-    experience: 'beginner',
+    experience: '' as 'beginner' | 'veteran' | '',
     join_company_day: '',
-    hour_pay: 0,
-    post: 'part_timer',
+    hour_pay: 1000,
+    post: '',
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -43,7 +43,8 @@ const CrewEdit = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // 評価を星で表示
-  const renderStars = (rating: number, interactive: boolean = false) => {
+  const renderStars = (rating: number | string, interactive: boolean = false) => {
+    const numRating = typeof rating === 'string' ? parseInt(rating) : rating;
     return Array.from({ length: 5 }, (_, i) => (
       <button
         key={i}
@@ -53,7 +54,7 @@ const CrewEdit = () => {
         disabled={!interactive}
       >
         <svg
-          className={`w-6 h-6 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'} ${
+          className={`w-6 h-6 ${i < numRating ? 'text-yellow-400 fill-current' : 'text-gray-300'} ${
             interactive ? 'hover:text-yellow-300' : ''
           }`}
           viewBox="0 0 20 20"
@@ -77,7 +78,16 @@ const CrewEdit = () => {
         
         const crew = crewResponse.data.company_member.find((c) => c.user_id === parseInt(id!));
         if (crew) {
-          setFormData(crew);
+          setFormData({
+            ...crew,
+            name: crew.name || '',
+            phone: crew.phone || '',
+            position: crew.position || '',
+            join_company_day: crew.join_company_day || '',
+            age: crew.age || 20,
+            hour_pay: crew.hour_pay || 1000,
+            evaluate: typeof crew.evaluate === 'string' ? parseInt(crew.evaluate) : (crew.evaluate || 1),
+          });
         }
 
         // 店舗情報からポジションを取得
@@ -88,14 +98,16 @@ const CrewEdit = () => {
           close_time: string;
           target_sales: number;
           labor_cost: number;
-          rest_day: string[];
-          position_name: string[];
+          rest_days?: string[];
+          rest_day?: string[];
+          position_names?: string[];
+          position_name?: string[];
         }
         
         const storeResponse = await apiClient.get<StoreResponse>('/company-info', {
           params: { company_id: parseInt(companyId) },
         });
-        setPositions(storeResponse.data.position_name || []);
+        setPositions(storeResponse.data.position_names || storeResponse.data.position_name || []);
       } catch (error) {
         logError(error, 'CrewEdit.fetchData');
         setErrorMessage(getErrorMessage(error));
@@ -110,7 +122,8 @@ const CrewEdit = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (name === 'age' || name === 'evaluate' || name === 'hour_pay') {
-      setFormData((prev) => ({ ...prev, [name]: parseInt(value) || 0 }));
+      const numValue = parseInt(value);
+      setFormData((prev) => ({ ...prev, [name]: isNaN(numValue) ? 0 : numValue }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -118,28 +131,32 @@ const CrewEdit = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // API設計に準拠したリクエスト（join_company_dayは送信しない）
+    const requestData = {
+      user_id: parseInt(id!),
+      name: formData.name,
+      age: formData.age,
+      phone: formData.phone.replace(/-/g, ''), // ハイフンを除去
+      position: formData.position,
+      evaluate: typeof formData.evaluate === 'string' ? parseInt(formData.evaluate) : formData.evaluate,
+      experience: formData.experience,
+      hour_pay: formData.hour_pay,
+      post: formData.post
+    };
+    
     try {
       setSaving(true);
+      console.log('Sending crew edit request:', requestData);
       
-      // API設計に準拠したリクエスト（join_company_dayは送信しない）
-      const requestData = {
-        user_id: parseInt(id!),
-        name: formData.name,
-        age: formData.age,
-        phone: formData.phone,
-        position: formData.position,
-        evaluate: formData.evaluate,
-        experience: formData.experience,
-        hour_pay: formData.hour_pay,
-        post: formData.post
-      };
-
       await apiClient.post('/crew-info-edit', requestData);
       
       alert('更新が完了しました');
       navigate('/host/crew-info');
-    } catch (error) {
+    } catch (error: any) {
       logError(error, 'CrewEdit.handleSubmit');
+      console.error('Request data:', requestData);
+      console.error('Error response:', error.response?.data);
       setErrorMessage(getErrorMessage(error));
     } finally {
       setSaving(false);
@@ -237,7 +254,7 @@ const CrewEdit = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="090-1234-5678"
+                  placeholder="09012345678"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   required
                 />
@@ -292,6 +309,7 @@ const CrewEdit = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   required
                 >
+                  <option value="">選択してください</option>
                   <option value="part_timer">アルバイト</option>
                   <option value="employee">社員</option>
                 </select>
@@ -331,6 +349,7 @@ const CrewEdit = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   required
                 >
+                  <option value="">選択してください</option>
                   <option value="beginner">初心者</option>
                   <option value="veteran">ベテラン</option>
                 </select>

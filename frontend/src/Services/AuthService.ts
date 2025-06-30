@@ -23,6 +23,7 @@ export const login = async (email: string, password: string): Promise<LoginRespo
       localStorage.setItem('user_id', user_id.toString());
       localStorage.setItem('company_id', company_id.toString());
       localStorage.setItem('role', role);
+      localStorage.setItem('email', email);
       if (firebase_uid) {
         localStorage.setItem('firebase_uid', firebase_uid);
       }
@@ -90,5 +91,6 @@ export const logout = () => {
   localStorage.removeItem('company_id');
   localStorage.removeItem('role');
   localStorage.removeItem('firebase_uid');
+  localStorage.removeItem('email');
   localStorage.removeItem('user_info_cache');
 };

@@ -4,7 +4,8 @@ import apiClient from '../../../Services/apiClient';
 import { logout } from '../../../Services/AuthService';
 import { getErrorMessage, logError } from '../../../Utils/errorHandler';
 import ErrorToast from '../../../Components/ErrorToast';
-import { formatTimeToISO, formatTimeDisplay } from '../../../Utils/FormatDate';
+import { formatTimeToISO, formatTimeDisplay, formatTimeForInput } from '../../../Utils/FormatDate';
+import Calendar from '../../../Components/Calendar';
 
 interface StoreData {
   company_name: string;
@@ -13,8 +14,8 @@ interface StoreData {
   close_time: string;
   target_sales: number;
   labor_cost: number;
-  rest_day: string[];
-  position_name: string[];
+  rest_days: string[]; // 日付の配列 (YYYY-MM-DD形式)
+  position_names: string[];
 }
 
 const StoreInfo = () => {
@@ -28,15 +29,16 @@ const StoreInfo = () => {
     close_time: '',
     target_sales: 0,
     labor_cost: 0,
-    rest_day: [],
-    position_name: []
+    rest_days: [],
+    position_names: []
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [newPosition, setNewPosition] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [copySuccess, setCopySuccess] = useState(false);
 
-  const weekDays = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
+  const [showRestDayType, setShowRestDayType] = useState<'calendar' | 'weekly'>('calendar');
 
   useEffect(() => {
     const fetchStoreData = async () => {
@@ -44,25 +46,59 @@ const StoreInfo = () => {
         setIsLoading(true);
         const companyId = localStorage.getItem('company_id') || '1';
         
-        const response = await apiClient.get<StoreData>('/company-info', {
+        const response = await apiClient.get('/company-info', {
           params: { company_id: parseInt(companyId) },
         });
+
+        console.log('Raw company info from API:', response.data);
 
         // データがnullの場合も考慮し、安全なデフォルト値で正規化
         const data = response.data || {};
         const sanitizedData = {
           company_name: data.company_name || '',
           store_locate: data.store_locate || '',
-          open_time: data.open_time || '',
-          close_time: data.close_time || '',
+          open_time: formatTimeToISO(data.open_time || ''),
+          close_time: formatTimeToISO(data.close_time || ''),
           target_sales: data.target_sales || 0,
           labor_cost: data.labor_cost || 0,
-          rest_day: data.rest_day || [],
-          position_name: data.position_name || []
+          rest_days: data.rest_days || [],
+          position_names: data.position_names || []
         };
         
         setStoreData(sanitizedData);
         setFormData(sanitizedData);
+        
+        // 時間形式が正しくない場合は自動的に修正して保存
+        if ((data.open_time && !data.open_time.includes(':00:00') && data.open_time.match(/^\d{2}:\d{2}$/)) ||
+            (data.close_time && !data.close_time.includes(':00:00') && data.close_time.match(/^\d{2}:\d{2}$/))) {
+          console.log('Detected old time format, auto-updating...');
+          setErrorMessage('営業時間の形式を自動的に更新しています...');
+          
+          // 自動的に正しい形式で保存
+          const autoUpdateData = {
+            company_info: {
+              company_id: parseInt(companyId),
+              company_name: sanitizedData.company_name,
+              store_locate: sanitizedData.store_locate,
+              open_time: sanitizedData.open_time, // 既にformatTimeToISOで変換済み
+              close_time: sanitizedData.close_time, // 既にformatTimeToISOで変換済み
+              target_sales: sanitizedData.target_sales,
+              labor_cost: sanitizedData.labor_cost
+            },
+            rest_day: sanitizedData.rest_days,
+            position: sanitizedData.position_names
+          };
+          
+          try {
+            await apiClient.post('/company-info-edit', autoUpdateData);
+            setErrorMessage('営業時間の形式を自動的に更新しました。');
+            // 更新後のデータを再取得
+            setTimeout(() => fetchStoreData(), 1000);
+          } catch (error) {
+            console.error('Failed to auto-update time format:', error);
+            setErrorMessage('営業時間の形式を更新できませんでした。「編集する」→「保存する」を手動で実行してください。');
+          }
+        }
       } catch (error) {
         logError(error, 'StoreInfo.fetchStoreData');
         setErrorMessage(getErrorMessage(error));
@@ -83,25 +119,25 @@ const StoreInfo = () => {
     }
   };
 
-  const handleRestDayToggle = (day: string) => {
-    if (formData.rest_day.includes(day)) {
+  const handleRestDayToggle = (date: string) => {
+    if (formData.rest_days.includes(date)) {
       setFormData({
         ...formData,
-        rest_day: formData.rest_day.filter(d => d !== day)
+        rest_days: formData.rest_days.filter(d => d !== date)
       });
     } else {
       setFormData({
         ...formData,
-        rest_day: [...formData.rest_day, day]
+        rest_days: [...formData.rest_days, date]
       });
     }
   };
 
   const handleAddPosition = () => {
-    if (newPosition && !formData.position_name.includes(newPosition)) {
+    if (newPosition && !formData.position_names.includes(newPosition)) {
       setFormData({
         ...formData,
-        position_name: [...formData.position_name, newPosition]
+        position_names: [...formData.position_names, newPosition]
       });
       setNewPosition('');
     }
@@ -110,36 +146,49 @@ const StoreInfo = () => {
   const handleRemovePosition = (position: string) => {
     setFormData({
       ...formData,
-      position_name: formData.position_name.filter(p => p !== position)
+      position_names: formData.position_names.filter(p => p !== position)
     });
   };
 
+  const handleCopyCompanyId = () => {
+    const companyId = localStorage.getItem('company_id');
+    if (companyId) {
+      navigator.clipboard.writeText(companyId);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    }
+  };
+
   const handleSave = async () => {
+    const companyId = localStorage.getItem('company_id') || '1';
+    
+    // API設計に準拠したリクエスト形式
+    const requestData = {
+      company_info: {
+        company_id: parseInt(companyId),
+        company_name: formData.company_name,
+        store_locate: formData.store_locate,
+        open_time: formatTimeToISO(formData.open_time),
+        close_time: formatTimeToISO(formData.close_time),
+        target_sales: formData.target_sales,
+        labor_cost: formData.labor_cost
+      },
+      rest_day: formData.rest_days,
+      position: formData.position_names
+    };
+
     try {
       setIsSaving(true);
-      const companyId = localStorage.getItem('company_id') || '1';
+      console.log('Sending request data:', requestData);
       
-      // API設計に準拠したリクエスト形式
-      const requestData = {
-        company_info: {
-          company_id: parseInt(companyId),
-          company_name: formData.company_name,
-          store_locate: formData.store_locate,
-          open_time: formatTimeToISO(formData.open_time),
-          close_time: formatTimeToISO(formData.close_time),
-          target_sales: formData.target_sales,
-          labor_cost: formData.labor_cost
-        },
-        rest_day: formData.rest_day,
-        position: formData.position_name
-      };
-
       await apiClient.post('/company-info-edit', requestData);
 
       setIsEditing(false);
       alert('保存が完了しました');
-    } catch (error) {
+    } catch (error: any) {
       logError(error, 'StoreInfo.handleSave');
+      console.error('Request data:', requestData);
+      console.error('Error response:', error.response?.data);
       setErrorMessage(getErrorMessage(error));
     } finally {
       setIsSaving(false);
@@ -201,6 +250,48 @@ const StoreInfo = () => {
       </header>
 
       <div className="max-w-7xl mx-auto p-6">
+        {/* 会社ID表示 */}
+        <div className="mb-6 bg-blue-50 rounded-xl p-4 border border-blue-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">会社ID</p>
+                <p className="text-lg font-bold text-gray-900">{localStorage.getItem('company_id') || '未設定'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-xs text-gray-600 max-w-xs">
+                <p>このIDは従業員がアカウント作成時に必要です</p>
+              </div>
+              <button
+                onClick={handleCopyCompanyId}
+                className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+              >
+                {copySuccess ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    コピー済み
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    コピー
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div className="grid lg:grid-cols-2 gap-6">
           {/* 基本情報 */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -246,7 +337,7 @@ const StoreInfo = () => {
                       name="open_time"
                       type="time"
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors disabled:bg-gray-50 disabled:text-gray-500"
-                      value={formatTimeDisplay(formData.open_time)}
+                      value={formatTimeForInput(formData.open_time)}
                       onChange={handleChange}
                       disabled={!isEditing}
                     />
@@ -257,7 +348,7 @@ const StoreInfo = () => {
                       name="close_time"
                       type="time"
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors disabled:bg-gray-50 disabled:text-gray-500"
-                      value={formatTimeDisplay(formData.close_time)}
+                      value={formatTimeForInput(formData.close_time)}
                       onChange={handleChange}
                       disabled={!isEditing}
                     />
@@ -328,46 +419,23 @@ const StoreInfo = () => {
             </div>
           </div>
 
-          {/* 定休日設定 */}
+          {/* 休業日設定 */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-gray-800">定休日設定</h2>
+              <h2 className="text-lg font-bold text-gray-800">休業日設定</h2>
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                週間定休日
+                店舗の休業日
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {weekDays.map((day) => (
-                <button
-                  key={day}
-                  onClick={() => isEditing && handleRestDayToggle(day)}
-                  disabled={!isEditing}
-                  className={`px-4 py-3 rounded-lg font-medium transition-all ${
-                    (formData.rest_day || []).includes(day)
-                      ? 'bg-red-100 text-red-700 border-2 border-red-300'
-                      : 'bg-gray-50 text-gray-600 border-2 border-gray-200'
-                  } ${
-                    isEditing 
-                      ? 'hover:border-red-300 cursor-pointer' 
-                      : 'cursor-not-allowed opacity-60'
-                  }`}
-                >
-                  {day}
-                </button>
-              ))}
-            </div>
-
-            {formData.rest_day.length > 0 && (
-              <div className="mt-4 p-3 bg-red-50 rounded-lg">
-                <p className="text-sm text-red-700">
-                  定休日: {formData.rest_day.join('、')}
-                </p>
-              </div>
-            )}
+            <Calendar
+              selectedDates={formData.rest_days}
+              onDateToggle={handleRestDayToggle}
+              disabled={!isEditing}
+            />
           </div>
 
           {/* ポジション管理 */}
@@ -404,8 +472,8 @@ const StoreInfo = () => {
             )}
 
             <div className="space-y-2">
-              {formData.position_name.length > 0 ? (
-                formData.position_name.map((position, index) => (
+              {formData.position_names.length > 0 ? (
+                formData.position_names.map((position, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
@@ -428,6 +496,7 @@ const StoreInfo = () => {
               )}
             </div>
           </div>
+
         </div>
 
         {/* アクションボタン */}

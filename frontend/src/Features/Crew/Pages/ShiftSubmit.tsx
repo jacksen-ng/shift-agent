@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../../Services/apiClient';
 import { getErrorMessage, logError } from '../../../Utils/errorHandler';
 import ErrorToast from '../../../Components/ErrorToast';
-import { formatDateToISO, formatTimeToISO } from '../../../Utils/FormatDate';
+import { formatDateToISO, formatTimeToISO, formatTimeForInput } from '../../../Utils/FormatDate';
+import { fetchDecisionShift } from '../../../Services/ShiftService';
 
 interface ShiftSubmission {
   day: string;
@@ -21,6 +22,7 @@ const ShiftSubmit: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [restDays, setRestDays] = useState<string[]>([]);
   
   // 時間プリセット
   const timePresets = [
@@ -33,6 +35,35 @@ const ShiftSubmit: React.FC = () => {
   // ユーザー情報を取得
   const userId = localStorage.getItem('user_id') || '1';
   const companyId = localStorage.getItem('company_id') || '1';
+  
+  // 休業日情報を取得
+  useEffect(() => {
+    const fetchRestDays = async () => {
+      try {
+        const res = await fetchDecisionShift(parseInt(companyId));
+        console.log('Decision shift response:', res);
+        console.log('Rest days:', res.rest_day);
+        
+        // rest_dayの処理 - オブジェクトの場合は適切に変換
+        const restDayData = res.rest_day || [];
+        const processedRestDays = restDayData.map((day: any) => {
+          if (typeof day === 'string') {
+            return day;
+          } else if (typeof day === 'object' && day !== null) {
+            // オブジェクトの場合、dateやdayプロパティを探す
+            return day.date || day.day || day.rest_day || JSON.stringify(day);
+          }
+          return String(day);
+        });
+        
+        setRestDays(processedRestDays);
+      } catch (error) {
+        // 決定済みシフトがない場合はエラーを無視
+        console.log('No decision shift found, continuing without rest days');
+      }
+    };
+    fetchRestDays();
+  }, [companyId]);
 
   // カレンダーの日付を生成
   const generateCalendarDates = () => {
@@ -57,6 +88,11 @@ const ShiftSubmit: React.FC = () => {
   // 日付をキーに変換
   const dateToKey = (date: Date) => {
     return formatDateToISO(date);
+  };
+  
+  // 休業日かどうかをチェック
+  const isRestDay = (dateStr: string) => {
+    return restDays.includes(dateStr);
   };
 
   // 提出済み日数を計算
@@ -270,23 +306,28 @@ const ShiftSubmit: React.FC = () => {
                 const key = dateToKey(date);
                 const submission = submissions[key];
                 const isToday = date.toDateString() === new Date().toDateString();
+                const isRest = isCurrentMonth && isRestDay(key);
                 
                 return (
                   <button
                     key={index}
-                    onClick={() => isCurrentMonth && handleDateSelect(date)}
-                    disabled={!isCurrentMonth}
+                    onClick={() => isCurrentMonth && !isRest && handleDateSelect(date)}
+                    disabled={!isCurrentMonth || isRest}
                     className={`
                       aspect-square p-2 rounded-lg text-sm font-medium transition-all
-                      ${!isCurrentMonth ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-100'}
-                      ${isSelected ? 'bg-teal-500 text-white hover:bg-teal-600' : ''}
-                      ${isToday && !isSelected ? 'bg-teal-50 text-teal-700' : ''}
-                      ${submission && !isSelected ? (submission.isUnavailable ? 'bg-red-50' : 'bg-teal-100') : ''}
+                      ${!isCurrentMonth ? 'text-gray-300 cursor-not-allowed' : ''}
+                      ${isRest ? 'bg-red-50 text-red-600 cursor-not-allowed' : 'hover:bg-gray-100'}
+                      ${isSelected && !isRest ? 'bg-teal-500 text-white hover:bg-teal-600' : ''}
+                      ${isToday && !isSelected && !isRest ? 'bg-teal-50 text-teal-700' : ''}
+                      ${submission && !isSelected && !isRest ? (submission.isUnavailable ? 'bg-red-50' : 'bg-teal-100') : ''}
                     `}
                   >
                     <div className="relative">
                       {date.getDate()}
-                      {submission && (
+                      {isRest && (
+                        <div className="text-xs mt-1">休業</div>
+                      )}
+                      {!isRest && submission && (
                         <div className={`absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full ${
                           submission.isUnavailable ? 'bg-red-400' : 'bg-teal-500'
                         }`} />
@@ -306,6 +347,10 @@ const ShiftSubmit: React.FC = () => {
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 bg-red-50 rounded"></div>
                 <span>出勤不可</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-red-50 border border-red-200 rounded"></div>
+                <span>休業日</span>
               </div>
             </div>
           </div>
@@ -364,7 +409,7 @@ const ShiftSubmit: React.FC = () => {
                       <label className="block text-xs text-gray-600 mb-1">開始時間</label>
                       <input
                         type="time"
-                        value={submissions[dateToKey(selectedDate)]?.start_time || ''}
+                        value={formatTimeForInput(submissions[dateToKey(selectedDate)]?.start_time || '')}
                         onChange={(e) => handleCustomTimeChange('start_time', e.target.value)}
                         className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                       />
@@ -373,7 +418,7 @@ const ShiftSubmit: React.FC = () => {
                       <label className="block text-xs text-gray-600 mb-1">終了時間</label>
                       <input
                         type="time"
-                        value={submissions[dateToKey(selectedDate)]?.finish_time || ''}
+                        value={formatTimeForInput(submissions[dateToKey(selectedDate)]?.finish_time || '')}
                         onChange={(e) => handleCustomTimeChange('finish_time', e.target.value)}
                         className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                       />

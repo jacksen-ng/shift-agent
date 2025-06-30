@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchDecisionShift } from '../../../Services/ShiftService';
 import { logout } from '../../../Services/AuthService';
-import { fetchMyUserInfoWithCache } from '../../../Services/UserService';
 import { getAuthInfo } from '../../../Utils/authUtils';
+import { calculateTimeDifference } from '../../../Utils/FormatDate';
 
 interface Shift {
   name: string;
@@ -24,7 +24,6 @@ const CrewHome: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [staffWeekShifts, setStaffWeekShifts] = useState<{ [key: string]: WeekShift[] }>({});
-  const [userName, setUserName] = useState('');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // 曜日の配列
@@ -39,20 +38,34 @@ const CrewHome: React.FC = () => {
   };
 
 
-  // 週番号を取得
-  const getWeekNumber = (date: Date) => {
-    const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-    const weekStart = getWeekStart(date);
-    return Math.ceil((weekStart.getDate() + firstDayOfMonth.getDay() - 1) / 7);
+  // 週の表示テキストを生成（HostHomeと同様のアプローチ）
+  const getWeekDisplayText = (date: Date) => {
+    const start = getWeekStart(date);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6);
+
+    const startMonth = start.getMonth() + 1;
+    const endMonth = end.getMonth() + 1;
+    const startDate = start.getDate();
+    const endDate = end.getDate();
+
+    // 年をまたぐ場合
+    if (start.getFullYear() !== end.getFullYear()) {
+      return `${start.getFullYear()}年${startMonth}月${startDate}日 - ${end.getFullYear()}年${endMonth}月${endDate}日`;
+    }
+    // 月をまたぐ場合
+    else if (startMonth !== endMonth) {
+      return `${start.getFullYear()}年${startMonth}月${startDate}日 - ${endMonth}月${endDate}日`;
+    }
+    // 同じ月内の場合
+    else {
+      return `${start.getFullYear()}年${startMonth}月${startDate}日 - ${endDate}日`;
+    }
   };
 
-  // 時間計算
+  // 時間計算（安全な時間処理を使用）
   const calculateHours = (startTime: string, endTime: string) => {
-    const [startHour, startMinute] = startTime.split(':').map(Number);
-    const [endHour, endMinute] = endTime.split(':').map(Number);
-    const startTotal = startHour + startMinute / 60;
-    const endTotal = endHour + endMinute / 60;
-    return endTotal - startTotal;
+    return calculateTimeDifference(startTime, endTime);
   };
 
   // 週のシフトデータを生成（スタッフ別）
@@ -95,11 +108,6 @@ const CrewHome: React.FC = () => {
           return;
         }
         
-        // ユーザー情報を取得
-        const userInfo = await fetchMyUserInfoWithCache();
-        if (userInfo) {
-          setUserName(userInfo.name);
-        }
         
         const companyId = parseInt(authInfo.companyId, 10);
         if (isNaN(companyId)) {
@@ -158,8 +166,8 @@ const CrewHome: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <span className="font-medium text-gray-800 min-w-[160px] text-center">
-              {currentWeek.getFullYear()}年{currentWeek.getMonth() + 1}月第{getWeekNumber(currentWeek)}週
+            <span className="font-medium text-gray-800 min-w-[240px] text-center">
+              {getWeekDisplayText(currentWeek)}
             </span>
             <button
               onClick={() => changeWeek('next')}
@@ -190,7 +198,7 @@ const CrewHome: React.FC = () => {
             {/* ユーザー情報 */}
             <div className="mb-6">
               <p className="text-sm text-gray-600">ようこそ</p>
-              <p className="text-lg font-bold text-gray-900">{userName}さん</p>
+              <p className="text-lg font-bold text-gray-900">クルーメンバー</p>
             </div>
 
             {/* 今週のシフト状況 */}

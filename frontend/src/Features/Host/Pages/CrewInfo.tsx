@@ -11,7 +11,7 @@ interface CrewProfile {
   age: number;
   phone: string;
   position: string;
-  evaluate: number;
+  evaluate: number | string;
   experience: 'beginner' | 'veteran';
   join_company_day: string;
   hour_pay: number;
@@ -39,7 +39,8 @@ const CrewInfo = () => {
         const response = await apiClient.get<CrewResponse>('/crew-info', {
           params: { company_id: parseInt(companyId) },
         });
-        setCrewList(response.data.company_member || []);
+        const members = response.data.company_member || [];
+        setCrewList(members);
       } catch (error) {
         logError(error, 'CrewInfo.fetchCrewData');
         setErrorMessage(getErrorMessage(error));
@@ -63,11 +64,12 @@ const CrewInfo = () => {
   const positions = Array.from(new Set(crewList.map(crew => crew.position)));
 
   // 評価を星で表示
-  const renderStars = (rating: number) => {
+  const renderStars = (rating: number | string) => {
+    const numRating = Number(rating) || 0;
     return Array.from({ length: 5 }, (_, i) => (
       <svg
         key={i}
-        className={`w-4 h-4 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+        className={`w-4 h-4 ${i < numRating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
         viewBox="0 0 20 20"
       >
         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -176,8 +178,8 @@ const CrewInfo = () => {
                 <p className="text-sm text-gray-600">平均評価</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {crewList.length > 0 
-                    ? (crewList.reduce((sum, c) => sum + c.evaluate, 0) / crewList.length).toFixed(1)
-                    : '0.0'}
+                    ? `${(crewList.reduce((sum, c) => sum + Number(c.evaluate || 0), 0) / crewList.length).toFixed(1)} / 5.0`
+                    : '0.0 / 5.0'}
                 </p>
               </div>
               <div className="p-3 bg-yellow-100 rounded-lg">
