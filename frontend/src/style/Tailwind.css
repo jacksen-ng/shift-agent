@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ���������� */
+@layer utilities {
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes shake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+      transform: translateX(-2px);
+    }
+    20%, 40%, 60%, 80% {
+      transform: translateX(2px);
+    }
+  }
+
+  /* ����������� */
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+/* ����빿�� */
+@layer base {
+  body {
+    @apply antialiased;
+  }
+}
+
+/* ���������� */
+@layer components {
+  /* ܿ�nթ����� */
+  .btn-focus-ring {
+    @apply focus:outline-none focus:ring-4 focus:ring-opacity-50;
+  }
+
+  /* թ��e�գ��� */
+  .form-input {
+    @apply w-full px-4 py-3 rounded-xl border border-gray-300 
+           focus:ring-2 focus:border-transparent 
+           transition-all duration-200 
+           bg-gray-50 hover:bg-white;
+  }
+
+  /* ��ɹ��� */
+  .card {
+    @apply bg-white rounded-2xl shadow-xl border border-gray-100 p-8;
+  }
+
+  /* ��������o */
+  .gradient-bg {
+    @apply bg-gradient-to-br from-blue-50 via-white to-purple-50;
+  }
+}

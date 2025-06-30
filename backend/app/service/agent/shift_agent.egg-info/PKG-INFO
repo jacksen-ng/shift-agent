@@ -1,0 +1,16 @@
+Metadata-Version: 2.4
+Name: shift-agent
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.13
+Requires-Dist: google-genai>=1.19.0
+Requires-Dist: ipykernel>=6.29.5
+Requires-Dist: langchain>=0.3.26
+Requires-Dist: langchain-google-genai>=2.1.5
+Requires-Dist: pandas>=2.3.0
+Requires-Dist: pydantic>=2.11.5
+Requires-Dist: python-dotenv>=1.1.0
+Requires-Dist: google-cloud-secret-manager>=2.16.2
+Requires-Dist: firebase-admin>=6.5.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.3.2; extra == "dev"
