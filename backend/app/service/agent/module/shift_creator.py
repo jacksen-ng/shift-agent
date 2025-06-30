@@ -369,13 +369,10 @@ def eval_final_shift_tool(input_data: str) -> str:
 
 
 def shift_creator_run(
-    shift_request_path: str = "data/inputs/02_sample.json",
+    shift_request_path: str,
     numb_rate_revisions: int = 3
 ):
-    # JSONファイルを読み込み
-    with open(shift_request_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-        employee_preferences = json.dumps(data, ensure_ascii=False)
+    employee_preferences = shift_request_path
 
     # 初期シフトドラフトを作成
     current_shift = create_shift_draft_tool.invoke(employee_preferences)
