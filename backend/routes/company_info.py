@@ -15,10 +15,10 @@ def get_company_info(company_id, request: Request, response: Response):
         return response_values
     
     except HTTPException as e:
-        return JSONResponse(status_code=401, content={'message': e})
+        raise e
     
     except Exception as e:
-        return JSONResponse(status_code=400, content={'message': e})
+        raise HTTPException(status_code=400, detail=str(e))
     
 @app.post('/company-info-edit')
 async def edit_company_info(request: Request, response: Response):
@@ -39,7 +39,7 @@ async def edit_company_info(request: Request, response: Response):
         ).execute()
     
     except HTTPException as e:
-        return JSONResponse(status_code=401, content={'message': e})
+        raise e
     
     except Exception as e:
-        return JSONResponse(status_code=400, content={'message': e})
+        raise HTTPException(status_code=400, detail=str(e))

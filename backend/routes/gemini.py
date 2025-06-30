@@ -15,10 +15,10 @@ async def gemini_create_shift(request: Request, response: Response):
         gemini_usecase['GeminiCreateShiftUseCase'](request_body['company_id'], request_body['first_day'], request_body['last_day'], request_body['comment']).execute()
 
     except HTTPException as e:
-        return JSONResponse(status_code=401, content={'message': e})
+        raise e
     
     except Exception as e:
-        return JSONResponse(status_code=400, content={'message': e})
+        raise HTTPException(status_code=400, detail=str(e))
     
 @app.post('/gemini-evaluate-shift')
 async def gemini_evaluate_shift(request: Request, response: Response):
@@ -30,7 +30,7 @@ async def gemini_evaluate_shift(request: Request, response: Response):
         return response_value
 
     except HTTPException as e:
-        return JSONResponse(status_code=401, content={'message': e})
+        raise e
     
     except Exception as e:
-        return JSONResponse(status_code=400, content={'message': e})
+        raise HTTPException(status_code=400, detail=str(e))
