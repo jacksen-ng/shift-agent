@@ -15,10 +15,10 @@ def get_shift_info(company_id, request: Request, response: Response):
         return response_values
     
     except HTTPException as e:
-        return JSONResponse(status_code=401, content={'message': e})
+        raise e
     
     except Exception as e:
-        return JSONResponse(status_code=400, content={'message': e})
+        raise HTTPException(status_code=400, detail=str(e))
     
 @app.post('/edit-shift')
 async def edit_shift(request: Request, response: Response):
@@ -34,10 +34,10 @@ async def edit_shift(request: Request, response: Response):
         ).execute()
     
     except HTTPException as e:
-        return JSONResponse(status_code=401, content={'message': e})
+        raise e
     
     except Exception as e:
-        return JSONResponse(status_code=400, content={'message': e})
+        raise HTTPException(status_code=400, detail=str(e))
     
 @app.post('/complete_edit_shift')
 async def complete_shift(request: Request, response: Response):
@@ -48,7 +48,7 @@ async def complete_shift(request: Request, response: Response):
         owner_shift_usecase['CompleteShiftUseCase'](request_body['company_id']).execute()
 
     except HTTPException as e:
-        return JSONResponse(status_code=401, content={'message': e})
+        raise e
     
     except Exception as e:
-        return JSONResponse(status_code=400, content={'message': e})
+        raise HTTPException(status_code=400, detail=str(e))

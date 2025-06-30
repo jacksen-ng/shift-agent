@@ -15,7 +15,7 @@ def get_decision_shift(company_id, request: Request, response: Response):
         return response_values
     
     except HTTPException as e:
-        return JSONResponse(status_code=401, content={'message': e})
+        raise e
     
     except Exception as e:
-        return JSONResponse(status_code=400, content={'message': e})
+        raise HTTPException(status_code=400, detail=str(e))
