@@ -4,7 +4,7 @@ import apiClient from '../../../Services/apiClient';
 import { logout } from '../../../Services/AuthService';
 import { getErrorMessage, logError } from '../../../Utils/errorHandler';
 import ErrorToast from '../../../Components/ErrorToast';
-import { formatDateToISO, formatTimeToISO } from '../../../Utils/FormatDate';
+import { formatDateToISO, formatTimeToISO, formatTimeForInput } from '../../../Utils/FormatDate';
 
 interface EditShift {
   edit_shift_id: number;
@@ -22,6 +22,11 @@ interface CompanyMember {
 interface AdjustmentShiftResponse {
   edit_shift: EditShift[];
   company_member_name: CompanyMember[];
+}
+
+interface DecisionShiftResponse {
+  decision_shift: any[];
+  rest_day: string[];
 }
 
 interface ShiftUpdate {
@@ -46,17 +51,18 @@ const ShiftAdjustment = () => {
   const [saving, setSaving] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [restDays, setRestDays] = useState<string[]>([]);
   
   // 追加・更新・削除の管理
   const [addShifts, setAddShifts] = useState<ShiftAdd[]>([]);
   const [updateShifts, setUpdateShifts] = useState<ShiftUpdate[]>([]);
   const [deleteShiftIds, setDeleteShiftIds] = useState<number[]>([]);
 
-  // 週の開始日（月曜日）を取得
+  // 週の開始日（月曜日）を安全に取得
   const getWeekStart = (date: Date) => {
-    const d = new Date(date);
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate()); // 時刻情報をリセット
     const day = d.getDay();
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // dayが0(日曜)の場合は-6、それ以外は+1
     return new Date(d.setDate(diff));
   };
 
@@ -76,18 +82,64 @@ const ShiftAdjustment = () => {
   const formatDate = (date: Date) => {
     return formatDateToISO(date);
   };
+  
+  // 休業日かどうかをチェック
+  const isRestDay = (date: Date) => {
+    const dateStr = formatDate(date);
+    return restDays.includes(dateStr);
+  };
 
   // シフトデータを取得
   const fetchShifts = async () => {
     try {
       setLoading(true);
       const companyId = localStorage.getItem('company_id') || '1';
+      
+      // 編集用シフトデータを取得
       const response = await apiClient.get<AdjustmentShiftResponse>('/edit-shift', {
         params: { company_id: parseInt(companyId) }
       });
       
-      setShifts(response.data.edit_shift || []);
+      const fetchedShifts = response.data.edit_shift || [];
+      setShifts(fetchedShifts);
       setMembers(response.data.company_member_name || []);
+      
+      // 決定済みシフトから休業日情報を取得
+      try {
+        const decisionResponse = await apiClient.get<DecisionShiftResponse>('/decision-shift', {
+          params: { company_id: parseInt(companyId) }
+        });
+        console.log('Decision shift response:', decisionResponse.data);
+        console.log('Rest days:', decisionResponse.data.rest_day);
+        
+        // rest_dayの処理 - オブジェクトの場合は適切に変換
+        const restDayData = decisionResponse.data.rest_day || [];
+        const processedRestDays = restDayData.map((day: any) => {
+          if (typeof day === 'string') {
+            return day;
+          } else if (typeof day === 'object' && day !== null) {
+            // オブジェクトの場合、dateやdayプロパティを探す
+            return day.date || day.day || day.rest_day || JSON.stringify(day);
+          }
+          return String(day);
+        });
+        
+        setRestDays(processedRestDays);
+      } catch (error) {
+        // 決定済みシフトがない場合はエラーを無視
+        console.log('No decision shift found, continuing without rest days');
+      }
+
+      // 直近のシフトがある週をデフォルト表示
+      if (fetchedShifts.length > 0) {
+        const latestShift = fetchedShifts.reduce((latest, current) => {
+          return new Date(latest.day) > new Date(current.day) ? latest : current;
+        });
+        setCurrentWeek(new Date(latestShift.day));
+      } else {
+        setCurrentWeek(new Date()); // シフトがない場合は今日の週
+      }
+
     } catch (error) {
       logError(error, 'ShiftAdjustment.fetchShifts');
       setErrorMessage(getErrorMessage(error));
@@ -315,11 +367,14 @@ const ShiftAdjustment = () => {
                     スタッフ
                   </th>
                   {weekDates.map((date, index) => (
-                    <th key={index} className="px-4 py-3 text-center font-medium text-gray-700">
+                    <th key={index} className={`px-4 py-3 text-center font-medium ${isRestDay(date) ? 'bg-red-50 text-red-700' : 'text-gray-700'}`}>
                       <div>{weekDays[index]}</div>
                       <div className="text-xs font-normal text-gray-500 mt-1">
                         {date.getMonth() + 1}/{date.getDate()}
                       </div>
+                      {isRestDay(date) && (
+                        <div className="text-xs font-normal text-red-600 mt-1">休業日</div>
+                      )}
                     </th>
                   ))}
                 </tr>
@@ -335,13 +390,17 @@ const ShiftAdjustment = () => {
                       const shift = getShift(member.user_id, dateStr);
                       const isPast = date < new Date(new Date().setHours(0, 0, 0, 0));
                       
+                      const isRest = isRestDay(date);
+                      
                       return (
-                        <td key={index} className={`border-t border-gray-200 p-2 text-center ${isPast ? 'bg-gray-50' : ''}`}>
-                          {shift ? (
+                        <td key={index} className={`border-t border-gray-200 p-2 text-center ${isPast ? 'bg-gray-50' : ''} ${isRest ? 'bg-red-50' : ''}`}>
+                          {isRest ? (
+                            <div className="text-red-600 font-medium py-8">休業日</div>
+                          ) : shift ? (
                             <div className="space-y-2">
                               <input
                                 type="time"
-                                value={shift.start_time}
+                                value={formatTimeForInput(shift.start_time)}
                                 onChange={(e) => handleUpdateShift(shift.edit_shift_id, 'start_time', e.target.value)}
                                 className={`w-full px-2 py-1 text-sm border border-gray-300 rounded ${isPast ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                                 disabled={isPast}
@@ -349,7 +408,7 @@ const ShiftAdjustment = () => {
                               <div className="text-xs text-gray-500">〜</div>
                               <input
                                 type="time"
-                                value={shift.finish_time}
+                                value={formatTimeForInput(shift.finish_time)}
                                 onChange={(e) => handleUpdateShift(shift.edit_shift_id, 'finish_time', e.target.value)}
                                 className={`w-full px-2 py-1 text-sm border border-gray-300 rounded ${isPast ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                                 disabled={isPast}
@@ -387,6 +446,20 @@ const ShiftAdjustment = () => {
           </div>
         </div>
 
+        {/* 休業日情報 */}
+        {restDays.length > 0 && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-sm font-medium text-gray-800">
+                休業日: {restDays.join(', ')}
+              </span>
+            </div>
+          </div>
+        )}
+        
         {/* アクションボタン */}
         <div className="flex justify-between">
           <div>

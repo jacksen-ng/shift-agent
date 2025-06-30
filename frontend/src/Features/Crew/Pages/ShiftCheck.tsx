@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchDecisionShift } from '../../../Services/ShiftService';
 import { logout } from '../../../Services/AuthService';
-import { formatDateToISO, formatTimeDisplay } from '../../../Utils/FormatDate';
+import { formatDateToISO, formatTimeDisplay, calculateTimeDifference } from '../../../Utils/FormatDate';
 
 interface Shift {
   name: string;
@@ -34,10 +34,25 @@ const ShiftCheck: React.FC = () => {
         }
         const companyId = parseInt(companyIdString, 10);
         const res = await fetchDecisionShift(companyId);
+        console.log('ShiftCheck - Decision shift response:', res);
+        console.log('ShiftCheck - Rest days:', res.rest_day);
         
         // 全てのシフトを表示（人別の情報も見たいため）
         setShifts(res.decision_shift || []);
-        setRestDays(res.rest_day || []);
+        
+        // rest_dayの処理 - オブジェクトの場合は適切に変換
+        const restDayData = res.rest_day || [];
+        const processedRestDays = restDayData.map((day: any) => {
+          if (typeof day === 'string') {
+            return day;
+          } else if (typeof day === 'object' && day !== null) {
+            // オブジェクトの場合、dateやdayプロパティを探す
+            return day.date || day.day || day.rest_day || JSON.stringify(day);
+          }
+          return String(day);
+        });
+        
+        setRestDays(processedRestDays);
       } catch (error) {
         console.error('シフト情報の取得に失敗しました', error);
       } finally {
@@ -82,13 +97,9 @@ const ShiftCheck: React.FC = () => {
     return restDays.includes(dateStr);
   };
 
-  // 時間計算
+  // 時間計算（安全な時間処理を使用）
   const calculateHours = (startTime: string, endTime: string) => {
-    const [startHour, startMinute] = startTime.split(':').map(Number);
-    const [endHour, endMinute] = endTime.split(':').map(Number);
-    const startTotal = startHour + startMinute / 60;
-    const endTotal = endHour + endMinute / 60;
-    return endTotal - startTotal;
+    return calculateTimeDifference(startTime, endTime);
   };
 
   // 月の合計勤務時間を計算

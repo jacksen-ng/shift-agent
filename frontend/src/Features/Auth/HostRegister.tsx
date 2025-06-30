@@ -34,6 +34,12 @@ const HostRegister: React.FC = () => {
       setErrorMessage('パスワードが一致しません');
       return;
     }
+    
+    // パスワードの長さチェック
+    if (formData.password.length < 6) {
+      setErrorMessage('パスワードは6文字以上で設定してください');
+      return;
+    }
 
     try {
       // クルーの場合はcompany_idが必要
@@ -51,9 +57,18 @@ const HostRegister: React.FC = () => {
       });
       alert('登録が完了しました');
       navigate('/login');
-    } catch (error) {
+    } catch (error: any) {
       logError(error, 'HostRegister.handleSubmit');
-      setErrorMessage(getErrorMessage(error));
+      const errorMsg = getErrorMessage(error);
+      
+      // よくあるエラーケースに対する具体的なメッセージ
+      if (errorMsg.includes('Failed to create user')) {
+        setErrorMessage('登録に失敗しました。このメールアドレスは既に使用されている可能性があります。');
+      } else if (errorMsg.includes('password')) {
+        setErrorMessage('パスワードは6文字以上で設定してください。');
+      } else {
+        setErrorMessage(errorMsg);
+      }
     }
   };
 

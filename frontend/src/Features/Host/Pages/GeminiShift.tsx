@@ -135,17 +135,84 @@ const GeminiShift = () => {
       setIsGenerating(true);
       const companyId = localStorage.getItem('company_id') || '1';
       
-      const response = await apiClient.post<{ edit_shift: GeneratedShift[] }>('/gemini-create-shift', {
+      // まず会社情報を確認し、必要に応じて時刻形式を修正
+      try {
+        const companyInfoResponse = await apiClient.get(`/company-info/${companyId}`);
+        const companyData = companyInfoResponse.data;
+        
+        // 時刻形式が古い場合は修正
+        if ((companyData.open_time && !companyData.open_time.includes(':00:00') && companyData.open_time.match(/^\d{2}:\d{2}$/)) ||
+            (companyData.close_time && !companyData.close_time.includes(':00:00') && companyData.close_time.match(/^\d{2}:\d{2}$/))) {
+          
+          console.log('Detected old time format, updating before AI generation...');
+          
+          // formatTimeToISO関数を定義
+          const formatTimeToISO = (time: string): string => {
+            if (!time) return '';
+            // すでに正しい形式の場合はそのまま返す
+            if (time.match(/^\d{2}:\d{2}:\d{2}$/)) {
+              return time;
+            }
+            // HH:MM形式の場合は:00を追加
+            if (time.match(/^\d{2}:\d{2}$/)) {
+              return `${time}:00`;
+            }
+            return time;
+          };
+          
+          // 時刻形式を修正して保存
+          const updateData = {
+            company_info: {
+              company_id: parseInt(companyId),
+              company_name: companyData.company_name || '',
+              store_locate: companyData.store_locate || '',
+              open_time: formatTimeToISO(companyData.open_time || ''),
+              close_time: formatTimeToISO(companyData.close_time || ''),
+              target_sales: companyData.target_sales || 0,
+              labor_cost: companyData.labor_cost || 0
+            },
+            rest_day: companyData.rest_days || [],
+            position: companyData.position_names || [],
+            evaluate_decision_shift: companyData.evaluate_decision_shift || []
+          };
+          
+          await apiClient.post('/company-info-edit', updateData);
+          console.log('Company time format updated successfully');
+          
+          // 少し待ってからAI生成を続行
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      } catch (error) {
+        console.error('Failed to check/update company info:', error);
+        // エラーが発生しても続行（バックエンドが対応している可能性があるため）
+      }
+      
+      const requestData = {
         company_id: parseInt(companyId),
         first_day: dateRange.first_day,
         last_day: dateRange.last_day,
-        comment: comment || undefined
-      });
+        comment: comment || ''
+      };
+      
+      console.log('Sending request to /gemini-create-shift:', requestData);
+      
+      const response = await apiClient.post<{ edit_shift: GeneratedShift[] }>(
+        '/gemini-create-shift', 
+        requestData,
+        {
+          timeout: 300000 // 5分のタイムアウト（AI生成には時間がかかるため）
+        }
+      );
+      
+      console.log('Gemini API Response:', response.data);
+      console.log('Generated shifts:', response.data.edit_shift);
       
       setGeneratedShifts(response.data.edit_shift || []);
       setShowPreview(true);
-    } catch (error) {
+    } catch (error: any) {
       logError(error, 'GeminiShift.handleGenerate');
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
       const message = getErrorMessage(error);
       setErrorMessage(message);
     } finally {
@@ -159,11 +226,17 @@ const GeminiShift = () => {
       setIsEvaluating(true);
       const companyId = localStorage.getItem('company_id') || '1';
       
-      const response = await apiClient.post<EvaluationResponse>('/gemini-evaluate-shift', {
-        company_id: parseInt(companyId),
-        first_day: dateRange.first_day,
-        last_day: dateRange.last_day
-      });
+      const response = await apiClient.post<EvaluationResponse>(
+        '/gemini-evaluate-shift', 
+        {
+          company_id: parseInt(companyId),
+          first_day: dateRange.first_day,
+          last_day: dateRange.last_day
+        },
+        {
+          timeout: 300000 // 5分のタイムアウト（AI評価にも時間がかかるため）
+        }
+      );
       
       setEvaluationResult(response.data);
     } catch (error) {
@@ -305,7 +378,7 @@ const GeminiShift = () => {
                 {isGenerating ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                    生成中...
+                    AI生成中... (最大5分かかります)
                   </>
                 ) : (
                   <>

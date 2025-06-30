@@ -5,7 +5,7 @@ import apiClient from '../../../Services/apiClient';
 import { logout } from '../../../Services/AuthService';
 import { getErrorMessage, logError } from '../../../Utils/errorHandler';
 import ErrorToast from '../../../Components/ErrorToast';
-import { formatDateToISO, formatTimeToISO } from '../../../Utils/FormatDate';
+import { formatDateToISO, formatTimeToISO, formatTimeForInput } from '../../../Utils/FormatDate';
 
 interface ShiftSubmission {
   day: string;
@@ -313,14 +313,14 @@ const ShiftSubmit = () => {
                           <div className="flex items-center gap-2 mt-1">
                             <input
                               type="time"
-                              value={shift.start_time}
+                              value={formatTimeForInput(shift.start_time)}
                               onChange={(e) => updateTime(shift.day, 'start_time', e.target.value)}
                               className="text-xs px-2 py-1 border border-gray-300 rounded"
                             />
                             <span className="text-xs text-gray-500">〜</span>
                             <input
                               type="time"
-                              value={shift.finish_time}
+                              value={formatTimeForInput(shift.finish_time)}
                               onChange={(e) => updateTime(shift.day, 'finish_time', e.target.value)}
                               className="text-xs px-2 py-1 border border-gray-300 rounded"
                             />
