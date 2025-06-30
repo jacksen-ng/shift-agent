@@ -95,12 +95,12 @@ The output format must be a JSON object with a single 'edit_shift' key, where th
 Example Output:
 {
   "edit_shift": [
-    { "user_id": "高橋 康成", "company_id": 1, "day": "2025-07-04", "start_time": "09:00", "finish_time": "17:00" },
-    { "user_id": "高橋 康成", "company_id": 1, "day": "2025-07-08", "start_time": "10:00", "finish_time": "18:00" },
-    { "user_id": "佐藤 照明", "company_id": 1, "day": "2025-07-04", "start_time": "11:00", "finish_time": "19:00" }
+    { "user_id": 1, "company_id": 1, "day": "2025-07-04", "start_time": "09:00", "finish_time": "17:00" },
+    { "user_id": 1, "company_id": 1, "day": "2025-07-08", "start_time": "10:00", "finish_time": "18:00" },
+    { "user_id": 2, "company_id": 1, "day": "2025-07-04", "start_time": "11:00", "finish_time": "19:00" }
   ]
 }
-    """
+"""
     user_content = full_json_input
     response = call_gemini_model(system_instruction, user_content)
     response = response.strip() # LLM応答の先頭・末尾の空白・改行を削除
@@ -152,7 +152,7 @@ def eval_shift_tool(input_data: str) -> str:
     system_instruction = """あなたは熟練したシフト評価者であり、検証者です。与えられたシフト提案を、初期値100点からの減点方式で厳密に評価することがあなたの主な任務です。
 
 **評価基準（減点項目）:**
-1. **最低人員配置の未達:** ホール、レジ、キッチンにおいて、最低でもそれぞれ1人ずつスタッフが確保されていない場合、1箇所につき-3点。
+1. **最低人員配置の未達:** ユーザーから入力された各ポジションにおいて、最低でもそれぞれ1人ずつスタッフが確保されていない場合、1箇所につき-3点。
 2. **人件費の超過:** 設定された人件費の予算を超過している場合、-9点。
 3. **従業員のシフト希望の未考慮（努力目標）:** 従業員のシフト希望が叶えられていない場合、1人につき-0.2点。これはあくまで努力目標であり、他の必須項目より優先度は低いです。
 
@@ -245,20 +245,9 @@ def modify_shift_tool(input_data: str) -> str:
 例として、以下のようなJSONを出力してください。
 {
 "edit_shift": [
-    { "user_id": "高橋 康成", "company_id": 1, "day": "2025-07-04", "start_time": "09:00", "finish_time": "17:00" },
-    { "user_id": "高橋 康成", "company_id": 1, "day": "2025-07-08", "start_time": "10:00", "finish_time": "18:00" },
-    { "user_id": "佐藤 照明", "company_id": 1, "day": "2025-07-04", "start_time": "11:00", "finish_time": "19:00" }
-]
-}
-
-また，特定の日にシフト希望が出されていないなど，評価ツールからのフィードバックを達成することがそもそも難しい場合，特別な値を入れてください．
-
-例として，そのような場合は以下のようにしてください．
-{
-"edit_shift": [
-    { "user_id": "高橋 康成", "company_id": 1, "day": "2025-07-04", "start_time": "09:00", "finish_time": "17:00" },
-    { "user_id": "高橋 康成", "company_id": 1, "day": "2025-07-08", "start_time": "10:00", "finish_time": "18:00" },
-    { "user_id": "need staff!!!", "company_id": 1, "day": "2025-07-04", "start_time": "11:00", "finish_time": "19:00"}
+    { "user_id": 1, "company_id": 1, "day": "2025-07-04", "start_time": "09:00", "finish_time": "17:00" },
+    { "user_id": 1, "company_id": 1, "day": "2025-07-08", "start_time": "10:00", "finish_time": "18:00" },
+    { "user_id": 2, "company_id": 1, "day": "2025-07-04", "start_time": "11:00", "finish_time": "19:00" }
 ]
 }
     """
