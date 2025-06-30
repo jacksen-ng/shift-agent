@@ -95,9 +95,9 @@ The output format must be a JSON object with a single 'edit_shift' key, where th
 Example Output:
 {
   "edit_shift": [
-    { "user_id": "高橋 康成", "company_id": 1, "day": "2025-07-04", "start_time": "09:00", "finish_time": "17:00" },
-    { "user_id": "高橋 康成", "company_id": 1, "day": "2025-07-08", "start_time": "10:00", "finish_time": "18:00" },
-    { "user_id": "佐藤 照明", "company_id": 1, "day": "2025-07-04", "start_time": "11:00", "finish_time": "19:00" }
+    { "user_id": 1, "company_id": 1, "day": "2025-07-04", "start_time": "09:00", "finish_time": "17:00" },
+    { "user_id": 1, "company_id": 1, "day": "2025-07-08", "start_time": "10:00", "finish_time": "18:00" },
+    { "user_id": 2, "company_id": 1, "day": "2025-07-04", "start_time": "11:00", "finish_time": "19:00" }
   ]
 }
     """
@@ -248,17 +248,6 @@ def modify_shift_tool(input_data: str) -> str:
     { "user_id": "高橋 康成", "company_id": 1, "day": "2025-07-04", "start_time": "09:00", "finish_time": "17:00" },
     { "user_id": "高橋 康成", "company_id": 1, "day": "2025-07-08", "start_time": "10:00", "finish_time": "18:00" },
     { "user_id": "佐藤 照明", "company_id": 1, "day": "2025-07-04", "start_time": "11:00", "finish_time": "19:00" }
-]
-}
-
-また，特定の日にシフト希望が出されていないなど，評価ツールからのフィードバックを達成することがそもそも難しい場合，特別な値を入れてください．
-
-例として，そのような場合は以下のようにしてください．
-{
-"edit_shift": [
-    { "user_id": "高橋 康成", "company_id": 1, "day": "2025-07-04", "start_time": "09:00", "finish_time": "17:00" },
-    { "user_id": "高橋 康成", "company_id": 1, "day": "2025-07-08", "start_time": "10:00", "finish_time": "18:00" },
-    { "user_id": "need staff!!!", "company_id": 1, "day": "2025-07-04", "start_time": "11:00", "finish_time": "19:00"}
 ]
 }
     """
