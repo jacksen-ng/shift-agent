@@ -1,25 +1,26 @@
 import axios from 'axios';
+import { LoginResponse, RegisterRequest, RegisterResponse } from '../Types/AuthTypes';
 
 // 認証系APIのベースURL（環境変数から取得、なければデフォルト値）
 const AUTH_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://shift-agent-backend-562837022896.asia-northeast1.run.app';
 
-interface LoginResponse {
-  user_id: number;
-  company_id: number;
-  role: 'owner' | 'crew';
-  access_token?: string;
-  id_token?: string;
-  token?: string;
-  token_type?: string;
-  expires_in?: number;
-}
+// 認証サービス用のaxiosインスタンス
+const authAxios = axios.create({
+  baseURL: AUTH_BASE_URL,
+  withCredentials: true // Cookieを正しく送受信するためにtrueに設定
+});
 
 // Cookieを設定するヘルパー関数
-const setCookie = (name: string, value: string, days: number = 7) => {
-  const date = new Date();
-  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-  const expires = `expires=${date.toUTCString()}`;
-  document.cookie = `${name}=${value};${expires};path=/`;
+const setCookie = (name: string, value: string, days?: number) => {
+  let expires = "";
+  if (days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    expires = "; expires=" + date.toUTCString();
+  }
+  // セキュリティ強化のため、Secure; SameSite=Strict; HttpOnly を推奨
+  // HttpOnlyはJSからアクセスできなくなるため、今回は付与しない
+  document.cookie = name + "=" + (value || "")  + expires + "; path=/; SameSite=Strict; Secure";
 };
 
 // Cookieを取得するヘルパー関数
@@ -36,50 +37,45 @@ export const getCookie = (name: string): string | null => {
 
 // Cookieを削除するヘルパー関数
 export const deleteCookie = (name: string) => {
-  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
+  // pathとdomainを指定しないと正しく削除できない場合がある
+  document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 };
 
-// アクセストークンを取得する関数
-export const getAccessToken = (): string | null => {
-  return getCookie('access_token');
+
+// IDトークンを取得する関数
+export const getIdToken = (): string | null => {
+  return getCookie('id_token');
 };
 
-export const login = async (email: string, password: string) => {
+export const login = async (email: string, password: string): Promise<LoginResponse> => {
   try {
-    // 認証系は直接バックエンドにアクセス（プロキシを使わない）
-    const response = await axios.post<LoginResponse>(`${AUTH_BASE_URL}/login`, {
+    // 認証系は直接バックエンドにアクセス
+    const response = await authAxios.post<LoginResponse>('/login', {
       email,
       password
     });
     
     console.log('ログインAPIレスポンス:', response.data);
-    console.log('Response headers:', response.headers);
     
-    if (response.status === 200 && response.data) {
-      // バックエンドはトークンを返さないため、ダミー値を設定
-      setCookie('access_token', 'logged_in');
-      setCookie('token_type', 'Bearer');
-      
-      // 有効期限を設定
-      const expiresIn = response.data.expires_in || 3600;
-      const expiresAt = new Date().getTime() + (expiresIn * 1000);
-      setCookie('expires_at', expiresAt.toString());
+    if (response.status === 200 && response.data.success) {
+      const { id_token, refresh_token, expires_in, user_id, company_id, role, firebase_uid } = response.data;
+
+      // トークンをCookieに保存
+      const expiresDate = new Date();
+      expiresDate.setTime(expiresDate.getTime() + (expires_in * 1000));
+      setCookie('id_token', id_token, expires_in / (24 * 60 * 60));
+      setCookie('refresh_token', refresh_token, 30); // リフレッシュトークンは長めに設定
+
+      // 有効期限をCookieに保存
+      setCookie('expires_at', expiresDate.getTime().toString());
       
       // LocalStorageに基本情報を保存
-      localStorage.setItem('user_id', response.data.user_id.toString());
-      localStorage.setItem('company_id', response.data.company_id.toString());
-      localStorage.setItem('role', response.data.role);
+      localStorage.setItem('user_id', user_id.toString());
+      localStorage.setItem('company_id', company_id.toString());
+      localStorage.setItem('role', role);
+      localStorage.setItem('firebase_uid', firebase_uid);
       
-      const result = {
-        user_id: response.data.user_id.toString(),
-        company_id: response.data.company_id.toString(),
-        role: response.data.role,
-        access_token: 'logged_in',
-        message: 'ログイン成功'
-      };
-      
-      console.log('ログイン処理の戻り値:', result);
-      return result;
+      return response.data;
     }
     
     throw new Error('ログインに失敗しました');
@@ -95,15 +91,7 @@ export const login = async (email: string, password: string) => {
   }
 };
 
-interface SignInRequest {
-  email: string;
-  password: string;
-  confirm_password: string;
-  role?: 'owner' | 'crew';
-  company_id?: string;
-}
-
-export const registerHost = async (data: SignInRequest) => {
+export const registerHost = async (data: RegisterRequest): Promise<RegisterResponse> => {
   try {
     // API設計図通り：/signin（ハイフンなし）で roleも必要
     const requestBody: any = {
@@ -112,19 +100,19 @@ export const registerHost = async (data: SignInRequest) => {
       confirm_password: data.confirm_password,
       role: data.role || 'owner'  // roleが指定されていない場合はownerをデフォルト
     };
-
-    // クルーの場合はcompany_idも追加（数値として送信）
-    if (data.role === 'crew' && data.company_id) {
-      requestBody.company_id = parseInt(data.company_id);
-    }
     
     console.log('登録リクエスト:', requestBody);
     
     // 認証系は直接バックエンドにアクセス
-    const response = await axios.post(`${AUTH_BASE_URL}/signin`, requestBody);
+    const response = await authAxios.post<RegisterResponse>('/signin', requestBody);
     console.log('登録成功:', response.data);
     
-    return response.data;
+    if(response.data.success) {
+      return response.data;
+    } else {
+      throw new Error('登録に失敗しました。');
+    }
+
   } catch (error: any) {
     console.error('登録エラー:', error.response?.data || error.message);
     if (error.response?.status === 400) {
@@ -155,13 +143,16 @@ export const registerCrew = async (_email: string, _password: string) => {
 // ログアウト処理
 export const logout = () => {
   // Cookieをクリア
-  deleteCookie('access_token');
   deleteCookie('id_token');
-  deleteCookie('token_type');
+  deleteCookie('refresh_token');
   deleteCookie('expires_at');
   
   // LocalStorageもクリア
-  localStorage.clear();
+  localStorage.removeItem('user_id');
+  localStorage.removeItem('company_id');
+  localStorage.removeItem('role');
+  localStorage.removeItem('firebase_uid');
+  localStorage.removeItem('user_info_cache'); // ユーザー情報キャッシュも削除
 };
 
 // トークンの有効期限をチェック

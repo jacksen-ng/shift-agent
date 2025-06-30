@@ -23,17 +23,10 @@ const Login: React.FC = () => {
     setError('');
     
     try {
-      const response = await login(formData.email, formData.password) as {
-        user_id: string;
-        company_id: string;
-        role: 'owner' | 'crew';
-        access_token: string;
-        message: string;
-      };
+      // AuthServiceのlogin関数を呼び出す
+      const response = await login(formData.email, formData.password);
 
-      // AuthService.tsで既にlocalStorageとCookieに保存されているため、
-      // ここでは追加の保存処理は不要
-      
+      // ログイン成功後の処理はAuthServiceに集約されているため、ここでは画面遷移のみ行う
       console.log('ログイン成功レスポンス:', response);
 
       // roleに基づいて適切な画面に遷移
@@ -44,10 +37,12 @@ const Login: React.FC = () => {
         console.log('ログイン成功、クルーホーム画面へ遷移');
         navigate('/crew/home');
       } else {
+        // 想定外のroleだった場合、デフォルト画面へ遷移
         console.error('不明なrole:', response.role);
-        navigate('/host/home'); // デフォルトはオーナーホーム
+        navigate('/host/home');
       }
     } catch (error: any) {
+      // エラーハンドリング
       console.error('ログインエラー詳細:', {
         message: error.message,
         response: error.response?.data,
@@ -55,16 +50,14 @@ const Login: React.FC = () => {
         url: error.config?.url
       });
       
+      // ユーザーに表示するエラーメッセージを設定
       if (error.response?.data?.detail) {
         setError(error.response.data.detail);
-      } else if (error.response?.data?.error) {
-        setError(error.response.data.error);
-      } else if (error.message === 'Network Error') {
-        setError('サーバーに接続できません。Mock APIが起動していることを確認してください。');
+      } else if (error.message) {
+        setError(error.message);
       } else {
-        setError('ログインに失敗しました。メールアドレスとパスワードを確認してください。');
+        setError('ログインに失敗しました。入力内容を確認してください。');
       }
-      console.error(error);
     } finally {
       setIsLoading(false);
     }
@@ -200,7 +193,7 @@ const Login: React.FC = () => {
               アカウントをお持ちでない方
             </p>
             <Link 
-              to="/register" 
+              to="/register/host" 
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border-2 border-[#2563EB] text-[#2563EB] hover:bg-blue-50 transition-all duration-200 font-medium"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
