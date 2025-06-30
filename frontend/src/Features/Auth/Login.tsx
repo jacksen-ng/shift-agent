@@ -200,7 +200,7 @@ const Login: React.FC = () => {
               アカウントをお持ちでない方
             </p>
             <Link 
-              to="/register/host" 
+              to="/register" 
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border-2 border-[#2563EB] text-[#2563EB] hover:bg-blue-50 transition-all duration-200 font-medium"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

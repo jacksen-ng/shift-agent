@@ -40,17 +40,18 @@ export const updateEditShift = async (data: {
 }) => {
   // Ensure all times are in HH:MM:SS format before sending to backend
   const formattedData = {
-    ...data,
-    updated_shifts: data.updated_shifts.map(shift => ({
+    company_id: data.company_id,
+    update_edit_shift: data.updated_shifts.map(shift => ({
       ...shift,
       start_time: formatTimeToISO(shift.start_time),
       finish_time: formatTimeToISO(shift.finish_time)
     })),
-    added_shifts: data.added_shifts.map(shift => ({
+    add_edit_shift: data.added_shifts.map(shift => ({
       ...shift,
       start_time: formatTimeToISO(shift.start_time),
       finish_time: formatTimeToISO(shift.finish_time)
-    }))
+    })),
+    delete_edit_shift: data.deleted_shifts
   };
   
   const response = await apiClient.post('/edit-shift', formattedData);
@@ -59,7 +60,7 @@ export const updateEditShift = async (data: {
 
 // Confirm final shifts for owner
 export const confirmEditShift = async (company_id: number) => {
-  const response = await apiClient.post('/complete_edit_sift', { company_id });
+  const response = await apiClient.post('/complete_edit_shift', { company_id });
   return response.data;
 };
 
