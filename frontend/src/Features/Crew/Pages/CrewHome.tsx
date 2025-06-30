@@ -101,7 +101,12 @@ const CrewHome: React.FC = () => {
           setUserName(userInfo.name);
         }
         
-        const res = await fetchDecisionShift(authInfo.companyId);
+        const companyId = parseInt(authInfo.companyId, 10);
+        if (isNaN(companyId)) {
+          throw new Error('Invalid company ID found.');
+        }
+
+        const res = await fetchDecisionShift(companyId);
         const userShifts = res.decision_shift || [];
 
         // 現在の週のシフトを生成

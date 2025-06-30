@@ -26,6 +26,7 @@ interface AdjustmentShiftResponse {
 
 interface ShiftUpdate {
   edit_shift_id: number;
+  day?: string;
   start_time: string;
   finish_time: string;
 }
@@ -130,6 +131,9 @@ const ShiftAdjustment = () => {
 
   // シフトを更新
   const handleUpdateShift = (shiftId: number, field: 'start_time' | 'finish_time', value: string) => {
+    const originalShift = shifts.find(s => s.edit_shift_id === shiftId);
+    if (!originalShift) return;
+
     // 更新リストに追加
     const existingUpdate = updateShifts.find(u => u.edit_shift_id === shiftId);
     if (existingUpdate) {
@@ -137,15 +141,13 @@ const ShiftAdjustment = () => {
         u.edit_shift_id === shiftId ? { ...u, [field]: value } : u
       ));
     } else {
-      const shift = shifts.find(s => s.edit_shift_id === shiftId);
-      if (shift) {
-        setUpdateShifts([...updateShifts, {
-          edit_shift_id: shiftId,
-          start_time: shift.start_time,
-          finish_time: shift.finish_time,
-          [field]: value
-        }]);
-      }
+      setUpdateShifts([...updateShifts, {
+        edit_shift_id: shiftId,
+        day: originalShift.day, // 常にdayを含める
+        start_time: originalShift.start_time,
+        finish_time: originalShift.finish_time,
+        [field]: value
+      }]);
     }
     
     // UIに即座に反映

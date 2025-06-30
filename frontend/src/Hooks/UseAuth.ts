@@ -4,11 +4,9 @@ import { AuthContext } from '../Contexts/AuthContext';
 // src/Hooks/UseAuth.ts
 
 export const useAuth = () => {
-  return {
-    user: {
-      company_id: 'dummy_company',
-      // その他使わない項目は省略OK
-    },
-    token: 'dummy_token'
-  };
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };

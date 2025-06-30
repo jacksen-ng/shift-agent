@@ -53,7 +53,7 @@ const CrewInfo = () => {
 
   // フィルタリング
   const filteredCrew = crewList.filter(crew => {
-    const matchesSearch = crew.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (crew.name || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesPosition = filterPosition === 'all' || crew.position === filterPosition;
     const matchesPost = filterPost === 'all' || crew.post === filterPost;
     return matchesSearch && matchesPosition && matchesPost;
@@ -260,7 +260,7 @@ const CrewInfo = () => {
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">時給</span>
-                    <span className="font-medium text-gray-900">¥{crew.hour_pay.toLocaleString()}</span>
+                    <span className="font-medium text-gray-900">¥{(crew.hour_pay || 0).toLocaleString()}</span>
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -282,7 +282,7 @@ const CrewInfo = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">入社日</span>
                     <span className="font-medium text-gray-900">
-                      {new Date(crew.join_company_day).toLocaleDateString('ja-JP')}
+                      {crew.join_company_day ? new Date(crew.join_company_day).toLocaleDateString('ja-JP') : '-'}
                     </span>
                   </div>
 

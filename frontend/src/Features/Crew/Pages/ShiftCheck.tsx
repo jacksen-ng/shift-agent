@@ -28,7 +28,11 @@ const ShiftCheck: React.FC = () => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const companyId = localStorage.getItem('company_id') || '1';
+        const companyIdString = localStorage.getItem('company_id');
+        if (!companyIdString) {
+          throw new Error('会社IDが見つかりません。再度ログインしてください。');
+        }
+        const companyId = parseInt(companyIdString, 10);
         const res = await fetchDecisionShift(companyId);
         
         // 全てのシフトを表示（人別の情報も見たいため）
