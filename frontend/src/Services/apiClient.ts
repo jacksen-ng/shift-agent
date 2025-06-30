@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { getAccessToken, isTokenExpired, logout } from './AuthService';
+import { getIdToken, isTokenExpired, logout } from './AuthService';
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || 'https://shift-agent-backend-562837022896.asia-northeast1.run.app';
+// バックエンドのベースURL（環境変数から取得、なければデフォルト値）
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://shift-agent-backend-562837022896.asia-northeast1.run.app';
 
 // axiosインスタンスを作成
 const apiClient = axios.create({
@@ -11,26 +11,39 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Cookieを正しく送受信するためにtrueに設定
 });
 
 // リクエストインターセプター
 apiClient.interceptors.request.use(
   (config) => {
-    if (isTokenExpired()) {
-      if (!config.url?.includes('/login') && !config.url?.includes('/sign-in')) {
-        logout();
-        window.location.href = '/login';
-        throw new Error('トークンの有効期限が切れています');
-      }
+    // ログインページやサインインページへのリクエストはそのまま送る
+    if (config.url?.includes('/login') || config.url?.includes('/signin')) {
+      return config;
     }
 
-    const token = getAccessToken();
-    if (token && !config.url?.includes('/login') && !config.url?.includes('/sign-in')) {
-      // headers が undefined の場合は初期化
-      if (!config.headers) {
-        config.headers = {};
-      }
-      config.headers['Authorization'] = `Bearer ${token}`;
+    // トークンの有効期限をチェック
+    if (isTokenExpired()) {
+      console.log('トークンが有効期限切れです。ログアウトします。');
+      logout();
+      window.location.href = '/login';
+      // リクエストをキャンセル
+      return Promise.reject(new Error('Token expired'));
+    }
+
+    // CookieからIDトークンを取得
+    const idToken = getIdToken();
+
+    if (idToken) {
+      // ヘッダーにAuthorizationを追加
+      config.headers['Authorization'] = `Bearer ${idToken}`;
+    } else {
+      // トークンがない場合、ログインページにリダイレクト
+      console.log('IDトークンが見つかりません。ログインページにリダイレクトします。');
+      logout(); // 念のため既存の認証情報をクリア
+      window.location.href = '/login';
+      // リクエストをキャンセル
+      return Promise.reject(new Error('No ID token found'));
     }
 
     return config;
@@ -44,7 +57,9 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    // 401 Unauthorizedエラーの場合、トークンが無効と判断しログアウト
     if (error.response?.status === 401) {
+      console.log('401 Unauthorizedエラー。トークンが無効か期限切れの可能性があります。');
       logout();
       window.location.href = '/login';
     }

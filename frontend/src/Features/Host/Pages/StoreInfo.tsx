@@ -6,24 +6,6 @@ import { getErrorMessage, logError } from '../../../Utils/errorHandler';
 import ErrorToast from '../../../Components/ErrorToast';
 import { formatTimeToISO, formatTimeDisplay } from '../../../Utils/FormatDate';
 
-interface CompanyInfo {
-  company_id: number;
-  company_name: string;
-  store_location: string;
-  open_time: string;
-  close_time: string;
-  target_sales: number;
-  labor_cost: number;
-}
-
-interface RestDay {
-  rest_day: string;
-}
-
-interface Position {
-  position_name: string;
-}
-
 interface StoreData {
   company_name: string;
   store_locate: string;
@@ -51,7 +33,6 @@ const StoreInfo = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [newRestDay, setNewRestDay] = useState('');
   const [newPosition, setNewPosition] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -62,6 +43,7 @@ const StoreInfo = () => {
       try {
         setIsLoading(true);
         const companyId = localStorage.getItem('company_id') || '1';
+        
         const response = await apiClient.get<StoreData>('/company-info', {
           params: { company_id: parseInt(companyId) },
         });
@@ -395,7 +377,7 @@ const StoreInfo = () => {
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     value={newPosition}
                     onChange={(e) => setNewPosition(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddPosition()}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddPosition()}
                   />
                   <button
                     onClick={handleAddPosition}

@@ -12,6 +12,7 @@ interface CrewProfile {
   phone: string;
   position: string;
   evaluate: number;
+  experience: 'beginner' | 'veteran';
   join_company_day: string;
   hour_pay: number;
   post: string;
@@ -31,6 +32,7 @@ const CrewEdit = () => {
     phone: '',
     position: '',
     evaluate: 1,
+    experience: 'beginner',
     join_company_day: '',
     hour_pay: 0,
     post: 'part_timer',
@@ -118,9 +120,8 @@ const CrewEdit = () => {
     e.preventDefault();
     try {
       setSaving(true);
-      const companyId = localStorage.getItem('company_id') || '1';
       
-      // API設計に準拠したリクエスト
+      // API設計に準拠したリクエスト（join_company_dayは送信しない）
       const requestData = {
         user_id: parseInt(id!),
         name: formData.name,
@@ -128,7 +129,7 @@ const CrewEdit = () => {
         phone: formData.phone,
         position: formData.position,
         evaluate: formData.evaluate,
-        join_company_day: formData.join_company_day,
+        experience: formData.experience,
         hour_pay: formData.hour_pay,
         post: formData.post
       };
@@ -248,9 +249,9 @@ const CrewEdit = () => {
                   type="date"
                   name="join_company_day"
                   value={formData.join_company_day}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                  disabled
+                  readOnly
                 />
               </div>
             </div>
@@ -319,6 +320,20 @@ const CrewEdit = () => {
                   {renderStars(formData.evaluate, true)}
                   <span className="text-sm text-gray-600 ml-2">({formData.evaluate}/5)</span>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">経験レベル</label>
+                <select
+                  name="experience"
+                  value={formData.experience}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  required
+                >
+                  <option value="beginner">初心者</option>
+                  <option value="veteran">ベテラン</option>
+                </select>
               </div>
             </div>
           </div>

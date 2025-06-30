@@ -4,7 +4,6 @@ import HostRegister from '../Features/Auth/HostRegister';
 import HostHome from '../Features/Host/Pages/Home';
 import StoreInfo from '../Features/Host/Pages/StoreInfo';
 import CrewInfo from '../Features/Host/Pages/CrewInfo';
-import CrewCreate from '../Features/Host/Pages/CrewCreate';
 import CrewEdit from '../Features/Host/Pages/CrewEdit';
 import HostShiftSubmit from '../Features/Host/Pages/ShiftSubmit';
 import ShiftAdjustment from '../Features/Host/Pages/ShiftAdjustment';
@@ -22,13 +21,12 @@ const AppRoutes = () => {
 
       {/* 共通認証系 */}
       <Route path="/login" element={<Login />} />
-      <Route path="/register/host" element={<HostRegister />} />
+      <Route path="/register" element={<HostRegister />} />
 
       {/* ホスト用 */}
       <Route path="/host/home" element={<HostHome />} />
       <Route path="/host/store-info" element={<StoreInfo />} />
       <Route path="/host/crew-info" element={<CrewInfo />} />
-      <Route path="/host/crew/add" element={<CrewCreate />} />
       <Route path="/host/crew-edit/:id" element={<CrewEdit />} />
       <Route path="/host/shift-submit" element={<HostShiftSubmit />} />
       <Route path="/host/shift-adjustment" element={<ShiftAdjustment />} />

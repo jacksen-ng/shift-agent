@@ -109,14 +109,18 @@ const CrewHome: React.FC = () => {
         const staffWeekData = generateWeekShifts(userShifts, weekStart);
         setStaffWeekShifts(staffWeekData);
 
-      } catch (error) {
+      } catch (error: any) {
         console.error('シフト情報の取得に失敗しました', error);
+        if (error.response) {
+          console.error('エラーレスポンス:', error.response.data);
+          console.error('ステータスコード:', error.response.status);
+        }
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
-  }, [currentWeek]);
+  }, [currentWeek, navigate]);
 
   // 週を変更
   const changeWeek = (direction: 'prev' | 'next') => {

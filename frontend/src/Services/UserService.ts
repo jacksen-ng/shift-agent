@@ -40,8 +40,12 @@ export const fetchMyUserInfo = async (): Promise<CrewMember | null> => {
     );
     
     return myInfo || null;
-  } catch (error) {
+  } catch (error: any) {
     console.error('ユーザー情報の取得に失敗しました:', error);
+    if (error.response) {
+      console.error('エラーレスポンス:', error.response.data);
+      console.error('ステータスコード:', error.response.status);
+    }
     return null;
   }
 };
