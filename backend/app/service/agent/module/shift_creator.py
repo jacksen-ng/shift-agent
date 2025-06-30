@@ -95,9 +95,9 @@ The output format must be a JSON object with a single 'edit_shift' key, where th
 Example Output:
 {
   "edit_shift": [
-    { "user_id": 1, "company_id": 1, "day": "2025-07-04", "start_time": "09:00", "finish_time": "17:00" },
-    { "user_id": 1, "company_id": 1, "day": "2025-07-08", "start_time": "10:00", "finish_time": "18:00" },
-    { "user_id": 2, "company_id": 1, "day": "2025-07-04", "start_time": "11:00", "finish_time": "19:00" }
+    { "user_id": 1, "company_id": 1, "day": "2025-07-04", "start_time": "09:00:00", "finish_time": "17:00:00" },
+    { "user_id": 1, "company_id": 1, "day": "2025-07-08", "start_time": "10:00:00", "finish_time": "18:00:00" },
+    { "user_id": 2, "company_id": 1, "day": "2025-07-04", "start_time": "11:00:00", "finish_time": "19:00:00" }
   ]
 }
 """
@@ -245,9 +245,9 @@ def modify_shift_tool(input_data: str) -> str:
 例として、以下のようなJSONを出力してください。
 {
 "edit_shift": [
-    { "user_id": 1, "company_id": 1, "day": "2025-07-04", "start_time": "09:00", "finish_time": "17:00" },
-    { "user_id": 1, "company_id": 1, "day": "2025-07-08", "start_time": "10:00", "finish_time": "18:00" },
-    { "user_id": 2, "company_id": 1, "day": "2025-07-04", "start_time": "11:00", "finish_time": "19:00" }
+    { "user_id": 1, "company_id": 1, "day": "2025-07-04", "start_time": "09:00:00", "finish_time": "17:00:00" },
+    { "user_id": 1, "company_id": 1, "day": "2025-07-08", "start_time": "10:00:00", "finish_time": "18:00:00" },
+    { "user_id": 2, "company_id": 1, "day": "2025-07-04", "start_time": "11:00:00", "finish_time": "19:00:00" }
 ]
 }
     """
