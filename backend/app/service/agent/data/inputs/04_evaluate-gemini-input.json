@@ -1,0 +1,139 @@
+{
+    "company_info": {
+        "company_id": 1,
+        "open_time": "09:00",
+        "close_time": "22:00",
+        "rest_day": [
+            "2025-06-02",
+            "2025-06-09",
+            "2025-06-16"
+        ],
+        "labor_cost": 1200000,
+        "comment": "夏休み期間中の特別営業体制"
+    },
+    "company_member": [
+        {
+            "user_id": 101,
+            "name": "佐藤 太郎",
+            "evaluate": 4,
+            "position": "キッチン",
+            "experience": 2,
+            "hour_pay": 1200,
+            "edit_shift": [
+            {
+                "edit_shift_id": 201,
+                "day": "2025-06-21",
+                "start_time": "10:00",
+                "finish_time": "18:00"
+            },
+            {
+                "edit_shift_id": 202,
+                "day": "2025-06-22",
+                "start_time": "12:00",
+                "finish_time": "20:00"
+            },
+            {
+                "edit_shift_id": 203,
+                "day": "2025-06-23",
+                "start_time": "09:00",
+                "finish_time": "17:00"
+            }
+        ]
+        },
+        {
+            "user_id": 102,
+            "name": "山田 花子",
+            "evaluate": 5,
+            "position": "ホール",
+            "experience": 3,
+            "hour_pay": 1300,
+            "edit_shift": [
+            {
+                "edit_shift_id": 204,
+                "day": "2025-06-21",
+                "start_time": "11:00",
+                "finish_time": "19:00"
+            },
+            {
+                "edit_shift_id": 205,
+                "day": "2025-06-24",
+                "start_time": "14:00",
+                "finish_time": "22:00"
+            },
+            {
+                "edit_shift_id": 206,
+                "day": "2025-06-26",
+                "start_time": "10:00",
+                "finish_time": "18:00"
+            }
+        ]
+        },
+        {
+            "user_id": 103,
+            "name": "田中 一郎",
+            "evaluate": 3,
+            "position": "レジ",
+            "experience": 1,
+            "hour_pay": 1100,
+            "edit_shift": [
+            {
+                "edit_shift_id": 207,
+                "day": "2025-06-22",
+                "start_time": "09:00",
+                "finish_time": "17:00"
+            },
+            {
+                "edit_shift_id": 208,
+                "day": "2025-06-23",
+                "start_time": "13:00",
+                "finish_time": "21:00"
+            },
+            {
+                "edit_shift_id": 209,
+                "day": "2025-06-25",
+                "start_time": "08:00",
+                "finish_time": "16:00"
+            }
+            ]
+        }
+    ],
+    "evaluate_decision_shift": {
+        "decision_shift": [
+            {
+            "user_id": 101,
+            "day": "2025-05-15",
+            "start_time": "10:00",
+            "finish_time": "18:00"
+            },
+            {
+            "user_id": 102,
+            "day": "2025-05-16",
+            "start_time": "12:00",
+            "finish_time": "20:00"
+            },
+            {
+            "user_id": 103,
+            "day": "2025-05-17",
+            "start_time": "09:00",
+            "finish_time": "17:00"
+            }
+        ],
+        "evaluate_decision_shift": [
+            {
+            "start_day": "2025-05-01",
+            "finish_day": "2025-05-15",
+            "evaluate": 80
+            },
+            {
+            "start_day": "2025-05-16",
+            "finish_day": "2025-05-31",
+            "evaluate": 75
+            },
+            {
+            "start_day": "2025-06-01",
+            "finish_day": "2025-06-15",
+            "evaluate": 85
+            }
+        ]
+    }
+}
