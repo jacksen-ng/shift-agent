@@ -29,11 +29,11 @@ async def edit_company_info(request: Request, response: Response):
         company_info_usecase['EditCompanyInfoUseCase'](
             request_body['company_info']['company_id'],
             request_body['company_info']['company_name'],
-            request_body['company_info']['store_location'],
+            request_body['company_info']['store_locate'],
             request_body['company_info']['open_time'],
             request_body['company_info']['close_time'],
             request_body['company_info']['target_sales'],
-            request_body['company_info']['labor_cast'],
+            request_body['company_info']['labor_cost'],
             request_body['rest_day'],
             request_body['position']
         ).execute()
