@@ -143,9 +143,7 @@ const GeminiShift = () => {
         // 時刻形式が古い場合は修正
         if ((companyData.open_time && !companyData.open_time.includes(':00:00') && companyData.open_time.match(/^\d{2}:\d{2}$/)) ||
             (companyData.close_time && !companyData.close_time.includes(':00:00') && companyData.close_time.match(/^\d{2}:\d{2}$/))) {
-          
-          console.log('Detected old time format, updating before AI generation...');
-          
+                    
           // formatTimeToISO関数を定義
           const formatTimeToISO = (time: string): string => {
             if (!time) return '';
@@ -177,13 +175,11 @@ const GeminiShift = () => {
           };
           
           await apiClient.post('/company-info-edit', updateData);
-          console.log('Company time format updated successfully');
           
           // 少し待ってからAI生成を続行
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
       } catch (error) {
-        console.error('Failed to check/update company info:', error);
         // エラーが発生しても続行（バックエンドが対応している可能性があるため）
       }
       
@@ -194,7 +190,6 @@ const GeminiShift = () => {
         comment: comment || ''
       };
       
-      console.log('Sending request to /gemini-create-shift:', requestData);
       
       const response = await apiClient.post<{ edit_shift: GeneratedShift[] }>(
         '/gemini-create-shift', 
@@ -204,15 +199,12 @@ const GeminiShift = () => {
         }
       );
       
-      console.log('Gemini API Response:', response.data);
-      console.log('Generated shifts:', response.data.edit_shift);
+
       
       setGeneratedShifts(response.data.edit_shift || []);
       setShowPreview(true);
     } catch (error: any) {
       logError(error, 'GeminiShift.handleGenerate');
-      console.error('Error response:', error.response?.data);
-      console.error('Error status:', error.response?.status);
       const message = getErrorMessage(error);
       setErrorMessage(message);
     } finally {
