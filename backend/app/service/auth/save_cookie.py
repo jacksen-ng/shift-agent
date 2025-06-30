@@ -6,7 +6,7 @@ def save_id_token_cookie(response: Response, id_token: str, max_age: int = 3600)
         value=id_token,
         httponly=True,
         secure=True,
-        samesite="Lax",
+        samesite="None",
         max_age=max_age
     )
 
@@ -16,7 +16,7 @@ def save_refresh_token_cookie(response: Response, refresh_token: str, max_age: i
         value=refresh_token,
         httponly=True,
         secure=True,
-        samesite="Lax",
+        samesite="None",
         max_age=max_age
     )
 
