@@ -2,7 +2,9 @@ from ....domain.validation.objects.submitted_decision_edit_shift import submitte
 from ....domain.entity.gemini import gemini_entities
 from ...repository.crud.gemini_shift import gemini_shift_repository
 from ...repository.crud.edit_shift import edit_shift_repository
-# from ...service.agent.module import
+from ...service.agent.module.shift_creator import shift_creator_run
+from datetime import time
+import json
 
 class GeminiCreateShiftUseCase:
     def __init__(self, company_id, first_day, last_day, comment):
@@ -29,10 +31,11 @@ class GeminiCreateShiftUseCase:
             shift_rules_entity['last_day']
         )
 
-        # detail_shifst_rulesを使ってデータ整形（commentとかを用意）
+        detail_shifst_rules['company_info']['comment'] = shift_rules_entity['comment']
+        detail_shifst_rules['company_info']['open_time'] = detail_shifst_rules['company_info']['open_time'].strftime("%H:%M:%S")
+        detail_shifst_rules['company_info']['close_time'] = detail_shifst_rules['company_info']['close_time'].strftime("%H:%M:%S")
 
-        # # detail_shift_rules をgeminiに送信する
-        # edit_shift_gemini = detail_shift_rules
+        edit_shift_gemini = shift_creator_run(json.dumps(detail_shifst_rules))
 
         # edit_shift_repository['gemini_delete_shift'](
         #     shift_rules_entity['company_id'],
