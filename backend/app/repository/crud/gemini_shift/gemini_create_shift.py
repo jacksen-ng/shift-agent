@@ -7,30 +7,10 @@ def gemini_create_shift(
     company_id: int,
     first_day: str,
     last_day: str,
-    new_shift_data: Optional[List[Dict[str, str]]] = None
 ) -> Dict:
 
     with get_session_scope() as session:
-        # 1. delete old shift
-        session.query(SubmittedShift).filter(
-            SubmittedShift.company_id == company_id,
-            SubmittedShift.day >= datetime.strptime(first_day, '%Y-%m-%d').date(),
-            SubmittedShift.day <= datetime.strptime(last_day, '%Y-%m-%d').date()
-        ).delete(synchronize_session=False)
-
-        # 2. insert new shift
-        if new_shift_data:
-            for shift in new_shift_data:
-                new_shift = SubmittedShift(
-                    user_id=shift["user_id"],
-                    company_id=shift["company_id"],
-                    day=shift["day"],
-                    start_time=shift["start_time"],
-                    finish_time=shift["finish_time"]
-                )
-                session.add(new_shift)
-
-        # 3. company_info + rest_day
+        # 1. company_info + rest_day
         company_data = session.query(Company).filter(Company.company_id == company_id).first()
         rest_days = session.query(CompanyRestDay.rest_day).filter(
             CompanyRestDay.company_id == company_id,
@@ -47,7 +27,7 @@ def gemini_create_shift(
             "comment": company_data.comment
         } if company_data else {}
 
-        # 4. get all shifts
+        # 2. get all shifts
         all_shifts = session.query(
             SubmittedShift.submitted_shift_id,
             SubmittedShift.user_id,
@@ -71,7 +51,7 @@ def gemini_create_shift(
             }
             shift_map.setdefault(shift.user_id, []).append(shift_data)
 
-        # 5. user_profiles with embedded shifts
+        # 3. user_profiles with embedded shifts
         user_profiles = session.query(
             UserProfile.user_id,
             UserProfile.name,
