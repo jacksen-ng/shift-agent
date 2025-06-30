@@ -36,11 +36,12 @@ class GeminiCreateShiftUseCase:
         detail_shifst_rules['company_info']['close_time'] = detail_shifst_rules['company_info']['close_time'].strftime("%H:%M:%S")
 
         edit_shift_gemini = shift_creator_run(json.dumps(detail_shifst_rules))
+        edit_shift_gemini_json = json.loads(edit_shift_gemini)
 
-        # edit_shift_repository['gemini_delete_shift'](
-        #     shift_rules_entity['company_id'],
-        #     shift_rules_entity['first_day'],
-        #     shift_rules_entity['last_day']
-        # )
+        edit_shift_repository['gemini_delete_shift'](
+            shift_rules_entity['company_id'],
+            shift_rules_entity['first_day'],
+            shift_rules_entity['last_day']
+        )
 
-        # edit_shift_repository['insert_shift_request'](edit_shift_gemini['edit_shift'])
+        edit_shift_repository['insert_shift_request'](edit_shift_gemini_json['edit_shift'])
